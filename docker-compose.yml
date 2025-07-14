@@ -28,7 +28,7 @@ services:
       - JWT_SECRET_KEY=your-super-secret-jwt-key-change-in-production
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/versionintel
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - ./backend:/app
     restart: unless-stopped
@@ -38,9 +38,9 @@ services:
     depends_on:
       - backend
     environment:
-      - REACT_APP_API_URL=http://backend:8000
+      - REACT_APP_API_URL=https://versionintel.com/api
     ports:
-      - "3001:3000"
+      - "127.0.0.1:3001:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
