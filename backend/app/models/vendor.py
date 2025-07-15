@@ -11,12 +11,12 @@ class Vendor(db.Model):
     
     def to_dict(self):
         try:
-        return {
-            'id': self.id,
-            'name': self.name,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
+            return {
+                'id': self.id,
+                'name': self.name,
+                'created_at': self.created_at.isoformat() if self.created_at else None,
+                'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            }
         except Exception as e:
             # Fallback to basic data if there's an issue
             return {

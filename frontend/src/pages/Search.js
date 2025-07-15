@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
 import { endpoints } from '../services/api';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 
 export default function Search() {
   const [query, setQuery] = useState('');
@@ -61,7 +62,9 @@ export default function Search() {
                               <div className="text-sm text-blue-600 mb-1">Category: {p.category}</div>
                             )}
                             {p.description && (
-                              <div className="text-sm text-gray-600 mb-2">{p.description}</div>
+                              <div className="text-sm mb-2">
+                                <MarkdownRenderer content={p.description} />
+                              </div>
                             )}
                             {/* Detection Methods Table */}
                             {p.detection_methods && p.detection_methods.length > 0 && (
@@ -153,7 +156,9 @@ export default function Search() {
                         <div className="text-sm text-blue-600 mb-1">Category: {p.category}</div>
                       )}
                       {p.description && (
-                        <div className="text-sm text-gray-600 mb-2">{p.description}</div>
+                        <div className="text-sm mb-2">
+                          <MarkdownRenderer content={p.description} />
+                        </div>
                       )}
                       {/* Detection Methods Table */}
                       {p.detection_methods && p.detection_methods.length > 0 && (

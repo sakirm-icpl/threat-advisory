@@ -12,9 +12,6 @@ RUN pip install -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-# Set Python path to include the current directory
-ENV PYTHONPATH=/app
-
 # Expose port
 EXPOSE 5000
 

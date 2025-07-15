@@ -15,16 +15,16 @@ class Product(db.Model):
     
     def to_dict(self):
         try:
-        return {
-            'id': self.id,
-            'name': self.name,
+            return {
+                'id': self.id,
+                'name': self.name,
                 'category': self.category,
                 'description': self.description,
-            'vendor_id': self.vendor_id,
-            'vendor_name': self.vendor.name if self.vendor else None,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
+                'vendor_id': self.vendor_id,
+                'vendor_name': self.vendor.name if self.vendor else None,
+                'created_at': self.created_at.isoformat() if self.created_at else None,
+                'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            }
         except Exception as e:
             # Fallback to basic data if there's an issue with relationships
             return {

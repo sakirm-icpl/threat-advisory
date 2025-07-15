@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+if (!process.env.REACT_APP_API_URL) {
+  throw new Error('REACT_APP_API_URL is not set. Please set it in your .env file or docker-compose.');
+}
+
 export const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
+  baseURL: process.env.REACT_APP_API_URL,
   timeout: 10000,
 });
 
@@ -45,7 +49,7 @@ api.interceptors.response.use(
         }
 
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/auth/refresh`,
+          `${process.env.REACT_APP_API_URL}/auth/refresh`,
           {},
           {
             headers: { Authorization: `Bearer ${refreshToken}` }

@@ -10,3 +10,4 @@ flasgger==0.9.7.1
 prometheus-client==0.17.1
 python-docx
 reportlab
+Flask

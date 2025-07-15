@@ -28,70 +28,70 @@ def search_all():
 
         # Search vendors
         if search_type in ['all', 'vendor']:
-        vendors = Vendor.query.filter(
-            Vendor.name.ilike(f'%{query}%')
-        ).all()
+            vendors = Vendor.query.filter(
+                Vendor.name.ilike(f'%{query}%')
+            ).all()
             
-        for vendor in vendors:
-            products = Product.query.filter_by(vendor_id=vendor.id).all()
-            product_dicts = []
-            for product in products:
-                pdict = product.to_dict()
-                methods = DetectionMethod.query.filter_by(product_id=product.id).all()
-                guides = SetupGuide.query.filter_by(product_id=product.id).all()
-                pdict['detection_methods'] = [m.to_dict() for m in methods]
-                pdict['setup_guides'] = [g.to_dict() for g in guides]
-                product_dicts.append(pdict)
-                vendor_product_ids.add(product.id)
-            vdict = vendor.to_dict()
-            vdict['products'] = product_dicts
-            vendor_results.append(vdict)
+            for vendor in vendors:
+                products = Product.query.filter_by(vendor_id=vendor.id).all()
+                product_dicts = []
+                for product in products:
+                    pdict = product.to_dict()
+                    methods = DetectionMethod.query.filter_by(product_id=product.id).all()
+                    guides = SetupGuide.query.filter_by(product_id=product.id).all()
+                    pdict['detection_methods'] = [m.to_dict() for m in methods]
+                    pdict['setup_guides'] = [g.to_dict() for g in guides]
+                    product_dicts.append(pdict)
+                    vendor_product_ids.add(product.id)
+                vdict = vendor.to_dict()
+                vdict['products'] = product_dicts
+                vendor_results.append(vdict)
 
         # Search products (not already included under matched vendors)
         if search_type in ['all', 'product']:
-        products = Product.query.filter(
+            products = Product.query.filter(
                 or_(
                     Product.name.ilike(f'%{query}%'),
                     Product.category.ilike(f'%{query}%'),
                     Product.description.ilike(f'%{query}%')
                 )
-        ).all()
+            ).all()
             # Deduplicate products by ID
             product_dict = {}
-        for product in products:
-            if product.id in vendor_product_ids:
-                continue  # skip products already included under vendors
+            for product in products:
+                if product.id in vendor_product_ids:
+                    continue  # skip products already included under vendors
                 if product.id not in product_dict:
                     product_data = product.to_dict()
-            methods = DetectionMethod.query.filter_by(product_id=product.id).all()
-            guides = SetupGuide.query.filter_by(product_id=product.id).all()
+                    methods = DetectionMethod.query.filter_by(product_id=product.id).all()
+                    guides = SetupGuide.query.filter_by(product_id=product.id).all()
                     product_data['detection_methods'] = [m.to_dict() for m in methods]
                     product_data['setup_guides'] = [g.to_dict() for g in guides]
                     product_dict[product.id] = product_data
-            product_ids.add(product.id)
+                product_ids.add(product.id)
             product_results = list(product_dict.values())
 
         # Search detection methods (by name, technique, regex, etc.) - only if searching all
         if search_type == 'all':
-        methods = DetectionMethod.query.filter(
-            or_(
-                DetectionMethod.name.ilike(f'%{query}%'),
-                DetectionMethod.technique.ilike(f'%{query}%'),
-                DetectionMethod.regex_python.ilike(f'%{query}%'),
-                DetectionMethod.regex_ruby.ilike(f'%{query}%'),
-                DetectionMethod.curl_command.ilike(f'%{query}%'),
-                DetectionMethod.expected_response.ilike(f'%{query}%')
-            )
-        ).all()
-        # Exclude methods already included under matched products
-        method_results = [m.to_dict() for m in methods if m.product_id not in product_ids and m.product_id not in vendor_product_ids]
+            methods = DetectionMethod.query.filter(
+                or_(
+                    DetectionMethod.name.ilike(f'%{query}%'),
+                    DetectionMethod.technique.ilike(f'%{query}%'),
+                    DetectionMethod.regex_python.ilike(f'%{query}%'),
+                    DetectionMethod.regex_ruby.ilike(f'%{query}%'),
+                    DetectionMethod.curl_command.ilike(f'%{query}%'),
+                    DetectionMethod.expected_response.ilike(f'%{query}%')
+                )
+            ).all()
+            # Exclude methods already included under matched products
+            method_results = [m.to_dict() for m in methods if m.product_id not in product_ids and m.product_id not in vendor_product_ids]
 
             # Search setup guides (by instructions) - only if searching all
-        guides = SetupGuide.query.filter(
-            SetupGuide.instructions.ilike(f'%{query}%')
-        ).all()
-        # Exclude guides already included under matched products
-        guide_results = [g.to_dict() for g in guides if g.product_id not in product_ids and g.product_id not in vendor_product_ids]
+            guides = SetupGuide.query.filter(
+                SetupGuide.instructions.ilike(f'%{query}%')
+            ).all()
+            # Exclude guides already included under matched products
+            guide_results = [g.to_dict() for g in guides if g.product_id not in product_ids and g.product_id not in vendor_product_ids]
 
         return jsonify({
             'vendors': vendor_results,

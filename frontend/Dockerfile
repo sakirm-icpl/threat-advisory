@@ -1,11 +1,15 @@
-FROM node:18-alpine AS build
+# Build stage
+FROM node:18-alpine as build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN chmod -R 755 node_modules/.bin && npm run build
+RUN npm run build
 
-FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+# Production stage
+FROM node:18-alpine
+WORKDIR /app
+RUN npm install -g serve
+COPY --from=build /app/build ./build
 EXPOSE 3000
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["serve", "-s", "build", "-l", "3000"]

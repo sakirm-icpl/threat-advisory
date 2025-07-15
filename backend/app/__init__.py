@@ -16,7 +16,7 @@ swagger = Swagger()
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    CORS(app, origins=["https://versionintel.com"], supports_credentials=True)
+    CORS(app, origins=["http://172.17.14.65:3000", "https://versionintel.com"], supports_credentials=True)
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
@@ -64,9 +64,9 @@ def create_app():
         from app.models.user import User
         if not User.query.filter_by(username="admin").first():
             admin = User(username="admin", email="admin@example.com", role="admin")
-            admin.set_password("admin123")
+            admin.set_password("Admin@1234")
             db.session.add(admin)
             db.session.commit()
-            print("Default admin user created: admin / admin123")
+            print("Default admin user created: admin / Admin@1234")
 
     return app

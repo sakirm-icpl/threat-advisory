@@ -11,14 +11,14 @@ class SetupGuide(db.Model):
     
     def to_dict(self):
         try:
-        return {
-            'id': self.id,
-            'product_id': self.product_id,
-            'product_name': self.product.name if self.product else None,
-            'instructions': self.instructions,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
+            return {
+                'id': self.id,
+                'product_id': self.product_id,
+                'product_name': self.product.name if self.product else None,
+                'instructions': self.instructions,
+                'created_at': self.created_at.isoformat() if self.created_at else None,
+                'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            }
         except Exception as e:
             # Fallback to basic data if there's an issue with relationships
             return {

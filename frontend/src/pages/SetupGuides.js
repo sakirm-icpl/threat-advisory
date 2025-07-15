@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
+import MarkdownRenderer from "../components/MarkdownRenderer";
 
 export default function SetupGuides() {
   const [guides, setGuides] = useState([]);
@@ -125,15 +126,29 @@ export default function SetupGuides() {
           </select>
         </div>
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Instructions *</label>
+          <label className="block text-sm font-medium mb-1">Instructions * (Markdown supported)</label>
           <textarea
-            className="w-full border px-3 py-2 rounded h-20"
+            className="w-full border px-3 py-2 rounded h-20 font-mono text-sm"
             name="instructions"
             value={form.instructions}
             onChange={handleFormChange}
-            placeholder="Setup instructions (markdown supported)"
+            placeholder={`Setup instructions (markdown supported)
+
+Example:
+# Setup Steps
+1. Install dependencies
+2. Configure settings
+3. Run the application
+
+**Important:** Make sure to...`}
             required
           />
+          {form.instructions && (
+            <div className="mt-2 p-2 bg-gray-50 rounded border">
+              <div className="text-xs text-gray-500 mb-1">Preview:</div>
+              <MarkdownRenderer content={form.instructions} />
+            </div>
+          )}
         </div>
         <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" type="submit">Add</button>
       </form>
@@ -187,21 +202,32 @@ export default function SetupGuides() {
                   </td>
                   <td className="p-2 max-w-md">
                     {editingId === g.id ? (
-                      <textarea
-                        className="border px-2 py-1 w-full"
-                        name="instructions"
-                        value={editingForm.instructions}
-                        onChange={handleEditChange}
-                        rows={4}
-                      />
+                      <div>
+                        <textarea
+                          className="border px-2 py-1 w-full font-mono text-sm"
+                          name="instructions"
+                          value={editingForm.instructions}
+                          onChange={handleEditChange}
+                          rows={4}
+                          placeholder="Markdown supported..."
+                        />
+                        {editingForm.instructions && (
+                          <div className="mt-1 p-2 bg-gray-50 rounded border">
+                            <div className="text-xs text-gray-500 mb-1">Preview:</div>
+                            <MarkdownRenderer content={editingForm.instructions} />
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <>
-                        <div className="whitespace-pre-line">
-                          {isExpanded || g.instructions.length < 120
-                            ? g.instructions
-                            : g.instructions.slice(0, 120) + "..."}
+                        <div>
+                          <MarkdownRenderer 
+                            content={isExpanded || g.instructions.length < 200
+                              ? g.instructions
+                              : g.instructions.slice(0, 200) + "..."} 
+                          />
                         </div>
-                        {g.instructions.length > 120 && (
+                        {g.instructions.length > 200 && (
                           <button
                             className="text-blue-600 text-xs mt-1 underline"
                             onClick={() => setExpanded(e => ({ ...e, [g.id]: !isExpanded }))}

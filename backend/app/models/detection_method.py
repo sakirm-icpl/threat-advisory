@@ -17,20 +17,20 @@ class DetectionMethod(db.Model):
     
     def to_dict(self):
         try:
-        return {
-            'id': self.id,
-            'product_id': self.product_id,
-            'product_name': self.product.name if self.product else None,
-            'name': self.name,
-            'technique': self.technique,
-            'regex_python': self.regex_python,
-            'regex_ruby': self.regex_ruby,
-            'curl_command': self.curl_command,
-            'expected_response': self.expected_response,
-            'requires_auth': self.requires_auth,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
+            return {
+                'id': self.id,
+                'product_id': self.product_id,
+                'product_name': self.product.name if self.product else None,
+                'name': self.name,
+                'technique': self.technique,
+                'regex_python': self.regex_python,
+                'regex_ruby': self.regex_ruby,
+                'curl_command': self.curl_command,
+                'expected_response': self.expected_response,
+                'requires_auth': self.requires_auth,
+                'created_at': self.created_at.isoformat() if self.created_at else None,
+                'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            }
         except Exception as e:
             # Fallback to basic data if there's an issue with relationships
             return {

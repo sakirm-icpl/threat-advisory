@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
+import MarkdownRenderer from "../components/MarkdownRenderer";
+import Modal from "../components/Modal";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -15,6 +17,7 @@ export default function Products() {
   const [editingVendorId, setEditingVendorId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [modalContent, setModalContent] = useState({ isOpen: false, title: "", content: "" });
 
   useEffect(() => {
     fetchVendors();
@@ -141,13 +144,27 @@ export default function Products() {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
+          <label className="block text-sm font-medium mb-1">Description (Markdown supported)</label>
           <textarea
-            className="w-full border px-3 py-2 rounded h-20"
+            className="w-full border px-3 py-2 rounded h-32 font-mono text-sm"
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder="Describe what this product does, its features, etc."
+            placeholder={`Describe what this product does, its features, etc.
+
+You can use Markdown formatting:
+**Bold text**
+*Italic text*
+- Bullet points
+1. Numbered lists
+\`\`\`code blocks\`\`\`
+[Links](https://example.com)`}
           />
+          {description && (
+            <div className="mt-2 p-3 bg-gray-50 rounded border">
+              <div className="text-xs text-gray-500 mb-2">Preview:</div>
+              <MarkdownRenderer content={description} />
+            </div>
+          )}
         </div>
       </form>
       {error && <div className="text-red-600 mb-2 p-3 bg-red-50 rounded border">{error}</div>}
@@ -216,19 +233,44 @@ export default function Products() {
                     </td>
                     <td className="p-3">
                       {editingId === p.id ? (
-                        <textarea
-                          className="w-full border px-2 py-1 rounded h-20 text-sm"
-                          value={editingDescription}
-                          onChange={e => setEditingDescription(e.target.value)}
-                        />
+                        <div>
+                          <textarea
+                            className="w-full border px-2 py-1 rounded h-20 text-sm font-mono"
+                            value={editingDescription}
+                            onChange={e => setEditingDescription(e.target.value)}
+                            placeholder="Markdown supported..."
+                          />
+                          {editingDescription && (
+                            <div className="mt-1 p-2 bg-gray-50 rounded border">
+                              <div className="text-xs text-gray-500 mb-1">Preview:</div>
+                              <MarkdownRenderer content={editingDescription} />
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         <div className="max-w-xs">
                           {p.description ? (
-                            <div className="text-sm text-gray-700">
-                              {p.description.length > 100 
-                                ? p.description.substring(0, 100) + "..." 
-                                : p.description
-                              }
+                            <div className="text-sm">
+                              <MarkdownRenderer 
+                                content={p.description.length > 200 
+                                  ? p.description.substring(0, 200) + "..." 
+                                  : p.description
+                                } 
+                              />
+                              {p.description.length > 200 && (
+                                <button 
+                                  className="text-blue-600 text-xs mt-1 underline"
+                                  onClick={() => {
+                                    setModalContent({
+                                      isOpen: true,
+                                      title: `${p.name} - Full Description`,
+                                      content: p.description
+                                    });
+                                  }}
+                                >
+                                  Show More
+                                </button>
+                              )}
                             </div>
                           ) : (
                             <span className="text-gray-400 text-xs">No description</span>
@@ -261,6 +303,14 @@ export default function Products() {
           )}
         </div>
       )}
+      
+      <Modal
+        isOpen={modalContent.isOpen}
+        onClose={() => setModalContent({ isOpen: false, title: "", content: "" })}
+        title={modalContent.title}
+      >
+        <MarkdownRenderer content={modalContent.content} />
+      </Modal>
     </div>
   );
 } 
