@@ -126,12 +126,20 @@ export const endpoints = {
   restoreBackup: (data) => api.post('/bulk/restore', data),
   exportAllData: (format) => api.get('/bulk/export-all', { params: { format } }),
   
-  // Users
+  // Enhanced Bulk Operations
+  cleanupData: (data) => api.post('/bulk/cleanup', data),
+  exportSelective: (data) => api.post('/bulk/export-selective', data),
+  importPreview: (data) => api.post('/bulk/import-preview', data),
+  bulkDelete: (data) => api.post('/bulk/bulk-delete', data),
+  exportVendorData: (vendorId, format) => api.get(`/bulk/export-vendor/${vendorId}`, { params: { format } }),
+  exportAllComplete: (format) => api.get('/bulk/export-all-complete', { params: { format } }),
+  
+  // Users (Admin only)
   getUsers: () => api.get('/auth/users'),
   createUser: (data) => api.post('/auth/users', data),
   updateUser: (id, data) => api.put(`/auth/users/${id}`, data),
   deleteUser: (id) => api.delete(`/auth/users/${id}`),
-  resetUserPassword: (id, data) => api.post(`/auth/users/${id}/reset-password`, data),
+  resetUserPassword: (data) => api.post('/auth/reset-password', data),
   
   // Health & Metrics
   health: () => api.get('/health'),

@@ -8,96 +8,89 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+    setError('');
     const success = await login(username, password);
     if (success) {
       navigate('/dashboard');
+    } else {
+      setError('Invalid username or password.');
     }
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-16 flex items-center justify-center">
-            <img src="/infologo.png" alt="Infopercept Logo" className="h-16 w-auto object-contain" />
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Infopercept VersionIntel
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Infopercept Version Detection Research Platform
-          </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+      <div className="card max-w-md w-full p-8 shadow-xl">
+        <div className="flex flex-col items-center mb-6">
+          <img src="/infologo.png" alt="Infopercept Logo" className="h-16 w-auto object-contain mb-2" />
+          <h2 className="text-2xl font-bold text-gray-900 text-center">Infopercept VersionIntel</h2>
+          <p className="text-sm text-gray-500 text-center mt-1">Infopercept Version Detection Research Platform</p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="username" className="sr-only">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                className="input-field rounded-t-lg rounded-b-none"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div className="relative">
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                required
-                className="input-field rounded-t-none rounded-b-lg pr-10"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <EyeIcon className="h-5 w-5 text-gray-400" />
-                )}
-              </button>
-            </div>
-          </div>
-
+        <form className="space-y-5" onSubmit={handleSubmit} autoComplete="off">
           <div>
+            <label htmlFor="username" className="label-text mb-1">Username</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              required
+              className="input input-bordered"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <div className="relative">
+            <label htmlFor="password" className="label-text mb-1">Password</label>
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              className="input input-bordered pr-10"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
             <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              tabIndex={-1}
+              onClick={() => setShowPassword(!showPassword)}
             >
-              {loading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              {showPassword ? (
+                <EyeSlashIcon className="h-5 w-5 text-gray-400" />
               ) : (
-                'Sign in'
+                <EyeIcon className="h-5 w-5 text-gray-400" />
               )}
             </button>
           </div>
-
-          <div className="text-center">
-          </div>
+          {error && (
+            <div className="alert alert-warning text-center text-sm mb-2">{error}</div>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary w-full flex justify-center items-center"
+          >
+            {loading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            ) : (
+              'Sign in'
+            )}
+          </button>
         </form>
+        <div className="mt-8 text-xs text-gray-400 text-center select-none">
+          &copy; {new Date().getFullYear()} Infopercept. All rights reserved.
+        </div>
       </div>
     </div>
   );

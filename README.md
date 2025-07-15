@@ -4,6 +4,38 @@ A comprehensive platform for managing internal version detection research for va
 
 ---
 
+## 🚀 Quick Start (One-Command Deployment)
+
+### Prerequisites
+- Docker and Docker Compose installed
+- Git
+
+### Deploy in 3 Steps
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd versionintel
+
+# 2. Run the deployment script (recommended)
+./deploy.sh
+
+# OR manually:
+# docker-compose up --build -d
+```
+
+### Access the Application
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/health
+
+### Default Login
+- **Username**: `admin`
+- **Password**: `admin123`
+- **⚠️ Important**: Change the default password after first login!
+
+---
+
 ## 🚀 Features
 
 - **Vendor Management**: Add, update, delete, and list vendors
@@ -12,7 +44,12 @@ A comprehensive platform for managing internal version detection research for va
 - **Setup Guides**: Document setup instructions with Docker images and VM requirements
 - **Regex Testing**: Test Python and Ruby regex patterns against sample outputs
 - **Authentication & Authorization**: JWT-based authentication with role-based access control
-- **Bulk Operations**: Import/export data in JSON/CSV formats with backup/restore
+- **Bulk Operations**: Comprehensive data management tools including:
+  - Import/export data in JSON/CSV/DOCX/PDF formats
+  - Backup/restore functionality
+  - Data cleanup tools for orphaned records
+  - Bulk delete operations with safety confirmations
+  - Import preview before confirming changes
 - **Monitoring**: Prometheus metrics and health checks
 - **API Documentation**: Interactive Swagger/OpenAPI documentation
 - **Modern Frontend**: React-based web interface with responsive design
@@ -25,110 +62,98 @@ A comprehensive platform for managing internal version detection research for va
 ```
 versionintel/
 ├── backend/                 # Flask API Server (port 8000)
-├── frontend/                # React Web Application (port 3001)
+├── frontend/                # React Web Application (port 3000)
 ├── db/                      # Database initialization
 ├── docker-compose.yml       # Service orchestration
+├── deploy.sh               # Automated deployment script
 └── README.md
 ```
 
 ---
 
-## ⚡ Quick Start (Development)
+## 📋 Manual Deployment
 
-### Prerequisites
-- Docker and Docker Compose
-- Git
+If you prefer manual deployment or need to customize:
 
-### Installation (Development)
+### 1. Clone and Setup
 ```bash
 git clone <repository-url>
 cd versionintel
-docker-compose up --build
 ```
 
-### Access (Development)
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
+### 2. Configure Environment (Optional)
+The deployment script automatically creates the necessary environment files. If you need to customize:
+
+**Frontend Environment** (`frontend/.env`):
+```bash
+REACT_APP_API_URL=http://localhost:8000
+```
+
+**Backend Environment** (in `docker-compose.yml`):
+```yaml
+environment:
+  - JWT_SECRET_KEY=your-secure-secret-key
+  - DATABASE_URL=postgresql://postgres:postgres@db:5432/versionintel
+```
+
+### 3. Build and Start
+```bash
+# Build and start all services
+docker-compose up --build -d
+
+# Check status
+docker-compose ps
+
+# View logs
+docker-compose logs -f
+```
 
 ---
 
-## 🚀 Production Deployment Guide (Ubuntu)
+## 🚀 Production Deployment
 
-### Prerequisites
-- Ubuntu server (20.04+ recommended)
-- Docker and Docker Compose installed
-- (Optional) Domain name for HTTPS
-
-### 1. Clone the repository
+### 1. Server Setup
 ```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+```
+
+### 2. Deploy Application
+```bash
+# Clone repository
 git clone <repository-url>
 cd versionintel
-```
 
-### 2. Configure Frontend Environment
-
-**Important:** Create a `.env` file in the `frontend/` directory with the correct backend API URL:
-
-```bash
-# Create the .env file
+# Update frontend environment for production
 echo "REACT_APP_API_URL=http://your-server-ip:8000" > frontend/.env
-```
 
-Replace `your-server-ip` with your actual server IP address or domain name.
-
-### 3. Update Environment Variables (Optional)
-
-Edit `docker-compose.yml` as needed:
-- **Backend runs on port 8000**
-- **Frontend runs on port 3000**
-- Set strong secrets for JWT and database
-
-Example (in `docker-compose.yml`):
-```yaml
-services:
-  backend:
-    environment:
-      - FLASK_ENV=production
-      - JWT_SECRET_KEY=your-secure-secret-key
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/versionintel
-    ports:
-      - "8000:5000"
-  frontend:
-    ports:
-      - "3000:3000"
-  db:
-    image: postgres:13
-    environment:
-      POSTGRES_DB: versionintel
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-```
-
-### 4. Build and Start Services
-
-**Option A: Automated Deployment (Recommended)**
-```bash
-chmod +x deploy.sh
+# Deploy
 ./deploy.sh
 ```
 
-**Option B: Manual Deployment**
+### 3. Configure Firewall (Optional)
 ```bash
-sudo docker-compose up -d --build
+# Allow necessary ports
+sudo ufw allow 3000  # Frontend
+sudo ufw allow 8000  # Backend
+sudo ufw allow 22    # SSH
+sudo ufw enable
 ```
 
-### 5. Access the Application
-- **Frontend**: http://your-server-ip:3000
-- **Backend API**: http://your-server-ip:8000
-- **API Documentation**: http://your-server-ip:8000/docs
-- **Health Check**: http://your-server-ip:8000/health
-- **Metrics**: http://your-server-ip:8000/metrics
+### 4. Set Up Domain and HTTPS (Recommended)
+Use Nginx as a reverse proxy with Let's Encrypt for HTTPS:
 
-### 6. (Recommended) Set Up Nginx as a Reverse Proxy
-- Use Nginx to route your domain to the frontend/backend and enable HTTPS (Let's Encrypt).
-- Example Nginx config:
 ```nginx
 server {
     listen 80;
@@ -151,60 +176,99 @@ server {
     }
 }
 ```
-- Use Certbot for HTTPS: https://certbot.eff.org/
 
-### 7. First-Time Login
-- **Username**: `admin`
-- **Password**: `admin123`
-- **Important:** Change the default admin password after first login for security.
+---
+
+## 🔧 Management Commands
+
+```bash
+# View service status
+docker-compose ps
+
+# View logs
+docker-compose logs -f [service_name]
+
+# Restart services
+docker-compose restart
+
+# Stop services
+docker-compose down
+
+# Update and rebuild
+docker-compose up --build -d
+
+# Access backend shell
+docker-compose exec backend bash
+
+# Access database
+docker-compose exec db psql -U postgres -d versionintel
+```
 
 ---
 
 ## ⚠️ Troubleshooting
 
-- **Frontend can't reach backend?**
-  - Make sure you've created the `frontend/.env` file with the correct `REACT_APP_API_URL`.
-  - The URL should point to your backend: `http://your-server-ip:8000`.
-  - Ensure backend is running and port 8000 is open.
-- **Port already in use?**
-  - Change the exposed port in `docker-compose.yml` (e.g., `8001:8000` for backend, `3002:3000` for frontend).
-- **CORS errors?**
-  - Ensure backend CORS config allows your frontend domain or IP.
-- **Database connection issues?**
-  - Check `DATABASE_URL` and ensure the database service is healthy.
+### Common Issues
+
+**Frontend can't reach backend?**
+- Check if `frontend/.env` has correct `REACT_APP_API_URL`
+- Ensure backend is running: `docker-compose ps`
+- Check backend logs: `docker-compose logs backend`
+
+**Port already in use?**
+- Change ports in `docker-compose.yml`
+- Check what's using the port: `sudo netstat -tulpn | grep :8000`
+
+**Database connection issues?**
+- Check database logs: `docker-compose logs db`
+- Ensure database is healthy: `docker-compose ps`
+
+**Permission denied on deploy.sh?**
+```bash
+chmod +x deploy.sh
+```
+
+### Getting Help
+1. Check service logs: `docker-compose logs -f`
+2. Verify all services are running: `docker-compose ps`
+3. Check health endpoints: http://localhost:8000/health
+4. Review API documentation: http://localhost:8000/docs
 
 ---
 
 ## 📚 API Documentation
 
-- **API Docs**: `/docs` on backend (e.g., http://your-server-ip:8000/docs)
-- **Health**: `/health`
-- **Metrics**: `/metrics`
+- **Interactive API Docs**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/health
+- **Metrics**: http://localhost:8000/metrics
 
 ---
 
 ## 🔐 Security
 
-- Set strong secrets for JWT and database in production.
-- Change the default admin password after first login.
-- Use HTTPS in production.
-
-## 📝 Markdown Support
-
-VersionIntel supports Markdown formatting for product descriptions and setup guide instructions. This allows you to create rich, well-formatted content with:
-
-- **Bold** and *italic* text
-- Headers and subheaders
-- Bullet points and numbered lists
-- Code blocks and inline code
-- Links and tables
-- Blockquotes
-
-See `MARKDOWN_GUIDE.md` for detailed usage instructions and examples.
+- Change default admin password after first login
+- Use strong JWT secrets in production
+- Enable HTTPS in production
+- Regularly update dependencies
 
 ---
 
-## 🆘 Support
+## 📝 Markdown Support
 
-- Create an issue on GitHub
-- Check the API documentation at `/docs` 
+VersionIntel supports Markdown formatting for rich content creation. See `MARKDOWN_GUIDE.md` for detailed usage instructions.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details. 

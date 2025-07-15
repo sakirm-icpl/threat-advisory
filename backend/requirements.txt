@@ -8,6 +8,5 @@ Flask-Bcrypt==1.0.1
 flask-swagger-ui==4.11.1
 flasgger==0.9.7.1
 prometheus-client==0.17.1
-python-docx
-reportlab
-Flask
+python-docx==0.8.11
+reportlab==4.0.4

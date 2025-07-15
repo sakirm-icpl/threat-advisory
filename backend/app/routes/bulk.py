@@ -15,8 +15,287 @@ from docx import Document
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import os
+from sqlalchemy import func, and_, or_
+from collections import defaultdict
 
 bp = Blueprint('bulk', __name__, url_prefix='/bulk')
+
+
+
+
+
+@bp.route('/cleanup', methods=['POST'])
+@require_admin
+def cleanup_data():
+    """Clean up orphaned records and fix data integrity issues"""
+    try:
+        data = request.json or {}
+        cleanup_types = data.get('types', ['orphaned_products', 'orphaned_methods', 'orphaned_guides', 'empty_vendors'])
+        
+        results = {}
+        
+        if 'orphaned_products' in cleanup_types:
+            orphaned_count = Product.query.filter(~Product.vendor_id.in_(
+                db.session.query(Vendor.id)
+            )).delete()
+            results['orphaned_products_removed'] = orphaned_count
+        
+        if 'orphaned_methods' in cleanup_types:
+            orphaned_count = DetectionMethod.query.filter(~DetectionMethod.product_id.in_(
+                db.session.query(Product.id)
+            )).delete()
+            results['orphaned_methods_removed'] = orphaned_count
+        
+        if 'orphaned_guides' in cleanup_types:
+            orphaned_count = SetupGuide.query.filter(~SetupGuide.product_id.in_(
+                db.session.query(Product.id)
+            )).delete()
+            results['orphaned_guides_removed'] = orphaned_count
+        
+        if 'empty_vendors' in cleanup_types:
+            empty_count = Vendor.query.filter(~Vendor.id.in_(
+                db.session.query(Product.vendor_id)
+            )).delete()
+            results['empty_vendors_removed'] = empty_count
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Cleanup completed',
+            'results': results
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@bp.route('/export-selective', methods=['POST'])
+@require_admin
+def export_selective():
+    """Export specific data types with filters"""
+    try:
+        data = request.json or {}
+        export_types = data.get('types', ['vendors', 'products', 'methods', 'guides'])
+        format_type = data.get('format', 'json')
+        filters = data.get('filters', {})
+        
+        export_data = {}
+        
+        if 'vendors' in export_types:
+            query = Vendor.query
+            if 'vendor_ids' in filters:
+                query = query.filter(Vendor.id.in_(filters['vendor_ids']))
+            if 'vendor_names' in filters:
+                query = query.filter(Vendor.name.in_(filters['vendor_names']))
+            export_data['vendors'] = [vendor.to_dict() for vendor in query.all()]
+        
+        if 'products' in export_types:
+            query = Product.query
+            if 'vendor_ids' in filters:
+                query = query.filter(Product.vendor_id.in_(filters['vendor_ids']))
+            if 'product_ids' in filters:
+                query = query.filter(Product.id.in_(filters['product_ids']))
+            if 'categories' in filters:
+                query = query.filter(Product.category.in_(filters['categories']))
+            export_data['products'] = [product.to_dict() for product in query.all()]
+        
+        if 'methods' in export_types:
+            query = DetectionMethod.query
+            if 'product_ids' in filters:
+                query = query.filter(DetectionMethod.product_id.in_(filters['product_ids']))
+            if 'method_ids' in filters:
+                query = query.filter(DetectionMethod.id.in_(filters['method_ids']))
+            export_data['methods'] = [method.to_dict() for method in query.all()]
+        
+        if 'guides' in export_types:
+            query = SetupGuide.query
+            if 'product_ids' in filters:
+                query = query.filter(SetupGuide.product_id.in_(filters['product_ids']))
+            if 'guide_ids' in filters:
+                query = query.filter(SetupGuide.id.in_(filters['guide_ids']))
+            export_data['guides'] = [guide.to_dict() for guide in query.all()]
+        
+        export_data['exported_at'] = datetime.utcnow().isoformat()
+        export_data['filters_applied'] = filters
+        
+        if format_type == 'json':
+            return jsonify(export_data), 200
+        elif format_type == 'csv':
+            # Create CSV with selected data
+            output = io.StringIO()
+            writer = csv.writer(output)
+            
+            if 'vendors' in export_data:
+                writer.writerow(['Type', 'ID', 'Name', 'Created At'])
+                for vendor in export_data['vendors']:
+                    writer.writerow(['Vendor', vendor['id'], vendor['name'], vendor['created_at']])
+            
+            if 'products' in export_data:
+                for product in export_data['products']:
+                    writer.writerow(['Product', product['id'], product['name'], product['category'], product['vendor_name']])
+            
+            output.seek(0)
+            return send_file(
+                io.BytesIO(output.getvalue().encode('utf-8')),
+                mimetype='text/csv',
+                as_attachment=True,
+                download_name=f'versionintel_selective_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+            )
+        else:
+            return jsonify({'error': 'Unsupported format'}), 400
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@bp.route('/import-preview', methods=['POST'])
+@require_admin
+def import_preview():
+    """Preview what will be imported without actually importing"""
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        preview = {
+            'vendors': {'new': 0, 'existing': 0, 'details': []},
+            'products': {'new': 0, 'existing': 0, 'details': []},
+            'methods': {'new': 0, 'existing': 0, 'details': []},
+            'guides': {'new': 0, 'existing': 0, 'details': []},
+            'warnings': []
+        }
+        
+        # Preview vendors
+        if 'vendors' in data:
+            for vendor_data in data['vendors']:
+                existing = Vendor.query.filter_by(name=vendor_data['name']).first()
+                if existing:
+                    preview['vendors']['existing'] += 1
+                    preview['vendors']['details'].append({
+                        'name': vendor_data['name'],
+                        'status': 'existing',
+                        'existing_id': existing.id
+                    })
+                else:
+                    preview['vendors']['new'] += 1
+                    preview['vendors']['details'].append({
+                        'name': vendor_data['name'],
+                        'status': 'new'
+                    })
+        
+        # Preview products
+        if 'products' in data:
+            for product_data in data['products']:
+                existing = Product.query.filter_by(name=product_data['name']).first()
+                if existing:
+                    preview['products']['existing'] += 1
+                    preview['products']['details'].append({
+                        'name': product_data['name'],
+                        'status': 'existing',
+                        'existing_id': existing.id
+                    })
+                else:
+                    # Check if vendor exists
+                    vendor = Vendor.query.get(product_data.get('vendor_id'))
+                    if not vendor:
+                        preview['warnings'].append(f"Product '{product_data['name']}' references non-existent vendor ID {product_data.get('vendor_id')}")
+                    
+                    preview['products']['new'] += 1
+                    preview['products']['details'].append({
+                        'name': product_data['name'],
+                        'status': 'new',
+                        'vendor_id': product_data.get('vendor_id')
+                    })
+        
+        # Preview methods and guides similarly...
+        if 'methods' in data:
+            for method_data in data['methods']:
+                existing = DetectionMethod.query.filter_by(
+                    name=method_data['name'],
+                    product_id=method_data.get('product_id')
+                ).first()
+                if existing:
+                    preview['methods']['existing'] += 1
+                else:
+                    preview['methods']['new'] += 1
+        
+        if 'guides' in data:
+            for guide_data in data['guides']:
+                existing = SetupGuide.query.filter_by(
+                    title=guide_data.get('title', ''),
+                    product_id=guide_data.get('product_id')
+                ).first()
+                if existing:
+                    preview['guides']['existing'] += 1
+                else:
+                    preview['guides']['new'] += 1
+        
+        return jsonify(preview), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@bp.route('/bulk-delete', methods=['POST'])
+@require_admin
+def bulk_delete():
+    """Safely delete multiple records with confirmation"""
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        delete_types = data.get('types', {})
+        results = {}
+        
+        if 'vendor_ids' in delete_types:
+            vendor_ids = delete_types['vendor_ids']
+            # Delete vendors and all related data
+            vendors = Vendor.query.filter(Vendor.id.in_(vendor_ids)).all()
+            deleted_count = 0
+            for vendor in vendors:
+                # Delete related products, methods, and guides
+                products = Product.query.filter_by(vendor_id=vendor.id).all()
+                for product in products:
+                    DetectionMethod.query.filter_by(product_id=product.id).delete()
+                    SetupGuide.query.filter_by(product_id=product.id).delete()
+                Product.query.filter_by(vendor_id=vendor.id).delete()
+                db.session.delete(vendor)
+                deleted_count += 1
+            results['vendors_deleted'] = deleted_count
+        
+        if 'product_ids' in delete_types:
+            product_ids = delete_types['product_ids']
+            # Delete products and related methods/guides
+            products = Product.query.filter(Product.id.in_(product_ids)).all()
+            deleted_count = 0
+            for product in products:
+                DetectionMethod.query.filter_by(product_id=product.id).delete()
+                SetupGuide.query.filter_by(product_id=product.id).delete()
+                db.session.delete(product)
+                deleted_count += 1
+            results['products_deleted'] = deleted_count
+        
+        if 'method_ids' in delete_types:
+            method_ids = delete_types['method_ids']
+            deleted_count = DetectionMethod.query.filter(DetectionMethod.id.in_(method_ids)).delete()
+            results['methods_deleted'] = deleted_count
+        
+        if 'guide_ids' in delete_types:
+            guide_ids = delete_types['guide_ids']
+            deleted_count = SetupGuide.query.filter(SetupGuide.id.in_(guide_ids)).delete()
+            results['guides_deleted'] = deleted_count
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Bulk delete completed',
+            'results': results
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 
 @bp.route('/export', methods=['GET'])
 @require_admin
@@ -473,5 +752,416 @@ def export_all():
             return response
         else:
             return jsonify({'error': 'Unsupported format'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500 
+
+@bp.route('/export-vendor/<int:vendor_id>', methods=['GET'])
+@require_admin
+def export_vendor_data(vendor_id):
+    """Export specific vendor with all their products, methods, and guides"""
+    try:
+        format_type = request.args.get('format', 'json')
+        vendor = Vendor.query.get(vendor_id)
+        
+        if not vendor:
+            return jsonify({'error': 'Vendor not found'}), 404
+        
+        # Get all products for this vendor
+        products = Product.query.filter_by(vendor_id=vendor_id).all()
+        
+        # Build the export data
+        vendor_data = vendor.to_dict()
+        vendor_data['products'] = []
+        
+        for product in products:
+            product_dict = product.to_dict()
+            
+            # Add detection methods for this product
+            methods = DetectionMethod.query.filter_by(product_id=product.id).all()
+            product_dict['detection_methods'] = [m.to_dict() for m in methods]
+            
+            # Add setup guides for this product
+            guides = SetupGuide.query.filter_by(product_id=product.id).all()
+            product_dict['setup_guides'] = [g.to_dict() for g in guides]
+            
+            vendor_data['products'].append(product_dict)
+        
+        export_data = {
+            'vendor': vendor_data,
+            'exported_at': datetime.utcnow().isoformat(),
+            'total_products': len(products),
+            'total_methods': sum(len(p['detection_methods']) for p in vendor_data['products']),
+            'total_guides': sum(len(p['setup_guides']) for p in vendor_data['products'])
+        }
+        
+        if format_type == 'json':
+            return jsonify(export_data), 200
+        elif format_type == 'csv':
+            output = io.StringIO()
+            writer = csv.writer(output)
+            
+            # Write vendor info
+            writer.writerow(['Vendor Information'])
+            writer.writerow(['Name', vendor.name])
+            writer.writerow(['ID', vendor.id])
+            writer.writerow(['Created At', vendor.created_at])
+            writer.writerow([])
+            
+            # Write products and their details
+            writer.writerow(['Product Information'])
+            writer.writerow(['Product Name', 'Category', 'Description', 'Detection Methods', 'Setup Guides'])
+            
+            for product in vendor_data['products']:
+                method_names = ', '.join([m.get('name', '') for m in product['detection_methods']])
+                guide_titles = ', '.join([g.get('title', '') for g in product['setup_guides']])
+                
+                writer.writerow([
+                    product['name'],
+                    product.get('category', ''),
+                    product.get('description', ''),
+                    method_names,
+                    guide_titles
+                ])
+            
+            output.seek(0)
+            return send_file(
+                io.BytesIO(output.getvalue().encode('utf-8')),
+                mimetype='text/csv',
+                as_attachment=True,
+                download_name=f'versionintel_vendor_{vendor.name}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+            )
+        elif format_type == 'docx':
+            try:
+                # Create DOCX with vendor data
+                doc = Document()
+                
+                # Add title
+                title = doc.add_heading(f'VersionIntel Export - {vendor.name}', 0)
+                title.alignment = 1  # Center alignment
+                
+                # Add export timestamp
+                timestamp_para = doc.add_paragraph(f'Exported on: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+                timestamp_para.alignment = 1  # Center alignment
+                doc.add_paragraph()
+                
+                # Add vendor information
+                doc.add_heading('Vendor Information', level=1)
+                vendor_table = doc.add_table(rows=0, cols=2)
+                vendor_table.style = 'Table Grid'
+                
+                row = vendor_table.add_row().cells
+                row[0].text = 'Name'
+                row[1].text = vendor.name
+                
+                row = vendor_table.add_row().cells
+                row[0].text = 'ID'
+                row[1].text = str(vendor.id)
+                
+                row = vendor_table.add_row().cells
+                row[0].text = 'Created At'
+                row[1].text = str(vendor.created_at)
+                
+                doc.add_paragraph()
+                
+                # Add summary
+                doc.add_heading('Export Summary', level=1)
+                summary_table = doc.add_table(rows=1, cols=2)
+                summary_table.style = 'Table Grid'
+                hdr_cells = summary_table.rows[0].cells
+                hdr_cells[0].text = 'Metric'
+                hdr_cells[1].text = 'Count'
+                
+                # Style the header row
+                for cell in hdr_cells:
+                    cell.paragraphs[0].runs[0].bold = True
+                
+                summary_data = [
+                    ('Total Products', export_data['total_products']),
+                    ('Total Methods', export_data['total_methods']),
+                    ('Total Guides', export_data['total_guides'])
+                ]
+                
+                for key, value in summary_data:
+                    row_cells = summary_table.add_row().cells
+                    row_cells[0].text = key
+                    row_cells[1].text = str(value)
+                
+                doc.add_paragraph()
+                
+                # Add products data
+                if vendor_data['products']:
+                    doc.add_heading('Products', level=1)
+                    
+                    for product in vendor_data['products']:
+                        product_heading = doc.add_heading(f'Product: {product["name"]}', level=2)
+                        
+                        # Product details in a table
+                        product_table = doc.add_table(rows=0, cols=2)
+                        product_table.style = 'Table Grid'
+                        
+                        # Add category
+                        if product.get('category'):
+                            row = product_table.add_row().cells
+                            row[0].text = 'Category'
+                            row[1].text = product['category']
+                        
+                        # Add description
+                        if product.get('description'):
+                            row = product_table.add_row().cells
+                            row[0].text = 'Description'
+                            row[1].text = product['description']
+                        
+                        doc.add_paragraph()
+                        
+                        # Detection methods
+                        if product['detection_methods']:
+                            doc.add_heading('Detection Methods', level=3)
+                            method_table = doc.add_table(rows=1, cols=2)
+                            method_table.style = 'Table Grid'
+                            method_hdr = method_table.rows[0].cells
+                            method_hdr[0].text = 'Method Name'
+                            method_hdr[1].text = 'Technique'
+                            
+                            for method in product['detection_methods']:
+                                method_row = method_table.add_row().cells
+                                method_row[0].text = method.get('name', 'N/A')
+                                method_row[1].text = method.get('technique', 'N/A')
+                            
+                            doc.add_paragraph()
+                        
+                        # Setup guides
+                        if product['setup_guides']:
+                            doc.add_heading('Setup Guides', level=3)
+                            guide_table = doc.add_table(rows=1, cols=2)
+                            guide_table.style = 'Table Grid'
+                            guide_hdr = guide_table.rows[0].cells
+                            guide_hdr[0].text = 'Title'
+                            guide_hdr[1].text = 'Content'
+                            
+                            for guide in product['setup_guides']:
+                                guide_row = guide_table.add_row().cells
+                                guide_row[0].text = guide.get('title', 'Untitled')
+                                guide_row[1].text = guide.get('content', 'No content available')
+                            
+                            doc.add_paragraph()
+                        
+                        doc.add_paragraph()
+                else:
+                    doc.add_paragraph('No products found for this vendor.')
+                
+                # Save to BytesIO instead of temporary file
+                docx_buffer = io.BytesIO()
+                doc.save(docx_buffer)
+                docx_buffer.seek(0)
+                
+                return send_file(
+                    docx_buffer,
+                    mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    as_attachment=True,
+                    download_name=f'versionintel_vendor_{vendor.name}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.docx'
+                )
+                
+            except Exception as docx_error:
+                return jsonify({'error': f'DOCX generation failed: {str(docx_error)}'}), 500
+        else:
+            return jsonify({'error': 'Unsupported format'}), 400
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@bp.route('/export-all-complete', methods=['GET'])
+@require_admin
+def export_all_complete():
+    """Export all data in a complete format with full relationships"""
+    try:
+        format_type = request.args.get('format', 'json')
+        
+        # Get all vendors with their complete data
+        vendors = Vendor.query.all()
+        complete_data = []
+        
+        for vendor in vendors:
+            vendor_dict = vendor.to_dict()
+            products = Product.query.filter_by(vendor_id=vendor.id).all()
+            vendor_dict['products'] = []
+            
+            for product in products:
+                product_dict = product.to_dict()
+                
+                # Add detection methods for this product
+                methods = DetectionMethod.query.filter_by(product_id=product.id).all()
+                product_dict['detection_methods'] = [m.to_dict() for m in methods]
+                
+                # Add setup guides for this product
+                guides = SetupGuide.query.filter_by(product_id=product.id).all()
+                product_dict['setup_guides'] = [g.to_dict() for g in guides]
+                
+                vendor_dict['products'].append(product_dict)
+            
+            complete_data.append(vendor_dict)
+        
+        export_data = {
+            'vendors': complete_data,
+            'exported_at': datetime.utcnow().isoformat(),
+            'summary': {
+                'total_vendors': len(vendors),
+                'total_products': sum(len(v['products']) for v in complete_data),
+                'total_methods': sum(len(p['detection_methods']) for v in complete_data for p in v['products']),
+                'total_guides': sum(len(p['setup_guides']) for v in complete_data for p in v['products'])
+            }
+        }
+        
+        if format_type == 'json':
+            return jsonify(export_data), 200
+        elif format_type == 'csv':
+            output = io.StringIO()
+            writer = csv.writer(output)
+            
+            # Write summary
+            writer.writerow(['Export Summary'])
+            writer.writerow(['Total Vendors', export_data['summary']['total_vendors']])
+            writer.writerow(['Total Products', export_data['summary']['total_products']])
+            writer.writerow(['Total Methods', export_data['summary']['total_methods']])
+            writer.writerow(['Total Guides', export_data['summary']['total_guides']])
+            writer.writerow([])
+            
+            # Write detailed data
+            writer.writerow(['Vendor', 'Product', 'Category', 'Description', 'Detection Methods', 'Setup Guides'])
+            
+            for vendor in complete_data:
+                for product in vendor['products']:
+                    method_names = ', '.join([m.get('name', '') for m in product['detection_methods']])
+                    guide_titles = ', '.join([g.get('title', '') for g in product['setup_guides']])
+                    
+                    writer.writerow([
+                        vendor['name'],
+                        product['name'],
+                        product.get('category', ''),
+                        product.get('description', ''),
+                        method_names,
+                        guide_titles
+                    ])
+            
+            output.seek(0)
+            return send_file(
+                io.BytesIO(output.getvalue().encode('utf-8')),
+                mimetype='text/csv',
+                as_attachment=True,
+                download_name=f'versionintel_complete_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+            )
+        elif format_type == 'docx':
+            try:
+                # Create DOCX with complete data
+                doc = Document()
+                
+                # Add title
+                title = doc.add_heading('VersionIntel Complete Export', 0)
+                title.alignment = 1  # Center alignment
+                
+                # Add export timestamp
+                timestamp_para = doc.add_paragraph(f'Exported on: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+                timestamp_para.alignment = 1  # Center alignment
+                doc.add_paragraph()
+                
+                # Add summary section
+                doc.add_heading('Export Summary', level=1)
+                summary_table = doc.add_table(rows=1, cols=2)
+                summary_table.style = 'Table Grid'
+                hdr_cells = summary_table.rows[0].cells
+                hdr_cells[0].text = 'Metric'
+                hdr_cells[1].text = 'Count'
+                
+                # Style the header row
+                for cell in hdr_cells:
+                    cell.paragraphs[0].runs[0].bold = True
+                
+                for key, value in export_data['summary'].items():
+                    row_cells = summary_table.add_row().cells
+                    row_cells[0].text = key.replace('_', ' ').title()
+                    row_cells[1].text = str(value)
+                
+                doc.add_paragraph()
+                
+                # Add vendor data
+                for vendor in complete_data:
+                    vendor_heading = doc.add_heading(f'Vendor: {vendor["name"]}', level=1)
+                    
+                    if vendor['products']:
+                        for product in vendor['products']:
+                            product_heading = doc.add_heading(f'Product: {product["name"]}', level=2)
+                            
+                            # Product details in a table
+                            product_table = doc.add_table(rows=0, cols=2)
+                            product_table.style = 'Table Grid'
+                            
+                            # Add category
+                            if product.get('category'):
+                                row = product_table.add_row().cells
+                                row[0].text = 'Category'
+                                row[1].text = product['category']
+                            
+                            # Add description
+                            if product.get('description'):
+                                row = product_table.add_row().cells
+                                row[0].text = 'Description'
+                                row[1].text = product['description']
+                            
+                            doc.add_paragraph()
+                            
+                            # Detection methods
+                            if product['detection_methods']:
+                                doc.add_heading('Detection Methods', level=3)
+                                method_table = doc.add_table(rows=1, cols=2)
+                                method_table.style = 'Table Grid'
+                                method_hdr = method_table.rows[0].cells
+                                method_hdr[0].text = 'Method Name'
+                                method_hdr[1].text = 'Technique'
+                                
+                                for method in product['detection_methods']:
+                                    method_row = method_table.add_row().cells
+                                    method_row[0].text = method.get('name', 'N/A')
+                                    method_row[1].text = method.get('technique', 'N/A')
+                                
+                                doc.add_paragraph()
+                            
+                            # Setup guides
+                            if product['setup_guides']:
+                                doc.add_heading('Setup Guides', level=3)
+                                guide_table = doc.add_table(rows=1, cols=2)
+                                guide_table.style = 'Table Grid'
+                                guide_hdr = guide_table.rows[0].cells
+                                guide_hdr[0].text = 'Title'
+                                guide_hdr[1].text = 'Content'
+                                
+                                for guide in product['setup_guides']:
+                                    guide_row = guide_table.add_row().cells
+                                    guide_row[0].text = guide.get('title', 'Untitled')
+                                    guide_row[1].text = guide.get('content', 'No content available')
+                                
+                                doc.add_paragraph()
+                            
+                            doc.add_paragraph()
+                    else:
+                        doc.add_paragraph('No products found for this vendor.')
+                        doc.add_paragraph()
+                
+                # Save to BytesIO instead of temporary file
+                docx_buffer = io.BytesIO()
+                doc.save(docx_buffer)
+                docx_buffer.seek(0)
+                
+                return send_file(
+                    docx_buffer,
+                    mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    as_attachment=True,
+                    download_name=f'versionintel_complete_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.docx'
+                )
+                
+            except Exception as docx_error:
+                return jsonify({'error': f'DOCX generation failed: {str(docx_error)}'}), 500
+            
+        else:
+            return jsonify({'error': 'Unsupported format'}), 400
+            
     except Exception as e:
         return jsonify({'error': str(e)}), 500 
