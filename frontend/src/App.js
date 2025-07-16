@@ -10,6 +10,7 @@ import Methods from './pages/Methods';
 import SetupGuides from './pages/SetupGuides';
 import Search from './pages/Search';
 import BulkOperations from './pages/BulkOperations';
+import CVESearch from './pages/CVESearch';
 import Profile from './pages/Profile';
 import Users from './pages/Users';
 
@@ -44,6 +45,7 @@ function App() {
         <Route path="/setup-guides" element={<SetupGuides />} />
         <Route path="/search" element={<Search />} />
         <Route path="/bulk" element={<BulkOperations />} />
+        <Route path="/cve-search" element={<CVESearch />} />
         <Route path="/profile" element={<Profile />} />
         {user.role === 'admin' && <Route path="/users" element={<Users />} />}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

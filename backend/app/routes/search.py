@@ -4,9 +4,11 @@ from app.models.product import Product
 from app.models.detection_method import DetectionMethod
 from app.models.setup_guide import SetupGuide
 from app.services.auth import require_permission
+from app.services.cve_service import CVEService
 from sqlalchemy import or_
 
 bp = Blueprint('search', __name__, url_prefix='/search')
+cve_service = CVEService()
 
 @bp.route('', methods=['GET'])
 @require_permission('read')
@@ -161,4 +163,62 @@ def advanced_search():
         
         return jsonify(results), 200
     except Exception as e:
+        return jsonify({'error': str(e)}), 500 
+
+@bp.route('/cve/vendor-product', methods=['GET'])
+@require_permission('read')
+def search_cves_by_vendor_product():
+    """Search for CVEs by vendor and product name using CPE-based search"""
+    try:
+        vendor = request.args.get('vendor')
+        product = request.args.get('product')
+        limit = request.args.get('limit', 20, type=int)
+        start_index = request.args.get('start_index', 0, type=int)
+        
+        if not vendor or not product:
+            return jsonify({'error': 'Both vendor and product parameters are required'}), 400
+        
+        if limit < 1 or limit > 100:
+            return jsonify({'error': 'Limit must be between 1 and 100'}), 400
+        
+        print(f"DEBUG: Searching CVEs for vendor={vendor}, product={product}")
+        results = cve_service.search_cves_by_vendor_product(
+            vendor=vendor,
+            product=product,
+            limit=limit,
+            start_index=start_index
+        )
+        
+        return jsonify(results)
+        
+    except Exception as e:
+        print(f"ERROR: Exception in search_cves_by_vendor_product: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@bp.route('/cve/keyword', methods=['GET'])
+@require_permission('read')
+def search_cves_by_keyword():
+    """Search for CVEs by keyword"""
+    try:
+        keyword = request.args.get('keyword')
+        limit = request.args.get('limit', 20, type=int)
+        start_index = request.args.get('start_index', 0, type=int)
+        
+        if not keyword:
+            return jsonify({'error': 'Keyword parameter is required'}), 400
+        
+        if limit < 1 or limit > 100:
+            return jsonify({'error': 'Limit must be between 1 and 100'}), 400
+        
+        print(f"DEBUG: Searching CVEs with keyword={keyword}")
+        results = cve_service.search_cves_by_keyword(
+            keyword=keyword,
+            limit=limit,
+            start_index=start_index
+        )
+        
+        return jsonify(results)
+        
+    except Exception as e:
+        print(f"ERROR: Exception in search_cves_by_keyword: {e}")
         return jsonify({'error': str(e)}), 500 

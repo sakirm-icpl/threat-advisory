@@ -91,9 +91,9 @@ REACT_APP_API_URL=http://localhost:8000
 
 **Backend Environment** (in `docker-compose.yml`):
 ```yaml
-environment:
-  - JWT_SECRET_KEY=your-secure-secret-key
-  - DATABASE_URL=postgresql://postgres:postgres@db:5432/versionintel
+    environment:
+      - JWT_SECRET_KEY=eec005cbfd76222973f0aa58c1d7fe357745d8c87354a0517ea54a444a87f60c
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/versionintel
 ```
 
 ### 3. Build and Start
