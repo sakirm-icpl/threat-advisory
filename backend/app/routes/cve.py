@@ -1,9 +1,60 @@
 from flask import Blueprint, request, jsonify
 from app.services.cve_service import CVEService
 from app.services.auth import require_permission
+import re
 
 bp = Blueprint('cve', __name__, url_prefix='/api/cve')
 cve_service = CVEService()
+
+@bp.route('/search/unified', methods=['GET'])
+@require_permission('read')
+def search_cves_unified():
+    """Unified search for CVEs by vendor, product, or CVE ID"""
+    try:
+        query = request.args.get('query', '').strip()
+        limit = request.args.get('limit', 20, type=int)
+        start_index = request.args.get('start_index', 0, type=int)
+        
+        if not query:
+            return jsonify({'error': 'Search query is required'}), 400
+        
+        # Handle "All" option (-1) and larger limits
+        if limit == -1:
+            limit = 5000  # Set a reasonable maximum for "All"
+        elif limit < 1 or limit > 5000:
+            return jsonify({'error': 'Limit must be between 1 and 5000'}), 400
+        
+        # Detect search type based on query pattern
+        cve_pattern = re.compile(r'^CVE-\d{4}-\d{4,}$', re.IGNORECASE)
+        
+        if cve_pattern.match(query):
+            # CVE ID search
+            print(f"DEBUG: Searching for specific CVE ID: {query}")
+            results = cve_service.get_cve_details(query)
+            if 'error' not in results:
+                # Format as list for consistency
+                return jsonify({
+                    'results': [results],
+                    'total_results': 1,
+                    'search_type': 'cve_id',
+                    'search_params': {'query': query}
+                })
+            else:
+                return jsonify(results), 404
+        else:
+            # Vendor/Product/Keyword search
+            print(f"DEBUG: Unified search for query: {query}, limit={limit}")
+            results = cve_service.search_cves_unified(
+                query=query,
+                limit=limit,
+                start_index=start_index
+            )
+            
+            return jsonify(results)
+        
+    except Exception as e:
+        print(f"ERROR: Exception in search_cves_unified: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @bp.route('/search/vendor-product', methods=['GET'])
 @require_permission('read')
