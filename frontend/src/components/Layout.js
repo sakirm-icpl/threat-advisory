@@ -12,6 +12,7 @@ import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
+  ShieldExclamationIcon,
 } from '@heroicons/react/24/outline';
 
 const navigation = [
@@ -21,6 +22,7 @@ const navigation = [
   { name: 'Detection Methods', href: '/methods', icon: MagnifyingGlassIcon },
   { name: 'Setup Guides', href: '/setup-guides', icon: DocumentTextIcon },
   { name: 'Search', href: '/search', icon: MagnifyingGlassIcon },
+  { name: 'CVE Search', href: '/cve-search', icon: ShieldExclamationIcon },
   { name: 'Bulk Operations', href: '/bulk', icon: CogIcon },
 ];
 

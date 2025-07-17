@@ -4,6 +4,30 @@ A comprehensive platform for managing internal version detection research for va
 
 ---
 
+## 📖 Documentation
+
+- **[Quick Setup Guide](SETUP.md)** - For new users getting started
+- **[Production Deployment](PRODUCTION_DEPLOYMENT.md)** - For production server setup
+- **[CVE Search Integration](CVE_SEARCH_INTEGRATION_SUMMARY.md)** - CVE integration details
+
+## 🚀 Quick Start Options
+
+### Option 1: Docker Deployment (Recommended)
+```bash
+git clone <repository-url>
+cd versionintel
+./deploy.sh
+```
+
+### Option 2: Local Development
+```bash
+git clone <repository-url>
+cd versionintel
+./dev-setup.sh  # Sets up Python venv and Node.js dependencies
+```
+
+---
+
 ## 🚀 Quick Start (One-Command Deployment)
 
 ### Prerequisites
@@ -91,9 +115,9 @@ REACT_APP_API_URL=http://localhost:8000
 
 **Backend Environment** (in `docker-compose.yml`):
 ```yaml
-environment:
-  - JWT_SECRET_KEY=your-secure-secret-key
-  - DATABASE_URL=postgresql://postgres:postgres@db:5432/versionintel
+    environment:
+      - JWT_SECRET_KEY=eec005cbfd76222973f0aa58c1d7fe357745d8c87354a0517ea54a444a87f60c
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/versionintel
 ```
 
 ### 3. Build and Start

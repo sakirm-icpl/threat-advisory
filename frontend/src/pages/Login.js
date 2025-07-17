@@ -34,59 +34,59 @@ export default function Login() {
           <p className="text-sm text-gray-500 text-center mt-1">Infopercept Version Detection Research Platform</p>
         </div>
         <form className="space-y-5" onSubmit={handleSubmit} autoComplete="off">
-          <div>
+            <div>
             <label htmlFor="username" className="label-text mb-1">Username</label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              required
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
               className="input input-bordered"
               placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               autoFocus
-            />
-          </div>
-          <div className="relative">
+              />
+            </div>
+            <div className="relative">
             <label htmlFor="password" className="label-text mb-1">Password</label>
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              required
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                required
               className="input input-bordered pr-10"
               placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
               tabIndex={-1}
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-              ) : (
-                <EyeIcon className="h-5 w-5 text-gray-400" />
-              )}
-            </button>
-          </div>
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <EyeIcon className="h-5 w-5 text-gray-400" />
+                )}
+              </button>
+            </div>
           {error && (
             <div className="alert alert-warning text-center text-sm mb-2">{error}</div>
           )}
-          <button
-            type="submit"
-            disabled={loading}
+            <button
+              type="submit"
+              disabled={loading}
             className="btn btn-primary w-full flex justify-center items-center"
-          >
-            {loading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            ) : (
-              'Sign in'
-            )}
-          </button>
+            >
+              {loading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                'Sign in'
+              )}
+            </button>
         </form>
         <div className="mt-8 text-xs text-gray-400 text-center select-none">
           &copy; {new Date().getFullYear()} Infopercept. All rights reserved.

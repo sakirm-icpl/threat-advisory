@@ -141,8 +141,8 @@ export default function BulkOperations() {
         setImportPreviewData(previewRes.data);
         setShowImportPreview(false);
       } else {
-        const res = await endpoints.importData(json);
-        setImportResult(res.data);
+      const res = await endpoints.importData(json);
+      setImportResult(res.data);
         queryClient.invalidateQueries(['health-check', 'statistics']);
       }
     } catch (err) {
@@ -328,9 +328,9 @@ export default function BulkOperations() {
                     onChange={e => setExportFormat(e.target.value)} 
                     className="input input-bordered flex-1"
                   >
-                    <option value="json">JSON</option>
-                    <option value="csv">CSV (vendors only)</option>
-                  </select>
+            <option value="json">JSON</option>
+            <option value="csv">CSV (vendors only)</option>
+          </select>
                 </div>
                 <button className="btn btn-primary w-full" onClick={handleExport}>
                   Export Basic Data
@@ -425,8 +425,8 @@ export default function BulkOperations() {
                 <p className="text-xs text-gray-500">
                   Exports selected vendor with all their products, methods, and guides.
                 </p>
-              </div>
-            </div>
+        </div>
+      </div>
 
             {/* Export All (Original) */}
             <div className="card p-6">
@@ -442,11 +442,11 @@ export default function BulkOperations() {
                     onChange={e => setExportAllFormat(e.target.value)} 
                     className="input input-bordered flex-1"
                   >
-                    <option value="json">JSON (nested, all details)</option>
-                    <option value="csv">CSV (flattened)</option>
-                    <option value="docx">Word (DOCX)</option>
-                    <option value="pdf">PDF</option>
-                  </select>
+            <option value="json">JSON (nested, all details)</option>
+            <option value="csv">CSV (flattened)</option>
+            <option value="docx">Word (DOCX)</option>
+            <option value="pdf">PDF</option>
+          </select>
                 </div>
                 <button className="btn btn-primary w-full" onClick={handleExportAll}>
                   Export All Data
@@ -489,7 +489,7 @@ export default function BulkOperations() {
                   />
                   <span className="text-sm">Preview before import</span>
                 </label>
-              </div>
+      </div>
 
               {importing && (
                 <div className="flex items-center gap-2 text-blue-600">
@@ -569,13 +569,13 @@ export default function BulkOperations() {
               </p>
             </div>
           </div>
-        </div>
+      </div>
       )}
 
       {/* Backup/Restore Tab */}
       {activeTab === 'backup' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Backup */}
+      {/* Backup */}
           <div className="card p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <CloudArrowUpIcon className="h-5 w-5" />
@@ -595,9 +595,9 @@ export default function BulkOperations() {
                 Backup includes all data and can be restored below.
               </p>
             </div>
-          </div>
+      </div>
 
-          {/* Restore */}
+      {/* Restore */}
           <div className="card p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <CloudArrowDownIcon className="h-5 w-5" />
@@ -837,7 +837,7 @@ export default function BulkOperations() {
               </div>
             </div>
           )}
-        </div>
+      </div>
       )}
     </div>
   );
