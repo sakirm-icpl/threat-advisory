@@ -22,7 +22,7 @@ import time
 class CVESearchClient:
     """Client for interacting with the cve-search API"""
     
-    def __init__(self, base_url: str = "http://localhost:5000"):
+    def __init__(self, base_url: str = "http://localhost:8000"):
         """
         Initialize the CVE Search client
         
@@ -374,15 +374,15 @@ def main():
 Examples:
   python cve_search_client.py apache http_server
   python cve_search_client.py microsoft windows
-  python cve_search_client.py --server http://192.168.1.100:5000 apache tomcat
+      python cve_search_client.py --server http://localhost:8000 apache tomcat
   python cve_search_client.py --interactive
         """
     )
     
     parser.add_argument('vendor', nargs='?', help='Vendor name (e.g., apache, microsoft)')
     parser.add_argument('product', nargs='?', help='Product name (e.g., http_server, windows)')
-    parser.add_argument('--server', '-s', default='http://localhost:5000',
-                       help='cve-search server URL (default: http://localhost:5000)')
+    parser.add_argument('--server', '-s', default='http://localhost:8000',
+                       help='cve-search server URL (default: http://localhost:8000)')
     parser.add_argument('--interactive', '-i', action='store_true',
                        help='Run in interactive mode')
     parser.add_argument('--verbose', '-v', action='store_true',

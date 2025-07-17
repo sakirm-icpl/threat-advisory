@@ -13,7 +13,7 @@ def test_cve_search():
     
     # Initialize the client
     # You can change the server URL if your cve-search is running on a different host/port
-    client = CVESearchClient("http://localhost:5000")
+    client = CVESearchClient("http://localhost:8000")
     
     # Test cases - common vendors and products
     test_cases = [
@@ -37,7 +37,7 @@ def test_cve_search():
         print("✅ cve-search server is accessible")
     else:
         print("❌ Warning: cve-search server is not accessible")
-        print("   Make sure the server is running at http://localhost:5000")
+        print("   Make sure the server is running at http://localhost:8000")
         print("   You can still run the tests, but they may fail.\n")
     
     print()
@@ -67,7 +67,7 @@ def test_single_search():
     # You can modify these values to test specific vendors/products
     vendor = "apache"
     product = "tomcat"
-    server_url = "http://localhost:5000"
+    server_url = "http://localhost:8000"
     
     print(f"🔍 Single Search Test: {vendor}/{product}")
     print(f"🌐 Server: {server_url}")

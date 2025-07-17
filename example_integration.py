@@ -15,7 +15,7 @@ from cve_search_client import CVESearchClient, print_results
 class SecurityToolIntegration:
     """Example integration class for a security tool"""
     
-    def __init__(self, cve_server_url="http://localhost:5000"):
+    def __init__(self, cve_server_url="http://localhost:8000"):
         """
         Initialize the security tool integration
         
@@ -291,13 +291,13 @@ def main():
     print("=" * 50)
     
     # Initialize the integration
-    security_tool = SecurityToolIntegration("http://localhost:5000")
+    security_tool = SecurityToolIntegration("http://localhost:8000")
     
     # Check if CVE server is accessible
     if not security_tool.cve_client.check_server_status():
         print("❌ Warning: cve-search server is not accessible")
         print("   This example will show the structure but may not return real data")
-        print("   Please ensure the server is running at http://localhost:5000\n")
+        print("   Please ensure the server is running at http://localhost:8000\n")
     
     # Perform vulnerability scan
     scan_results = security_tool.scan_software_inventory(software_inventory)

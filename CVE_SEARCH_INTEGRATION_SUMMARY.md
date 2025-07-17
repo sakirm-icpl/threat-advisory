@@ -23,7 +23,7 @@ I've created a comprehensive Python solution for integrating with the open-sourc
 python cve_search_client.py apache http_server
 
 # Custom server
-python cve_search_client.py --server http://192.168.1.100:5000 microsoft windows
+python cve_search_client.py --server http://localhost:8000 microsoft windows
 
 # Interactive mode
 python cve_search_client.py --interactive
@@ -121,7 +121,7 @@ GET /api/cvefor/:vendor/:product
 
 **Example Request**:
 ```
-GET http://localhost:5000/api/cvefor/apache/http_server
+GET http://localhost:8000/api/cvefor/apache/http_server
 ```
 
 **Expected Response Handling**:
@@ -141,7 +141,7 @@ python cve_search_client.py apache tomcat
 ```python
 from cve_search_client import CVESearchClient
 
-client = CVESearchClient("http://localhost:5000")
+client = CVESearchClient("http://localhost:8000")
 results = client.search_cves_by_vendor_product("microsoft", "windows")
 ```
 
@@ -170,7 +170,7 @@ text_report = tool.generate_report(scan_results, 'text')
 
 ### Connection Issues
 ```
-❌ Error: Failed to connect to cve-search server at http://localhost:5000. 
+❌ Error: Failed to connect to cve-search server at http://localhost:8000. 
    Please ensure the server is running and accessible.
 ```
 

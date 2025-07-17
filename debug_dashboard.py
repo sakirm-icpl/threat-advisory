@@ -7,7 +7,7 @@ import json
 import sys
 
 # Configuration
-BASE_URL = "http://localhost:5000"
+BASE_URL = "http://localhost:8000"
 
 def test_endpoint(endpoint, method="GET", data=None, headers=None):
     """Test a specific endpoint and return the response"""

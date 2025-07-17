@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 
 # Configuration
-API_BASE_URL = "http://172.17.14.65:8000"
+API_BASE_URL = "http://localhost:8000"
 LOGIN_URL = f"{API_BASE_URL}/auth/login"
 
 def login():

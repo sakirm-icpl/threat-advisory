@@ -55,7 +55,7 @@ python cve_search_client.py openssl openssl
 
 **Specify a custom server URL:**
 ```bash
-python cve_search_client.py --server http://192.168.1.100:5000 apache tomcat
+python cve_search_client.py --server http://localhost:8000 apache tomcat
 ```
 
 **Run in interactive mode:**
@@ -85,13 +85,13 @@ Example session:
 ```
 🔍 CVE Search Interactive Mode
 ========================================
-✅ Connected to cve-search server at http://localhost:5000
+✅ Connected to cve-search server at http://localhost:8000
 
 Enter vendor name (or 'quit' to exit): apache
 Enter product name: tomcat
 
 Searching for CVEs affecting apache/tomcat...
-Querying: http://localhost:5000/api/cvefor/apache/tomcat
+Querying: http://localhost:8000/api/cvefor/apache/tomcat
 
 🔍 Search Results for apache / tomcat
 📊 Total CVEs found: 15
@@ -117,7 +117,7 @@ You can also use the `CVESearchClient` class in your own Python scripts:
 from cve_search_client import CVESearchClient, print_results
 
 # Initialize client
-client = CVESearchClient("http://localhost:5000")
+client = CVESearchClient("http://localhost:8000")
 
 # Search for CVEs
 results = client.search_cves_by_vendor_product("apache", "http_server")
@@ -252,7 +252,7 @@ To use this client, you need a running cve-search server. Here's a quick setup g
    python3 bin/web.py
    ```
 
-The server will be available at `http://localhost:5000` by default.
+The server will be available at `http://localhost:8000` by default.
 
 ## Contributing
 

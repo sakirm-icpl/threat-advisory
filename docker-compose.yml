@@ -18,7 +18,10 @@ services:
     restart: unless-stopped
 
   backend:
-    build: ./backend
+    image: versionintel-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     depends_on:
       db:
         condition: service_healthy
@@ -41,11 +44,14 @@ services:
       start_period: 40s
 
   frontend:
-    build: ./frontend
+    image: versionintel-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     depends_on:
       - backend
     environment:
-      - REACT_APP_API_URL=http://172.17.14.65:8000
+      - REACT_APP_API_URL=http://localhost:8000
     ports:
       - "3000:3000"
     restart: unless-stopped
