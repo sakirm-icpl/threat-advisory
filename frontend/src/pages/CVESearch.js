@@ -743,10 +743,6 @@ const CVESearch = () => {
                         </div>
                       </div>
                     )}
-                    {/* Debug info - remove this after testing */}
-                    <div className="mt-2 text-xs text-gray-400">
-                      Debug: totalResults={totalResults}, resultsPerPage={resultsPerPage}, currentPage={currentPage}, searchResults.length={searchResults.length}
-                    </div>
                     {searchResults.length > 0 && (
                       <div className="mb-4 text-xs text-gray-500">
                         Showing results from: <span className="font-semibold">NVD ({searchType || 'Unified Search'})</span>
@@ -885,10 +881,6 @@ const CVESearch = () => {
                         </div>
                       </div>
                     )}
-                    {/* Debug info - remove this after testing */}
-                    <div className="mt-2 text-xs text-gray-400">
-                      Debug: totalResults={totalResults}, resultsPerPage={resultsPerPage}, currentPage={currentPage}, searchResults.length={searchResults.length}
-                    </div>
                     {searchResults.length > 0 && (
                       <div className="mb-4 text-xs text-gray-500">
                         Showing results from: <span className="font-semibold">NVD ({searchType || 'Keyword Search'})</span>
