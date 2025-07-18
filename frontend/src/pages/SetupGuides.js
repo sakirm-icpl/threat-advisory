@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import MarkdownRenderer from "../components/MarkdownRenderer";
+import { useNavigate } from "react-router-dom";
 
 export default function SetupGuides() {
   const [guides, setGuides] = useState([]);
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({ product_id: "", instructions: "" });
-  const [editingId, setEditingId] = useState(null);
-  const [editingForm, setEditingForm] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [filterProduct, setFilterProduct] = useState("");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState({});
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -59,29 +60,6 @@ export default function SetupGuides() {
       fetchGuides();
     } catch (e) {
       setError("Failed to add setup guide");
-    }
-  };
-
-  const startEdit = (guide) => {
-    setEditingId(guide.id);
-    setEditingForm({ ...guide });
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditingForm(f => ({ ...f, [name]: value }));
-  };
-
-  const saveEdit = async (id) => {
-    setError(""); setSuccess("");
-    try {
-      await api.put(`/setup-guides/${id}`, editingForm);
-      setEditingId(null);
-      setEditingForm({});
-      setSuccess("Setup guide updated!");
-      fetchGuides();
-    } catch (e) {
-      setError("Failed to update setup guide");
     }
   };
 
@@ -201,55 +179,25 @@ Example:
                     ) : <span className="text-gray-400 text-xs">-</span>}
                   </td>
                   <td className="p-2 max-w-md">
-                    {editingId === g.id ? (
-                      <div>
-                        <textarea
-                          className="border px-2 py-1 w-full font-mono text-sm"
-                          name="instructions"
-                          value={editingForm.instructions}
-                          onChange={handleEditChange}
-                          rows={4}
-                          placeholder="Markdown supported..."
-                        />
-                        {editingForm.instructions && (
-                          <div className="mt-1 p-2 bg-gray-50 rounded border">
-                            <div className="text-xs text-gray-500 mb-1">Preview:</div>
-                            <MarkdownRenderer content={editingForm.instructions} />
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <>
-                        <div>
-                          <MarkdownRenderer 
-                            content={isExpanded || g.instructions.length < 200
-                              ? g.instructions
-                              : g.instructions.slice(0, 200) + "..."} 
-                          />
-                        </div>
-                        {g.instructions.length > 200 && (
-                          <button
-                            className="text-blue-600 text-xs mt-1 underline"
-                            onClick={() => setExpanded(e => ({ ...e, [g.id]: !isExpanded }))}
-                          >
-                            {isExpanded ? "Show Less" : "Show More"}
-                          </button>
-                        )}
-                      </>
+                    <div>
+                      <MarkdownRenderer 
+                        content={isExpanded || g.instructions.length < 200
+                          ? g.instructions
+                          : g.instructions.slice(0, 200) + "..."} 
+                      />
+                    </div>
+                    {g.instructions.length > 200 && (
+                      <button
+                        className="text-blue-600 text-xs mt-1 underline"
+                        onClick={() => setExpanded(e => ({ ...e, [g.id]: !isExpanded }))}
+                      >
+                        {isExpanded ? "Show Less" : "Show More"}
+                      </button>
                     )}
                   </td>
                   <td className="p-2 flex gap-2">
-                    {editingId === g.id ? (
-                      <>
-                        <button className="bg-green-600 text-white px-2 py-1 rounded" onClick={() => saveEdit(g.id)}>Save</button>
-                        <button className="bg-gray-400 text-white px-2 py-1 rounded" onClick={() => setEditingId(null)}>Cancel</button>
-                      </>
-                    ) : (
-                      <>
-                        <button className="bg-yellow-500 text-white px-2 py-1 rounded" onClick={() => startEdit(g)}>Edit</button>
-                        <button className="bg-red-600 text-white px-2 py-1 rounded" onClick={() => deleteGuide(g.id)}>Delete</button>
-                      </>
-                    )}
+                    <button className="bg-yellow-500 text-white px-2 py-1 rounded" onClick={() => navigate(`/setup-guides/${g.id}/edit`)}>Edit</button>
+                    <button className="bg-red-600 text-white px-2 py-1 rounded" onClick={() => deleteGuide(g.id)}>Delete</button>
                   </td>
                 </tr>
               );

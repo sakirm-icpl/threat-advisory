@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import Modal from "../components/Modal";
+import { useNavigate } from "react-router-dom";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -10,14 +11,10 @@ export default function Products() {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [vendorId, setVendorId] = useState("");
-  const [editingId, setEditingId] = useState(null);
-  const [editingName, setEditingName] = useState("");
-  const [editingCategory, setEditingCategory] = useState("");
-  const [editingDescription, setEditingDescription] = useState("");
-  const [editingVendorId, setEditingVendorId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [modalContent, setModalContent] = useState({ isOpen: false, title: "", content: "" });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchVendors();
@@ -61,33 +58,6 @@ export default function Products() {
       fetchProducts();
     } catch (e) {
       setError("Failed to add product");
-    }
-  };
-
-  const startEdit = (product) => {
-    setEditingId(product.id);
-    setEditingName(product.name);
-    setEditingCategory(product.category || "");
-    setEditingDescription(product.description || "");
-    setEditingVendorId(product.vendor_id);
-  };
-
-  const saveEdit = async (id) => {
-    try {
-      await api.put(`/products/${id}`, { 
-        name: editingName, 
-        category: editingCategory,
-        description: editingDescription,
-        vendor_id: editingVendorId 
-      });
-      setEditingId(null);
-      setEditingName("");
-      setEditingCategory("");
-      setEditingDescription("");
-      setEditingVendorId("");
-      fetchProducts();
-    } catch (e) {
-      setError("Failed to update product");
     }
   };
 
@@ -187,67 +157,22 @@ You can use Markdown formatting:
                 {products.map(p => (
                   <tr key={p.id} className="border-b hover:bg-gray-50">
                     <td className="p-3">
-                      {editingId === p.id ? (
-                        <select
-                          className="w-full border px-2 py-1 rounded"
-                          value={editingVendorId}
-                          onChange={e => setEditingVendorId(e.target.value)}
-                        >
-                          <option value="">Select vendor</option>
-                          {vendors.map(v => (
-                            <option key={v.id} value={v.id}>{v.name}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span className="font-medium">{vendors.find(v => v.id === p.vendor_id)?.name || ""}</span>
-                      )}
+                      <span className="font-medium">{vendors.find(v => v.id === p.vendor_id)?.name || ""}</span>
                     </td>
                     <td className="p-3">
-                      {editingId === p.id ? (
-                        <input
-                          className="w-full border px-2 py-1 rounded"
-                          value={editingName}
-                          onChange={e => setEditingName(e.target.value)}
-                        />
-                      ) : (
-                        <a
-                          href={`/methods?product=${p.id}`}
-                          className="text-blue-600 underline hover:text-blue-800 font-semibold cursor-pointer"
-                        >
-                          {p.name}
-                        </a>
-                      )}
+                      <a
+                        href={`/methods?product=${p.id}`}
+                        className="text-blue-600 underline hover:text-blue-800 font-semibold cursor-pointer"
+                      >
+                        {p.name}
+                      </a>
                     </td>
                     <td className="p-3">
-                      {editingId === p.id ? (
-                        <input
-                          className="w-full border px-2 py-1 rounded"
-                          value={editingCategory}
-                          onChange={e => setEditingCategory(e.target.value)}
-                        />
-                      ) : (
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
                           {p.category || "Not specified"}
                         </span>
-                      )}
                     </td>
                     <td className="p-3">
-                      {editingId === p.id ? (
-                        <div>
-                          <textarea
-                            className="w-full border px-2 py-1 rounded h-20 text-sm font-mono"
-                            value={editingDescription}
-                            onChange={e => setEditingDescription(e.target.value)}
-                            placeholder="Markdown supported..."
-                          />
-                          {editingDescription && (
-                            <div className="mt-1 p-2 bg-gray-50 rounded border">
-                              <div className="text-xs text-gray-500 mb-1">Preview:</div>
-                              <MarkdownRenderer content={editingDescription} />
-                            </div>
-                          )}
-                        </div>
-                      ) : (
                         <div className="max-w-xs">
                           {p.description ? (
                             <div className="text-sm">
@@ -276,20 +201,12 @@ You can use Markdown formatting:
                             <span className="text-gray-400 text-xs">No description</span>
                           )}
                         </div>
-                      )}
                     </td>
                     <td className="p-3 text-center">
-                      {editingId === p.id ? (
                         <div className="flex gap-2 justify-center">
-                          <button className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700" onClick={() => saveEdit(p.id)}>Save</button>
-                          <button className="bg-gray-400 text-white px-3 py-1 rounded text-sm hover:bg-gray-500" onClick={() => setEditingId(null)}>Cancel</button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2 justify-center">
-                          <button className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600" onClick={() => startEdit(p)}>Edit</button>
+                          <button className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600" onClick={() => navigate(`/products/${p.id}/edit`)}>Edit</button>
                           <button className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700" onClick={() => deleteProduct(p.id)}>Delete</button>
                         </div>
-                      )}
                     </td>
                   </tr>
                 ))}

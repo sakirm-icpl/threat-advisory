@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function getProductIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -21,10 +22,10 @@ export default function Methods() {
     expected_response: "",
     requires_auth: false,
   });
-  const [editingId, setEditingId] = useState(null);
-  const [editingForm, setEditingForm] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -79,27 +80,6 @@ export default function Methods() {
       fetchMethods();
     } catch (e) {
       setError("Failed to add method");
-    }
-  };
-
-  const startEdit = (method) => {
-    setEditingId(method.id);
-    setEditingForm({ ...method });
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setEditingForm(f => ({ ...f, [name]: type === "checkbox" ? checked : value }));
-  };
-
-  const saveEdit = async (id) => {
-    try {
-      await api.put(`/methods/${id}`, editingForm);
-      setEditingId(null);
-      setEditingForm({});
-      fetchMethods();
-    } catch (e) {
-      setError("Failed to update method");
     }
   };
 
@@ -304,189 +284,96 @@ export default function Methods() {
                 {filteredMethods.map(m => (
                   <tr key={m.id} className="border-b hover:bg-gray-50">
                     <td className="p-3">
-                      {editingId === m.id ? (
-                        <select
-                          className="w-full border border-gray-300 rounded px-2 py-1"
-                          name="product_id"
-                          value={editingForm.product_id}
-                          onChange={handleEditChange}
+                      {products.find(p => p.id === m.product_id)?.name || ""}
+                    </td>
+                    <td className="p-3">
+                      <span className="font-medium">{m.name}</span>
+                    </td>
+                    <td className="p-3">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                        {m.technique}
+                      </span>
+                    </td>
+                    <td className="p-3">
+                      <div className="max-w-xs">
+                        {m.regex_python ? (
+                          <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
+                            {m.regex_python.length > 50 
+                              ? m.regex_python.substring(0, 50) + "..." 
+                              : m.regex_python
+                            }
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-xs">-</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="max-w-xs">
+                        {m.regex_ruby ? (
+                          <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
+                            {m.regex_ruby.length > 50 
+                              ? m.regex_ruby.substring(0, 50) + "..." 
+                              : m.regex_ruby
+                            }
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-xs">-</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="max-w-xs">
+                        {m.curl_command ? (
+                          <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
+                            {m.curl_command.length > 50 
+                              ? m.curl_command.substring(0, 50) + "..." 
+                              : m.curl_command
+                            }
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-xs">-</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="max-w-xs">
+                        {m.expected_response ? (
+                          <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
+                            {m.expected_response.length > 50 
+                              ? m.expected_response.substring(0, 50) + "..." 
+                              : m.expected_response
+                            }
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-xs">-</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-3 text-center">
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        m.requires_auth 
+                          ? "bg-red-100 text-red-800" 
+                          : "bg-green-100 text-green-800"
+                      }`}>
+                        {m.requires_auth ? "Yes" : "No"}
+                      </span>
+                    </td>
+                    <td className="p-3 text-center">
+                      <div className="flex gap-1 justify-center">
+                        <button 
+                          className="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600" 
+                          onClick={() => navigate(`/methods/${m.id}/edit`)}
                         >
-                          {products.map(p => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        products.find(p => p.id === m.product_id)?.name || ""
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {editingId === m.id ? (
-                        <input
-                          className="w-full border border-gray-300 rounded px-2 py-1"
-                          name="name"
-                          value={editingForm.name}
-                          onChange={handleEditChange}
-                        />
-                      ) : (
-                        <span className="font-medium">{m.name}</span>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {editingId === m.id ? (
-                        <input
-                          className="w-full border border-gray-300 rounded px-2 py-1"
-                          name="technique"
-                          value={editingForm.technique}
-                          onChange={handleEditChange}
-                        />
-                      ) : (
-                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                          {m.technique}
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {editingId === m.id ? (
-                        <textarea
-                          className="w-full border border-gray-300 rounded px-2 py-1 h-20 text-xs font-mono"
-                          name="regex_python"
-                          value={editingForm.regex_python}
-                          onChange={handleEditChange}
-                        />
-                      ) : (
-                        <div className="max-w-xs">
-                          {m.regex_python ? (
-                            <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
-                              {m.regex_python.length > 50 
-                                ? m.regex_python.substring(0, 50) + "..." 
-                                : m.regex_python
-                              }
-                            </div>
-                          ) : (
-                            <span className="text-gray-400 text-xs">-</span>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {editingId === m.id ? (
-                        <textarea
-                          className="w-full border border-gray-300 rounded px-2 py-1 h-20 text-xs font-mono"
-                          name="regex_ruby"
-                          value={editingForm.regex_ruby}
-                          onChange={handleEditChange}
-                        />
-                      ) : (
-                        <div className="max-w-xs">
-                          {m.regex_ruby ? (
-                            <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
-                              {m.regex_ruby.length > 50 
-                                ? m.regex_ruby.substring(0, 50) + "..." 
-                                : m.regex_ruby
-                              }
-                            </div>
-                          ) : (
-                            <span className="text-gray-400 text-xs">-</span>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {editingId === m.id ? (
-                        <textarea
-                          className="w-full border border-gray-300 rounded px-2 py-1 h-20 text-xs font-mono"
-                          name="curl_command"
-                          value={editingForm.curl_command}
-                          onChange={handleEditChange}
-                        />
-                      ) : (
-                        <div className="max-w-xs">
-                          {m.curl_command ? (
-                            <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
-                              {m.curl_command.length > 50 
-                                ? m.curl_command.substring(0, 50) + "..." 
-                                : m.curl_command
-                              }
-                            </div>
-                          ) : (
-                            <span className="text-gray-400 text-xs">-</span>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {editingId === m.id ? (
-                        <textarea
-                          className="w-full border border-gray-300 rounded px-2 py-1 h-20 text-xs font-mono"
-                          name="expected_response"
-                          value={editingForm.expected_response}
-                          onChange={handleEditChange}
-                        />
-                      ) : (
-                        <div className="max-w-xs">
-                          {m.expected_response ? (
-                            <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
-                              {m.expected_response.length > 50 
-                                ? m.expected_response.substring(0, 50) + "..." 
-                                : m.expected_response
-                              }
-                            </div>
-                          ) : (
-                            <span className="text-gray-400 text-xs">-</span>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-3 text-center">
-                      {editingId === m.id ? (
-                        <input
-                          type="checkbox"
-                          name="requires_auth"
-                          checked={!!editingForm.requires_auth}
-                          onChange={handleEditChange}
-                        />
-                      ) : (
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          m.requires_auth 
-                            ? "bg-red-100 text-red-800" 
-                            : "bg-green-100 text-green-800"
-                        }`}>
-                          {m.requires_auth ? "Yes" : "No"}
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-3 text-center">
-                      {editingId === m.id ? (
-                        <div className="flex gap-1 justify-center">
-                          <button 
-                            className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700" 
-                            onClick={() => saveEdit(m.id)}
-                          >
-                            Save
-                          </button>
-                          <button 
-                            className="bg-gray-400 text-white px-2 py-1 rounded text-xs hover:bg-gray-500" 
-                            onClick={() => setEditingId(null)}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-1 justify-center">
-                          <button 
-                            className="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600" 
-                            onClick={() => startEdit(m)}
-                          >
-                            Edit
-                          </button>
-                          <button 
-                            className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700" 
-                            onClick={() => deleteMethod(m.id)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
+                          Edit
+                        </button>
+                        <button 
+                          className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700" 
+                          onClick={() => deleteMethod(m.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
