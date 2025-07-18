@@ -63,8 +63,9 @@ export default function Login() {
               <button
                 type="button"
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              tabIndex={-1}
+                tabIndex={-1}
                 onClick={() => setShowPassword(!showPassword)}
+                style={{ height: 90 }}
               >
                 {showPassword ? (
                   <EyeSlashIcon className="h-5 w-5 text-gray-400" />

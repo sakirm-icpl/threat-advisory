@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../hooks/useAuth';
+import Modal from "../components/Modal";
 
 export default function SetupGuides() {
   const [guides, setGuides] = useState([]);
@@ -13,6 +15,9 @@ export default function SetupGuides() {
   const [filterProduct, setFilterProduct] = useState("");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState({});
+  const [modalContent, setModalContent] = useState({ isOpen: false, title: '', content: '' });
+  const [showAddForm, setShowAddForm] = useState(false);
+  const { user } = useAuth();
 
   const navigate = useNavigate();
 
@@ -87,49 +92,57 @@ export default function SetupGuides() {
   return (
     <div className="p-4 max-w-5xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Setup Guides</h2>
-      <form onSubmit={addGuide} className="bg-gray-50 p-4 rounded-lg mb-6 flex flex-col md:flex-row gap-2 items-end">
-        <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Product *</label>
-          <select
-            className="w-full border px-3 py-2 rounded"
-            name="product_id"
-            value={form.product_id}
-            onChange={handleFormChange}
-            required
+      {user?.role === 'admin' && (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            <option value="">Select product</option>
-            {products.map(p => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
+            {showAddForm ? 'Cancel' : 'Add Setup Guide'}
+          </button>
         </div>
-        <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Instructions * (Markdown supported)</label>
-          <textarea
-            className="w-full border px-3 py-2 rounded h-20 font-mono text-sm"
-            name="instructions"
-            value={form.instructions}
-            onChange={handleFormChange}
-            placeholder={`Setup instructions (markdown supported)
-
-Example:
-# Setup Steps
-1. Install dependencies
-2. Configure settings
-3. Run the application
-
-**Important:** Make sure to...`}
-            required
-          />
-          {form.instructions && (
-            <div className="mt-2 p-2 bg-gray-50 rounded border">
-              <div className="text-xs text-gray-500 mb-1">Preview:</div>
-              <MarkdownRenderer content={form.instructions} />
+      )}
+      {user?.role === 'admin' && showAddForm && (
+        <form onSubmit={addGuide} className="bg-gray-50 p-6 rounded-lg mb-6 w-full flex flex-col gap-4 shadow">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Product *</label>
+              <select
+                className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                name="product_id"
+                value={form.product_id}
+                onChange={handleFormChange}
+                required
+              >
+                <option value="">Select product</option>
+                {products.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
             </div>
-          )}
-        </div>
-        <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" type="submit">Add</button>
-      </form>
+            <div>
+              <label className="block text-sm font-medium mb-1">Instructions * (Markdown supported)</label>
+              <textarea
+                className="w-full border px-3 py-2 rounded h-32 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                name="instructions"
+                value={form.instructions}
+                onChange={handleFormChange}
+                placeholder={`Setup instructions (markdown supported)\n\nExample:\n# Setup Steps\n1. Install dependencies\n2. Configure settings\n3. Run the application\n\n**Important:** Make sure to...`}
+                required
+              />
+              {form.instructions && (
+                <div className="mt-2 p-2 bg-gray-50 rounded border">
+                  <div className="text-xs text-gray-500 mb-1">Preview:</div>
+                  <MarkdownRenderer content={form.instructions} />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" type="submit">Add Setup Guide</button>
+          </div>
+        </form>
+      )}
       <div className="flex flex-col md:flex-row gap-2 mb-4">
         <select
           className="border px-3 py-2 rounded"
@@ -162,7 +175,7 @@ Example:
               <th className="p-2 text-left">Category</th>
               <th className="p-2 text-left">Description</th>
               <th className="p-2 text-left">Instructions</th>
-              <th className="p-2">Actions</th>
+              {user?.role === 'admin' && <th className="p-2">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -181,30 +194,43 @@ Example:
                   <td className="p-2 max-w-md">
                     <div>
                       <MarkdownRenderer 
-                        content={isExpanded || g.instructions.length < 200
+                        content={g.instructions.length < 200 && !isExpanded
                           ? g.instructions
-                          : g.instructions.slice(0, 200) + "..."} 
+                          : g.instructions.slice(0, 200) + '...'}
                       />
                     </div>
                     {g.instructions.length > 200 && (
                       <button
                         className="text-blue-600 text-xs mt-1 underline"
-                        onClick={() => setExpanded(e => ({ ...e, [g.id]: !isExpanded }))}
+                        onClick={() => setModalContent({
+                          isOpen: true,
+                          title: `${product.name || ''} - Full Instructions`,
+                          content: g.instructions
+                        })}
                       >
-                        {isExpanded ? "Show Less" : "Show More"}
+                        Show More
                       </button>
                     )}
                   </td>
-                  <td className="p-2 flex gap-2">
-                    <button className="bg-yellow-500 text-white px-2 py-1 rounded" onClick={() => navigate(`/setup-guides/${g.id}/edit`)}>Edit</button>
-                    <button className="bg-red-600 text-white px-2 py-1 rounded" onClick={() => deleteGuide(g.id)}>Delete</button>
-                  </td>
+                  {user?.role === 'admin' && (
+                    <td className="p-2 flex gap-2">
+                      <button className="bg-yellow-500 text-white px-2 py-1 rounded" onClick={() => navigate(`/setup-guides/${g.id}/edit`)}>Edit</button>
+                      <button className="bg-red-600 text-white px-2 py-1 rounded" onClick={() => deleteGuide(g.id)}>Delete</button>
+                    </td>
+                  )}
                 </tr>
               );
             })}
           </tbody>
         </table>
       )}
+      <Modal
+        isOpen={modalContent.isOpen}
+        onClose={() => setModalContent({ isOpen: false, title: '', content: '' })}
+        title={modalContent.title}
+      >
+        <MarkdownRenderer content={modalContent.content} />
+      </Modal>
     </div>
   );
 } 

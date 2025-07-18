@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../hooks/useAuth';
 
 function getProductIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -26,6 +27,7 @@ export default function Methods() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchProducts();
@@ -117,12 +119,14 @@ export default function Methods() {
     <div className="p-4 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Detection Methods</h2>
-        <button 
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          {showAddForm ? "Cancel" : "Add New Method"}
-        </button>
+        {user?.role === 'admin' && (
+          <button 
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            {showAddForm ? "Cancel" : "Add New Method"}
+          </button>
+        )}
       </div>
       <div className="mb-4 flex gap-2">
         <select
@@ -137,7 +141,7 @@ export default function Methods() {
         </select>
       </div>
       {/* Add Method Form */}
-      {showAddForm && (
+      {user?.role === 'admin' && showAddForm && (
         <div className="bg-gray-50 p-6 rounded-lg mb-6 border">
           <h3 className="text-lg font-semibold mb-4">Add New Detection Method</h3>
           <form onSubmit={addMethod} className="space-y-4">
@@ -277,7 +281,9 @@ export default function Methods() {
                   <th className="p-3 text-left font-medium">Curl Command</th>
                   <th className="p-3 text-left font-medium">Expected Response</th>
                   <th className="p-3 text-center font-medium">Auth</th>
-                  <th className="p-3 text-center font-medium">Actions</th>
+                  {user?.role === 'admin' && (
+                    <th className="p-3 text-center font-medium">Actions</th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -359,22 +365,24 @@ export default function Methods() {
                         {m.requires_auth ? "Yes" : "No"}
                       </span>
                     </td>
-                    <td className="p-3 text-center">
-                      <div className="flex gap-1 justify-center">
-                        <button 
-                          className="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600" 
-                          onClick={() => navigate(`/methods/${m.id}/edit`)}
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700" 
-                          onClick={() => deleteMethod(m.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
+                    {user?.role === 'admin' && (
+                      <td className="p-3 text-center">
+                        <div className="flex gap-1 justify-center">
+                          <button 
+                            className="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600" 
+                            onClick={() => navigate(`/methods/${m.id}/edit`)}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700" 
+                            onClick={() => deleteMethod(m.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
+import { useAuth } from '../hooks/useAuth';
 
 export default function Vendors() {
   const [vendors, setVendors] = useState([]);
@@ -8,6 +9,7 @@ export default function Vendors() {
   const [editingName, setEditingName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchVendors();
@@ -65,15 +67,17 @@ export default function Vendors() {
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <h2 className="text-xl font-bold mb-4">Vendors</h2>
-      <form onSubmit={addVendor} className="flex gap-2 mb-4">
-        <input
-          className="border px-2 py-1 flex-1"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder="Vendor name"
-        />
-        <button className="bg-blue-600 text-white px-4 py-1 rounded" type="submit">Add</button>
-      </form>
+      {user?.role === 'admin' && (
+        <form onSubmit={addVendor} className="flex gap-2 mb-4">
+          <input
+            className="border px-2 py-1 flex-1"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Vendor name"
+          />
+          <button className="bg-blue-600 text-white px-4 py-1 rounded" type="submit">Add</button>
+        </form>
+      )}
       {error && <div className="text-red-600 mb-2">{error}</div>}
       {loading ? (
         <p>Loading...</p>
@@ -82,7 +86,7 @@ export default function Vendors() {
           <thead>
             <tr className="bg-gray-100">
               <th className="p-2 text-left">Name</th>
-              <th className="p-2">Actions</th>
+              {user?.role === 'admin' && <th className="p-2">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -99,19 +103,21 @@ export default function Vendors() {
                     v.name
                   )}
                 </td>
-                <td className="p-2 flex gap-2">
-                  {editingId === v.id ? (
-                    <>
-                      <button className="bg-green-600 text-white px-2 py-1 rounded" onClick={() => saveEdit(v.id)}>Save</button>
-                      <button className="bg-gray-400 text-white px-2 py-1 rounded" onClick={() => setEditingId(null)}>Cancel</button>
-                    </>
-                  ) : (
-                    <>
-                      <button className="bg-yellow-500 text-white px-2 py-1 rounded" onClick={() => startEdit(v)}>Edit</button>
-                      <button className="bg-red-600 text-white px-2 py-1 rounded" onClick={() => deleteVendor(v.id)}>Delete</button>
-                    </>
-                  )}
-                </td>
+                {user?.role === 'admin' && (
+                  <td className="p-2 flex gap-2">
+                    {editingId === v.id ? (
+                      <>
+                        <button className="bg-green-600 text-white px-2 py-1 rounded" onClick={() => saveEdit(v.id)}>Save</button>
+                        <button className="bg-gray-400 text-white px-2 py-1 rounded" onClick={() => setEditingId(null)}>Cancel</button>
+                      </>
+                    ) : (
+                      <>
+                        <button className="bg-yellow-500 text-white px-2 py-1 rounded" onClick={() => startEdit(v)}>Edit</button>
+                        <button className="bg-red-600 text-white px-2 py-1 rounded" onClick={() => deleteVendor(v.id)}>Delete</button>
+                      </>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

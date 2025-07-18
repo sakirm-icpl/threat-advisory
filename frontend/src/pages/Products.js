@@ -3,6 +3,7 @@ import api from "../services/api";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import Modal from "../components/Modal";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../hooks/useAuth';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -15,6 +16,8 @@ export default function Products() {
   const [error, setError] = useState("");
   const [modalContent, setModalContent] = useState({ isOpen: false, title: "", content: "" });
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [showAddForm, setShowAddForm] = useState(false);
 
   useEffect(() => {
     fetchVendors();
@@ -74,69 +77,73 @@ export default function Products() {
   return (
     <div className="p-4 max-w-6xl mx-auto">
       <h2 className="text-xl font-bold mb-4">Products</h2>
-      <form onSubmit={addProduct} className="bg-gray-50 p-4 rounded-lg mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Product Name *</label>
-            <input
-              className="w-full border px-3 py-2 rounded"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Product name"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Category</label>
-            <input
-              className="w-full border px-3 py-2 rounded"
-              value={category}
-              onChange={e => setCategory(e.target.value)}
-              placeholder="e.g., Web Application, Service, OS"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Vendor *</label>
-            <select
-              className="w-full border px-3 py-2 rounded"
-              value={vendorId}
-              onChange={e => setVendorId(e.target.value)}
-              required
-            >
-              <option value="">Select vendor</option>
-              {vendors.map(v => (
-                <option key={v.id} value={v.id}>{v.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-end">
-            <button className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" type="submit">Add Product</button>
-          </div>
+      {user?.role === 'admin' && (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            {showAddForm ? 'Cancel' : 'Add Product'}
+          </button>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Description (Markdown supported)</label>
-          <textarea
-            className="w-full border px-3 py-2 rounded h-32 font-mono text-sm"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            placeholder={`Describe what this product does, its features, etc.
-
-You can use Markdown formatting:
-**Bold text**
-*Italic text*
-- Bullet points
-1. Numbered lists
-\`\`\`code blocks\`\`\`
-[Links](https://example.com)`}
-          />
-          {description && (
-            <div className="mt-2 p-3 bg-gray-50 rounded border">
-              <div className="text-xs text-gray-500 mb-2">Preview:</div>
-              <MarkdownRenderer content={description} />
+      )}
+      {user?.role === 'admin' && showAddForm && (
+        <form onSubmit={addProduct} className="bg-gray-50 p-6 rounded-lg mb-6 w-full flex flex-col gap-4 shadow">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Product Name *</label>
+              <input
+                className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Product name"
+                required
+              />
             </div>
-          )}
-        </div>
-      </form>
+            <div>
+              <label className="block text-sm font-medium mb-1">Category</label>
+              <input
+                className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={category}
+                onChange={e => setCategory(e.target.value)}
+                placeholder="e.g., Web Application, Service, OS"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Vendor *</label>
+              <select
+                className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={vendorId}
+                onChange={e => setVendorId(e.target.value)}
+                required
+              >
+                <option value="">Select vendor</option>
+                {vendors.map(v => (
+                  <option key={v.id} value={v.id}>{v.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-end">
+              <button className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" type="submit">Add Product</button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Description (Markdown supported)</label>
+            <textarea
+              className="w-full border px-3 py-2 rounded h-32 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder={`Describe what this product does, its features, etc.\n\nYou can use Markdown formatting:\n**Bold text**\n*Italic text*\n- Bullet points\n1. Numbered lists\n\`\`\`code blocks\`\`\`\n[Links](https://example.com)`}
+            />
+            {description && (
+              <div className="mt-2 p-3 bg-gray-50 rounded border">
+                <div className="text-xs text-gray-500 mb-2">Preview:</div>
+                <MarkdownRenderer content={description} />
+              </div>
+            )}
+          </div>
+        </form>
+      )}
       {error && <div className="text-red-600 mb-2 p-3 bg-red-50 rounded border">{error}</div>}
       {loading ? (
         <p>Loading...</p>
@@ -150,7 +157,9 @@ You can use Markdown formatting:
                   <th className="p-3 text-left font-medium">Product Name</th>
                   <th className="p-3 text-left font-medium">Category</th>
                   <th className="p-3 text-left font-medium">Description</th>
-                  <th className="p-3 text-center font-medium">Actions</th>
+                  {user?.role === 'admin' && (
+                    <th className="p-3 text-center font-medium">Actions</th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -202,12 +211,14 @@ You can use Markdown formatting:
                           )}
                         </div>
                     </td>
-                    <td className="p-3 text-center">
+                    {user?.role === 'admin' && (
+                      <td className="p-3 text-center">
                         <div className="flex gap-2 justify-center">
                           <button className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600" onClick={() => navigate(`/products/${p.id}/edit`)}>Edit</button>
                           <button className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700" onClick={() => deleteProduct(p.id)}>Delete</button>
                         </div>
-                    </td>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
