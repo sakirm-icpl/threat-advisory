@@ -4,6 +4,30 @@ A comprehensive platform for managing internal version detection research for va
 
 ---
 
+## 📖 Documentation
+
+- **[Quick Setup Guide](SETUP.md)** - For new users getting started
+- **[Production Deployment](PRODUCTION_DEPLOYMENT.md)** - For production server setup
+- **[CVE Search Integration](CVE_SEARCH_INTEGRATION_SUMMARY.md)** - CVE integration details
+
+## 🚀 Quick Start Options
+
+### Option 1: Docker Deployment (Recommended)
+```bash
+git clone <repository-url>
+cd versionintel
+./deploy.sh
+```
+
+### Option 2: Local Development
+```bash
+git clone <repository-url>
+cd versionintel
+./dev-setup.sh  # Sets up Python venv and Node.js dependencies
+```
+
+---
+
 ## 🚀 Quick Start (One-Command Deployment)
 
 ### Prerequisites

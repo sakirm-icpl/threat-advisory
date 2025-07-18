@@ -3,23 +3,22 @@ import os
 class Config:
     # Basic Flask configuration
     SECRET_KEY = os.environ.get("SECRET_KEY", "supersecretkey")
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@db:5432/versionintel")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@db:5432/versionintel")  # Supports both Docker and local
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT configuration
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "jwtsecretkey")
     JWT_ACCESS_TOKEN_EXPIRES = False  # Tokens don't expire for simplicity
     
-    # CORS configuration - Allow localhost and local network access
+    # CORS configuration - Allow common development and production origins
     CORS_ORIGINS = [
         "http://localhost:3000",
         "http://localhost:8000",
         "http://127.0.0.1:3000",
-        "http://127.0.0.1:8000"
+        "http://127.0.0.1:8000",
+        "http://0.0.0.0:3000",
+        "http://0.0.0.0:8000"
     ]
-    
-    # For local development and testing
-    # This will be handled by the CORS middleware
     
     # Swagger configuration
     SWAGGER = {

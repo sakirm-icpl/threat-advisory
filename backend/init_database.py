@@ -21,7 +21,7 @@ with app.app_context():
             email='admin@example.com',
             role='admin'
         )
-        admin_user.set_password('admin')
+        admin_user.set_password('Admin@1234')
         db.session.add(admin_user)
         db.session.commit()
         print("Admin user created successfully!")

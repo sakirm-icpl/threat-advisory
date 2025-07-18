@@ -24,9 +24,16 @@ fi
 
 echo "✅ Docker and Docker Compose are installed"
 
-# Get the server IP address
-SERVER_IP=$(hostname -I | awk '{print $1}')
-echo "🌐 Detected server IP: $SERVER_IP"
+# Get the server IP address (try multiple methods)
+SERVER_IP="localhost"
+if command -v hostname &> /dev/null; then
+    DETECTED_IP=$(hostname -I | awk '{print $1}' 2>/dev/null || echo "")
+    if [ ! -z "$DETECTED_IP" ] && [ "$DETECTED_IP" != "127.0.0.1" ]; then
+        SERVER_IP=$DETECTED_IP
+    fi
+fi
+
+echo "🌐 Using server IP: $SERVER_IP"
 
 # Create frontend .env file if it doesn't exist
 if [ ! -f "frontend/.env" ]; then
