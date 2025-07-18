@@ -18,13 +18,13 @@ const CVESearch = () => {
   const [success, setSuccess] = useState('');
   
   // Search states
-  const [vendor, setVendor] = useState('');
-  const [product, setProduct] = useState('');
+  const [unifiedQuery, setUnifiedQuery] = useState('');
   const [keyword, setKeyword] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [totalResults, setTotalResults] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [resultsPerPage, setResultsPerPage] = useState(20);
+  const [searchType, setSearchType] = useState('');
   
   // Recent CVEs states
   const [recentCves, setRecentCves] = useState([]);
@@ -45,7 +45,7 @@ const CVESearch = () => {
   
  // 'nvd' or 'circl'
   
-  const API_BASE_URL = 'http://172.17.14.65:8000';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
     // Check authentication first
@@ -69,6 +69,19 @@ const CVESearch = () => {
       setProducts([]);
     }
   }, [selectedVendorId]);
+
+  // Handle results per page changes
+  useEffect(() => {
+    // If we have search results and the user changes results per page, trigger a new search
+    if (searchResults.length > 0 && (unifiedQuery || keyword)) {
+      setCurrentPage(1); // Reset to first page
+      if (activeTab === 0 && unifiedQuery) {
+        handleUnifiedSearch(1);
+      } else if (activeTab === 1 && keyword) {
+        handleKeywordSearch(1);
+      }
+    }
+  }, [resultsPerPage]);
 
   const loadVendors = async () => {
     try {
@@ -141,8 +154,8 @@ const CVESearch = () => {
     }
   };
 
-  // Enhanced vendor/product search using NVD with CPE matching
-  const handleVendorProductSearch = async (page = currentPage) => {
+  // Enhanced unified search using NVD with intelligent query detection
+  const handleUnifiedSearch = async (page = currentPage) => {
     setLoading(true);
     setError('');
     try {
@@ -155,12 +168,11 @@ const CVESearch = () => {
       const actualPage = page || currentPage;
       const startIndex = (actualPage - 1) * resultsPerPage;
       
-      // Use enhanced NVD vendor/product search with CPE matching
-      const response = await axios.get(`${API_BASE_URL}/api/cve/search/vendor-product`, {
+      // Use unified search endpoint
+      const response = await axios.get(`${API_BASE_URL}/api/cve/search/unified`, {
         headers: { Authorization: `Bearer ${token}` },
         params: {
-          vendor,
-          product,
+          query: unifiedQuery,
           limit: resultsPerPage,
           start_index: startIndex
         }
@@ -170,10 +182,12 @@ const CVESearch = () => {
         setError(response.data.error);
         setSearchResults([]);
         setTotalResults(0);
+        setSearchType('');
       } else {
         setSearchResults(response.data.results || []);
         setTotalResults(response.data.total_results || 0);
         setCurrentPage(actualPage);
+        setSearchType(response.data.search_type || '');
         setError('');
       }
     } catch (error) {
@@ -181,6 +195,7 @@ const CVESearch = () => {
       setError('Failed to search CVEs. Please try again.');
       setSearchResults([]);
       setTotalResults(0);
+      setSearchType('');
     } finally {
       setLoading(false);
     }
@@ -296,8 +311,8 @@ const CVESearch = () => {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     // Trigger new search with updated page
-    if (activeTab === 0 && (vendor || product)) {
-      handleVendorProductSearch(newPage);
+    if (activeTab === 0 && unifiedQuery) {
+      handleUnifiedSearch(newPage);
     } else if (activeTab === 1 && keyword) {
       handleKeywordSearch(newPage);
     }
@@ -334,8 +349,7 @@ const CVESearch = () => {
     setDatabaseResults([]);
     setError('');
     setSuccess('');
-    setVendor('');
-    setProduct('');
+    setUnifiedQuery('');
     setKeyword('');
     setSelectedVendorId('');
     setSelectedProductId('');
@@ -394,7 +408,7 @@ const CVESearch = () => {
   };
 
   const tabs = [
-    { name: 'Vendor/Product Search', icon: MagnifyingGlassIcon },
+    { name: 'Unified Search', icon: MagnifyingGlassIcon },
     { name: 'Keyword Search', icon: MagnifyingGlassIcon },
     { name: 'Database Search', icon: ExclamationTriangleIcon },
     { name: 'Recent CVEs', icon: ChevronDownIcon },
@@ -404,7 +418,7 @@ const CVESearch = () => {
   const renderCVEList = (cves, title) => (
     <div>
       <h3 className="text-lg font-medium text-gray-900 mb-4">
-        {title} ({cves.length})
+        {title} ({cves.length} results)
       </h3>
       {cves.length === 0 ? (
         <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
@@ -425,6 +439,46 @@ const CVESearch = () => {
                     <h4 className="text-lg font-semibold text-blue-600 mb-2">
                       {cve.cve_id}
                     </h4>
+                    
+                    {/* Vendor and Product Information */}
+                    {cve.vendors_products && cve.vendors_products.length > 0 && (
+                      <div className="mb-3 p-3 bg-gray-50 rounded-md border border-gray-200">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {(() => {
+                            // Remove duplicates by creating unique vendor/product combinations
+                            const uniqueVendorProducts = [];
+                            const seen = new Set();
+                            
+                            cve.vendors_products.forEach(vp => {
+                              // Normalize vendor and product names for better duplicate detection
+                              const vendor = (vp.vendor || '').toLowerCase().trim();
+                              const product = (vp.product || '').toLowerCase().trim();
+                              
+                              if (vendor && product) {
+                                const key = `${vendor}/${product}`;
+                                if (!seen.has(key)) {
+                                  seen.add(key);
+                                  uniqueVendorProducts.push({
+                                    vendor: vp.vendor || 'Unknown',
+                                    product: vp.product || 'Unknown'
+                                  });
+                                }
+                              }
+                            });
+                            
+                            return uniqueVendorProducts.map((vp, vpIndex) => (
+                              <div key={`${cve.cve_id}-${vpIndex}`} className="flex items-center space-x-2">
+                                <span className="text-sm font-medium text-gray-700">Vendor:</span>
+                                <span className="text-sm text-gray-900 bg-white px-2 py-1 rounded border">{vp.vendor}</span>
+                                <span className="text-sm font-medium text-gray-700">Product:</span>
+                                <span className="text-sm text-gray-900 bg-white px-2 py-1 rounded border">{vp.product}</span>
+                              </div>
+                            ));
+                          })()}
+                        </div>
+                      </div>
+                    )}
+                    
                     <p className="text-gray-600 mb-3">
                       {cve.description}
                     </p>
@@ -441,13 +495,6 @@ const CVESearch = () => {
                         Published: {formatDate(cve.published_date)}
                       </span>
                     </div>
-                    {cve.vendors_products && cve.vendors_products.length > 0 && (
-                      <p className="text-sm text-gray-500">
-                        Affected: {cve.vendors_products.map(vp => 
-                          `${vp.vendor}/${vp.product}`
-                        ).join(', ')}
-                      </p>
-                    )}
                   </div>
                   <button
                     onClick={() => window.open(cve.url, '_blank')}
@@ -563,63 +610,55 @@ const CVESearch = () => {
           </div>
 
           <div className="p-6">
-            {/* Vendor/Product Search Tab */}
+            {/* Unified Search Tab */}
             {activeTab === 0 && (
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Search CVEs by Vendor and Product
+                  Unified CVE Search
                 </h3>
                 <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
                   <p className="text-sm text-blue-800">
-                    <strong>Enhanced NVD Search:</strong> Using CPE (Common Platform Enumeration) matching for comprehensive vendor/product vulnerability coverage.
+                    <strong>Smart Search:</strong> Search by vendor, product, CVE ID, or keywords. Examples: "Apache httpd", "CVE-2023-1234", "log4j", "Microsoft Windows"
                   </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                  <div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                  <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Vendor Name
+                      Search Query
                     </label>
                     <input
                       type="text"
-                      value={vendor}
-                      onChange={(e) => setVendor(e.target.value)}
-                      placeholder="e.g., Apache, Microsoft, Oracle"
+                      value={unifiedQuery}
+                      onChange={(e) => setUnifiedQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && unifiedQuery.trim()) {
+                          handleUnifiedSearch();
+                        }
+                      }}
+                      placeholder="e.g., Apache httpd, CVE-2023-1234, log4j, Microsoft Windows"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Product Name
-                    </label>
-                    <input
-                      type="text"
-                      value={product}
-                      onChange={(e) => setProduct(e.target.value)}
-                      placeholder="e.g., httpd, Windows, Java"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Results
+                      Results per page
                     </label>
                     <select
                       value={resultsPerPage}
                       onChange={(e) => setResultsPerPage(Number(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     >
+                      <option value={5}>5</option>
                       <option value={10}>10</option>
+                      <option value={15}>15</option>
                       <option value={20}>20</option>
-                      <option value={50}>50</option>
-                      <option value={100}>100</option>
-                      <option value={500}>500</option>
-                      <option value={1000}>1000</option>
-                      <option value={-1}>All</option>
+                      <option value={25}>25</option>
+                      <option value={30}>30</option>
                     </select>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="md:col-span-3 flex gap-2">
                     <button
-                      onClick={handleVendorProductSearch}
+                      onClick={handleUnifiedSearch}
                       disabled={loading}
                       className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
@@ -630,7 +669,7 @@ const CVESearch = () => {
                       )}
                       Search
                     </button>
-                    {(searchResults.length > 0 || vendor || product) && (
+                    {(searchResults.length > 0 || unifiedQuery) && (
                       <button
                         onClick={handleCancelSearch}
                         className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
@@ -643,7 +682,7 @@ const CVESearch = () => {
                 {searchResults.length > 0 && (
                   <div className="mt-8">
                     {renderCVEList(searchResults, 'Search Results')}
-                    {totalResults > resultsPerPage && (
+                    {totalResults >= resultsPerPage && (
                       <div className="mt-6 flex justify-center">
                         <nav className="flex items-center space-x-2">
                           {/* Previous button */}
@@ -704,11 +743,11 @@ const CVESearch = () => {
                         </div>
                       </div>
                     )}
-                     {searchResults.length > 0 && (
-                       <div className="mb-4 text-xs text-gray-500">
-                         Showing results from: <span className="font-semibold">NVD (Enhanced CPE Matching)</span>
-                       </div>
-                     )}
+                    {searchResults.length > 0 && (
+                      <div className="mb-4 text-xs text-gray-500">
+                        Showing results from: <span className="font-semibold">NVD ({searchType || 'Unified Search'})</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -729,26 +768,30 @@ const CVESearch = () => {
                       type="text"
                       value={keyword}
                       onChange={(e) => setKeyword(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && keyword.trim()) {
+                          handleKeywordSearch();
+                        }
+                      }}
                       placeholder="e.g., log4j, heartbleed, shellshock"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Results
+                      Results per page
                     </label>
                     <select
                       value={resultsPerPage}
                       onChange={(e) => setResultsPerPage(Number(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     >
+                      <option value={5}>5</option>
                       <option value={10}>10</option>
+                      <option value={15}>15</option>
                       <option value={20}>20</option>
-                      <option value={50}>50</option>
-                      <option value={100}>100</option>
-                      <option value={500}>500</option>
-                      <option value={1000}>1000</option>
-                      <option value={-1}>All</option>
+                      <option value={25}>25</option>
+                      <option value={30}>30</option>
                     </select>
                   </div>
                   <div className="md:col-span-3 flex gap-2">
@@ -777,7 +820,7 @@ const CVESearch = () => {
                 {searchResults.length > 0 && (
                   <div className="mt-8">
                     {renderCVEList(searchResults, 'Search Results')}
-                    {totalResults > resultsPerPage && (
+                    {totalResults >= resultsPerPage && (
                       <div className="mt-6 flex justify-center">
                         <nav className="flex items-center space-x-2">
                           {/* Previous button */}
@@ -836,6 +879,11 @@ const CVESearch = () => {
                         <div className="mt-4 text-center text-sm text-gray-600">
                           Showing {((currentPage - 1) * resultsPerPage) + 1} to {Math.min(currentPage * resultsPerPage, totalResults)} of {totalResults} results
                         </div>
+                      </div>
+                    )}
+                    {searchResults.length > 0 && (
+                      <div className="mb-4 text-xs text-gray-500">
+                        Showing results from: <span className="font-semibold">NVD ({searchType || 'Keyword Search'})</span>
                       </div>
                     )}
                   </div>
@@ -895,20 +943,19 @@ const CVESearch = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Results
+                      Results per page
                     </label>
                     <select
                       value={resultsPerPage}
                       onChange={(e) => setResultsPerPage(Number(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     >
+                      <option value={5}>5</option>
                       <option value={10}>10</option>
+                      <option value={15}>15</option>
                       <option value={20}>20</option>
-                      <option value={50}>50</option>
-                      <option value={100}>100</option>
-                      <option value={500}>500</option>
-                      <option value={1000}>1000</option>
-                      <option value={-1}>All</option>
+                      <option value={25}>25</option>
+                      <option value={30}>30</option>
                     </select>
                   </div>
                   <div className="flex gap-2">

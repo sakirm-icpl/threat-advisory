@@ -3,7 +3,7 @@ import os
 class Config:
     # Basic Flask configuration
     SECRET_KEY = os.environ.get("SECRET_KEY", "supersecretkey")
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/versionintel")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@db:5432/versionintel")  # Supports both Docker and local
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT configuration

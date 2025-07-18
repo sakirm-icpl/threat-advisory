@@ -573,3 +573,93 @@ class CVEService:
                                 })
         
         return vendors_products 
+
+    def search_cves_unified(self, query: str, limit: int = 20, start_index: int = 0) -> Dict:
+        """
+        Unified search for CVEs by vendor, product, or keyword.
+        This method intelligently determines the best search strategy based on the query.
+        """
+        try:
+            print(f"DEBUG: Starting unified search for query: '{query}'")
+            
+            # Clean and normalize input
+            query_clean = query.strip().lower()
+            
+            if not query_clean:
+                return {
+                    'error': 'Search query is required',
+                    'results': [],
+                    'total_results': 0
+                }
+            
+            # Strategy 1: Try vendor/product search first (if query contains space or common separators)
+            if ' ' in query_clean or '/' in query_clean or '-' in query_clean:
+                # Split query into potential vendor/product parts
+                parts = re.split(r'[\s/-]+', query_clean)
+                if len(parts) >= 2:
+                    vendor = parts[0]
+                    product = ' '.join(parts[1:])  # Join remaining parts as product
+                    
+                    print(f"DEBUG: Attempting vendor/product search: vendor='{vendor}', product='{product}'")
+                    vendor_product_results = self.search_cves_by_vendor_product(
+                        vendor=vendor,
+                        product=product,
+                        limit=limit,
+                        start_index=start_index
+                    )
+                    
+                    if vendor_product_results.get('results') and len(vendor_product_results['results']) > 0:
+                        vendor_product_results['search_type'] = 'vendor_product'
+                        vendor_product_results['search_params']['query'] = query
+                        return vendor_product_results
+            
+            # Strategy 2: Try keyword search
+            print(f"DEBUG: Attempting keyword search for: '{query_clean}'")
+            keyword_results = self.search_cves_by_keyword(
+                keyword=query_clean,
+                limit=limit,
+                start_index=start_index
+            )
+            
+            if keyword_results.get('results') and len(keyword_results['results']) > 0:
+                keyword_results['search_type'] = 'keyword'
+                keyword_results['search_params']['query'] = query
+                return keyword_results
+            
+            # Strategy 3: Try vendor-only search as fallback
+            print(f"DEBUG: Attempting vendor-only search for: '{query_clean}'")
+            vendor_results = self._search_vendor_only(query_clean, '', limit)
+            
+            if vendor_results:
+                # Format vendor-only results
+                total_count = len(vendor_results)
+                paginated_results = vendor_results[start_index:start_index + limit]
+                
+                return {
+                    'results': paginated_results,
+                    'total_results': total_count,
+                    'search_type': 'vendor_only',
+                    'search_params': {
+                        'query': query,
+                        'vendor': query_clean,
+                        'method': 'vendor_only_fallback'
+                    }
+                }
+            
+            # No results found
+            return {
+                'results': [],
+                'total_results': 0,
+                'search_type': 'no_results',
+                'search_params': {'query': query},
+                'message': f'No CVEs found for query: "{query}"'
+            }
+            
+        except Exception as e:
+            print(f"DEBUG: Error in unified search: {str(e)}")
+            return {
+                'error': f'Search failed: {str(e)}',
+                'results': [],
+                'total_results': 0,
+                'search_type': 'error'
+            } 
