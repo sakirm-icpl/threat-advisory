@@ -226,9 +226,9 @@ class CVEService:
         
         # Standard patterns
         patterns.extend([
-            f"cpe:2.3:a:{vendor_clean}:{product_clean}:*:*:*:*:*:*:*:*:*",
-            f"cpe:2.3:a:{vendor_clean}:*:{product_clean}:*:*:*:*:*:*:*:*",
-            f"cpe:2.3:a:{vendor_clean}:*:*:{product_clean}:*:*:*:*:*:*:*"
+            f"cpe:2.3:a:{vendor_clean}:{product_clean}:*:*:*:*:*:*:*:*:*:*:*",
+            f"cpe:2.3:a:{vendor_clean}:*:{product_clean}:*:*:*:*:*:*:*:*:*:*",
+            f"cpe:2.3:a:{vendor_clean}:*:*:{product_clean}:*:*:*:*:*:*:*:*:*"
         ])
         
         # Handle common variations
@@ -239,7 +239,7 @@ class CVEService:
             for p in product_variations[:3]:
                 v_clean = self._clean_for_cpe(v)
                 p_clean = self._clean_for_cpe(p)
-                patterns.append(f"cpe:2.3:a:{v_clean}:{p_clean}:*:*:*:*:*:*:*:*:*")
+                patterns.append(f"cpe:2.3:a:{v_clean}:{p_clean}:*:*:*:*:*:*:*:*:*:*:*")
         
         return list(set(patterns))  # Remove duplicates
     
@@ -576,14 +576,15 @@ class CVEService:
 
     def search_cves_unified(self, query: str, limit: int = 20, start_index: int = 0) -> Dict:
         """
-        Unified search for CVEs by vendor, product, or keyword.
-        This method intelligently determines the best search strategy based on the query.
+        Unified search for CVEs by vendor, product, CVE ID, or keyword.
+        This method implements proper search logic that prioritizes CPE-based searches
+        and filters results correctly.
         """
         try:
             print(f"DEBUG: Starting unified search for query: '{query}'")
             
             # Clean and normalize input
-            query_clean = query.strip().lower()
+            query_clean = query.strip()
             
             if not query_clean:
                 return {
@@ -592,7 +593,28 @@ class CVEService:
                     'total_results': 0
                 }
             
-            # Strategy 1: Try vendor/product search first (if query contains space or common separators)
+            # Strategy 1: Check if query is a CVE ID
+            cve_pattern = re.compile(r'^CVE-\d{4}-\d{4,}$', re.IGNORECASE)
+            if cve_pattern.match(query_clean):
+                print(f"DEBUG: Query matches CVE ID pattern: {query_clean}")
+                cve_details = self.get_cve_details(query_clean)
+                if 'error' not in cve_details:
+                    return {
+                        'results': [cve_details],
+                        'total_results': 1,
+                        'search_type': 'cve_id',
+                        'search_params': {'query': query_clean}
+                    }
+                else:
+                    return {
+                        'results': [],
+                        'total_results': 0,
+                        'search_type': 'cve_id_not_found',
+                        'search_params': {'query': query_clean},
+                        'message': f'CVE {query_clean} not found'
+                    }
+            
+            # Strategy 2: Try vendor/product search (for queries with spaces, slashes, or hyphens)
             if ' ' in query_clean or '/' in query_clean or '-' in query_clean:
                 # Split query into potential vendor/product parts
                 parts = re.split(r'[\s/-]+', query_clean)
@@ -610,49 +632,72 @@ class CVEService:
                     
                     if vendor_product_results.get('results') and len(vendor_product_results['results']) > 0:
                         vendor_product_results['search_type'] = 'vendor_product'
-                        vendor_product_results['search_params']['query'] = query
+                        vendor_product_results['search_params']['query'] = query_clean
+                        vendor_product_results['search_params']['vendor'] = vendor
+                        vendor_product_results['search_params']['product'] = product
                         return vendor_product_results
             
-            # Strategy 2: Try keyword search
-            print(f"DEBUG: Attempting keyword search for: '{query_clean}'")
-            keyword_results = self.search_cves_by_keyword(
-                keyword=query_clean,
-                limit=limit,
-                start_index=start_index
-            )
-            
-            if keyword_results.get('results') and len(keyword_results['results']) > 0:
-                keyword_results['search_type'] = 'keyword'
-                keyword_results['search_params']['query'] = query
-                return keyword_results
-            
-            # Strategy 3: Try vendor-only search as fallback
-            print(f"DEBUG: Attempting vendor-only search for: '{query_clean}'")
+            # Strategy 3: Try single-term search (could be vendor, product, or keyword)
+            # First try as vendor/product combination with empty product
+            print(f"DEBUG: Attempting single-term search as vendor: '{query_clean}'")
             vendor_results = self._search_vendor_only(query_clean, '', limit)
             
             if vendor_results:
-                # Format vendor-only results
-                total_count = len(vendor_results)
-                paginated_results = vendor_results[start_index:start_index + limit]
+                # Filter results to ensure they're actually related to the vendor
+                filtered_results = self._filter_results_by_vendor(vendor_results, query_clean)
+                total_count = len(filtered_results)
+                paginated_results = filtered_results[start_index:start_index + limit]
                 
-                return {
-                    'results': paginated_results,
-                    'total_results': total_count,
-                    'search_type': 'vendor_only',
-                    'search_params': {
-                        'query': query,
-                        'vendor': query_clean,
-                        'method': 'vendor_only_fallback'
+                if total_count > 0:
+                    return {
+                        'results': paginated_results,
+                        'total_results': total_count,
+                        'search_type': 'vendor_only',
+                        'search_params': {
+                            'query': query_clean,
+                            'vendor': query_clean,
+                            'method': 'vendor_only_search'
+                        }
                     }
-                }
+            
+            # Strategy 4: Try as product search (search for product name in CPE)
+            print(f"DEBUG: Attempting single-term search as product: '{query_clean}'")
+            product_results = self._search_by_product_name(query_clean, limit)
+            
+            if product_results:
+                # Filter results to ensure they're actually related to the product
+                filtered_results = self._filter_results_by_product(product_results, query_clean)
+                total_count = len(filtered_results)
+                paginated_results = filtered_results[start_index:start_index + limit]
+                
+                if total_count > 0:
+                    return {
+                        'results': paginated_results,
+                        'total_results': total_count,
+                        'search_type': 'product_only',
+                        'search_params': {
+                            'query': query_clean,
+                            'product': query_clean,
+                            'method': 'product_only_search'
+                        }
+                    }
+            
+            # Strategy 5: Fallback to keyword search with strict filtering
+            print(f"DEBUG: Attempting keyword search with strict filtering for: '{query_clean}'")
+            keyword_results = self._search_with_strict_filtering(query_clean, limit, start_index)
+            
+            if keyword_results.get('results') and len(keyword_results['results']) > 0:
+                keyword_results['search_type'] = 'keyword_filtered'
+                keyword_results['search_params']['query'] = query_clean
+                return keyword_results
             
             # No results found
             return {
                 'results': [],
                 'total_results': 0,
                 'search_type': 'no_results',
-                'search_params': {'query': query},
-                'message': f'No CVEs found for query: "{query}"'
+                'search_params': {'query': query_clean},
+                'message': f'No CVEs found for query: "{query_clean}"'
             }
             
         except Exception as e:
@@ -663,3 +708,229 @@ class CVEService:
                 'total_results': 0,
                 'search_type': 'error'
             } 
+
+    def _search_by_product_name(self, product: str, limit: int) -> List[Dict]:
+        """Search for CVEs by product name in CPE configurations"""
+        try:
+            # Generate CPE patterns for product search
+            # Use proper CPE format with wildcards
+            patterns = [
+                f"cpe:2.3:a:*:{product}:*:*:*:*:*:*:*:*:*:*:*",
+                f"cpe:2.3:a:*:*:{product}:*:*:*:*:*:*:*:*:*:*"
+            ]
+            
+            all_cves = []
+            cve_ids_seen = set()
+            
+            for pattern in patterns:
+                try:
+                    params = {
+                        'cpeName': pattern,
+                        'resultsPerPage': min(limit * 2, 100)
+                    }
+                    
+                    response = self._make_api_request(self.nvd_base_url, params)
+                    if not response:
+                        continue
+                    
+                    data = response.json()
+                    if 'vulnerabilities' in data:
+                        for vuln in data['vulnerabilities']:
+                            cve_data = vuln['cve']
+                            cve_id = cve_data.get('id', '')
+                            
+                            if cve_id not in cve_ids_seen:
+                                cve_ids_seen.add(cve_id)
+                                formatted_cve = self._format_cve_summary(cve_data)
+                                all_cves.append(formatted_cve)
+                    
+                    time.sleep(0.1)
+                    
+                except Exception as e:
+                    print(f"DEBUG: Error with product CPE pattern '{pattern}': {e}")
+                    continue
+            
+            return all_cves
+            
+        except Exception as e:
+            print(f"DEBUG: Error in product name search: {e}")
+            return []
+
+    def _filter_results_by_vendor(self, results: List[Dict], vendor: str) -> List[Dict]:
+        """Filter CVE results to ensure they're actually related to the vendor"""
+        filtered_results = []
+        vendor_lower = vendor.lower()
+        
+        for cve in results:
+            # Check if vendor appears in CPE configurations
+            configurations = cve.get('configurations', [])
+            vendor_found = False
+            
+            for config in configurations:
+                nodes = config.get('nodes', [])
+                for node in nodes:
+                    cpe_match = node.get('cpeMatch', [])
+                    for match in cpe_match:
+                        criteria = match.get('criteria', '').lower()
+                        if vendor_lower in criteria:
+                            vendor_found = True
+                            break
+                    if vendor_found:
+                        break
+                if vendor_found:
+                    break
+            
+            if vendor_found:
+                filtered_results.append(cve)
+        
+        return filtered_results
+
+    def _filter_results_by_product(self, results: List[Dict], product: str) -> List[Dict]:
+        """Filter CVE results to ensure they're actually related to the product"""
+        filtered_results = []
+        product_lower = product.lower()
+        
+        for cve in results:
+            # Check if product appears in CPE configurations
+            configurations = cve.get('configurations', [])
+            product_found = False
+            
+            for config in configurations:
+                nodes = config.get('nodes', [])
+                for node in nodes:
+                    cpe_match = node.get('cpeMatch', [])
+                    for match in cpe_match:
+                        criteria = match.get('criteria', '').lower()
+                        if product_lower in criteria:
+                            product_found = True
+                            break
+                    if product_found:
+                        break
+                if product_found:
+                    break
+            
+            if product_found:
+                filtered_results.append(cve)
+        
+        return filtered_results
+
+    def _search_with_strict_filtering(self, keyword: str, limit: int, start_index: int) -> Dict:
+        """Search by keyword but with strict filtering to ensure relevance"""
+        try:
+            # First, get keyword search results
+            params = {
+                'keywordSearch': keyword,
+                'resultsPerPage': min(limit * 3, 200),  # Get more results for filtering
+                'startIndex': start_index
+            }
+            
+            response = self._make_api_request(self.nvd_base_url, params)
+            if not response:
+                return {
+                    'error': 'Failed to connect to NVD API',
+                    'results': [],
+                    'total_results': 0
+                }
+            
+            data = response.json()
+            
+            if 'vulnerabilities' not in data:
+                return {
+                    'results': [],
+                    'total_results': 0
+                }
+            
+            # Filter results to ensure they're actually related to the keyword
+            filtered_results = []
+            keyword_lower = keyword.lower()
+            
+            for vuln in data['vulnerabilities']:
+                cve_data = vuln['cve']
+                
+                # Check if keyword appears in CPE configurations (highest priority)
+                configurations = cve_data.get('configurations', [])
+                keyword_in_cpe = False
+                
+                for config in configurations:
+                    nodes = config.get('nodes', [])
+                    for node in nodes:
+                        cpe_match = node.get('cpeMatch', [])
+                        for match in cpe_match:
+                            criteria = match.get('criteria', '').lower()
+                            if keyword_lower in criteria:
+                                keyword_in_cpe = True
+                                break
+                        if keyword_in_cpe:
+                            break
+                    if keyword_in_cpe:
+                        break
+                
+                # If keyword is in CPE, include the result
+                if keyword_in_cpe:
+                    formatted_cve = self._format_cve_summary(cve_data)
+                    filtered_results.append(formatted_cve)
+                    continue
+                
+                # If not in CPE, check if keyword appears in vendor/product names
+                vendors_products = self._extract_vendors_products(configurations)
+                keyword_in_names = False
+                
+                for vp in vendors_products:
+                    if (keyword_lower in vp['vendor'].lower() or 
+                        keyword_lower in vp['product'].lower()):
+                        keyword_in_names = True
+                        break
+                
+                if keyword_in_names:
+                    formatted_cve = self._format_cve_summary(cve_data)
+                    filtered_results.append(formatted_cve)
+                    continue
+                
+                # Only include description matches if keyword is very specific (not common words)
+                if len(keyword) > 3 and not self._is_common_word(keyword):
+                    descriptions = cve_data.get('descriptions', [])
+                    for desc in descriptions:
+                        if desc.get('lang') == 'en':
+                            description = desc.get('value', '').lower()
+                            if keyword_lower in description:
+                                formatted_cve = self._format_cve_summary(cve_data)
+                                filtered_results.append(formatted_cve)
+                                break
+            
+            # Apply pagination to filtered results
+            total_count = len(filtered_results)
+            paginated_results = filtered_results[:limit]
+            
+            return {
+                'results': paginated_results,
+                'total_results': total_count,
+                'search_params': {
+                    'keyword': keyword,
+                    'method': 'keyword_with_strict_filtering'
+                }
+            }
+            
+        except Exception as e:
+            return {
+                'error': f'Strict keyword search failed: {str(e)}',
+                'results': [],
+                'total_results': 0
+            }
+
+    def _is_common_word(self, word: str) -> bool:
+        """Check if a word is common (should not be used for description-only matching)"""
+        common_words = {
+            'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with',
+            'by', 'from', 'up', 'about', 'into', 'through', 'during', 'before',
+            'after', 'above', 'below', 'between', 'among', 'within', 'without',
+            'against', 'toward', 'towards', 'upon', 'across', 'behind', 'beneath',
+            'beside', 'beyond', 'inside', 'outside', 'under', 'over', 'around',
+            'throughout', 'underneath', 'alongside', 'along', 'across', 'against',
+            'server', 'client', 'web', 'api', 'http', 'https', 'ssl', 'tls', 'ssh',
+            'ftp', 'smtp', 'dns', 'tcp', 'udp', 'ip', 'url', 'file', 'data', 'user',
+            'admin', 'root', 'system', 'network', 'database', 'application', 'service',
+            'version', 'update', 'patch', 'fix', 'bug', 'issue', 'error', 'fail',
+            'crash', 'overflow', 'injection', 'xss', 'csrf', 'sql', 'rce', 'dos',
+            'ddos', 'auth', 'login', 'password', 'token', 'session', 'cookie'
+        }
+        return word.lower() in common_words 
