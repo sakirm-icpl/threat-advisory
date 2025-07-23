@@ -17,7 +17,7 @@ import EditProduct from "./pages/EditProduct";
 import EditDetectionMethod from "./pages/EditDetectionMethod";
 import EditSetupGuide from "./pages/EditSetupGuide";
 
-function App() {
+function AppContent() {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -58,6 +58,10 @@ function App() {
       </Routes>
     </Layout>
   );
+}
+
+function App() {
+  return <AppContent />;
 }
 
 export default App; 
