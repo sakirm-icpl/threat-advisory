@@ -13,6 +13,9 @@ import BulkOperations from './pages/BulkOperations';
 import CVESearch from './pages/CVESearch';
 import Profile from './pages/Profile';
 import Users from './pages/Users';
+import EditProduct from "./pages/EditProduct";
+import EditDetectionMethod from "./pages/EditDetectionMethod";
+import EditSetupGuide from "./pages/EditSetupGuide";
 
 function App() {
   const { user, loading } = useAuth();
@@ -48,6 +51,9 @@ function App() {
         <Route path="/cve-search" element={<CVESearch />} />
         <Route path="/profile" element={<Profile />} />
         {user.role === 'admin' && <Route path="/users" element={<Users />} />}
+        <Route path="/products/:id/edit" element={<EditProduct />} />
+        <Route path="/methods/:id/edit" element={<EditDetectionMethod />} />
+        <Route path="/setup-guides/:id/edit" element={<EditSetupGuide />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Layout>

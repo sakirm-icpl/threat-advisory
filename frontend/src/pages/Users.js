@@ -11,8 +11,10 @@ import {
   CheckIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Users() {
+  const { user } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [showPasswordReset, setShowPasswordReset] = useState(null);
@@ -21,7 +23,7 @@ export default function Users() {
     username: '',
     email: '',
     password: '',
-    role: 'user',
+    role: '', // Default to empty so placeholder is shown
   });
   const [resetPassword, setResetPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -133,7 +135,7 @@ export default function Users() {
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email format';
     if (!formData.password) newErrors.password = 'Password is required';
     else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
-    
+    else if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) newErrors.password = 'Password must contain at least one special character';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -194,16 +196,18 @@ export default function Users() {
             Manage user accounts, roles, and permissions
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <button
-            type="button"
-            onClick={() => setShowAddForm(true)}
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
-          >
-            <UserPlusIcon className="-ml-1 mr-2 h-5 w-5" />
-            Add User
-          </button>
-        </div>
+        {user?.role === 'admin' && (
+          <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+            <button
+              type="button"
+              onClick={() => setShowAddForm(true)}
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+            >
+              <UserPlusIcon className="-ml-1 mr-2 h-5 w-5" />
+              Add User
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Success Message */}
@@ -245,8 +249,7 @@ export default function Users() {
         </div>
       )}
 
-      {/* Add User Form */}
-      {showAddForm && (
+      {user?.role === 'admin' && showAddForm && (
         <div className="mt-6 bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Add New User</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -258,9 +261,8 @@ export default function Users() {
                   name="username"
                   value={formData.username}
                   onChange={handleInputChange}
-                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                    errors.username ? 'border-red-300' : ''
-                  }`}
+                  className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.username ? 'border-red-300' : ''}`}
+                  placeholder="Enter username"
                 />
                 {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
               </div>
@@ -271,9 +273,8 @@ export default function Users() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                    errors.email ? 'border-red-300' : ''
-                  }`}
+                  className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.email ? 'border-red-300' : ''}`}
+                  placeholder="Enter email address"
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
@@ -287,19 +288,20 @@ export default function Users() {
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm pr-10 ${
-                      errors.password ? 'border-red-300' : ''
-                    }`}
+                    className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm pr-12 ${errors.password ? 'border-red-300' : ''}`}
+                    placeholder="Enter password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute inset-y-0 right-0 flex items-center px-3 focus:outline-none hover:bg-gray-100 rounded transition"
+                    style={{ minWidth: 40, height: 44 }}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
-                      <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                      <EyeSlashIcon className="h-6 w-6 text-gray-400 hover:text-gray-600 transition" />
                     ) : (
-                      <EyeIcon className="h-5 w-5 text-gray-400" />
+                      <EyeIcon className="h-6 w-6 text-gray-400 hover:text-gray-600 transition" />
                     )}
                   </button>
                 </div>
@@ -311,9 +313,10 @@ export default function Users() {
                   name="role"
                   value={formData.role}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  required
                 >
-                  <option value="user">User</option>
+                  <option value="" disabled>Select the role</option>
                   <option value="admin">Admin</option>
                   <option value="readonly">Read Only</option>
                 </select>
@@ -376,20 +379,20 @@ export default function Users() {
                       </td>
                     </tr>
                   ) : (
-                    users.map((user) => (
-                      <tr key={user.id}>
+                    users.map((userRow) => (
+                      <tr key={userRow.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
                               <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                                 <span className="text-sm font-medium text-gray-700">
-                                  {user.username.charAt(0).toUpperCase()}
+                                  {userRow.username.charAt(0).toUpperCase()}
                                 </span>
                               </div>
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900">
-                                {editingUser?.id === user.id ? (
+                                {editingUser?.id === userRow.id ? (
                                   <input
                                     type="text"
                                     value={editingUser.username}
@@ -397,11 +400,11 @@ export default function Users() {
                                     className="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                   />
                                 ) : (
-                                  user.username
+                                  userRow.username
                                 )}
                               </div>
                               <div className="text-sm text-gray-500">
-                                {editingUser?.id === user.id ? (
+                                {editingUser?.id === userRow.id ? (
                                   <input
                                     type="email"
                                     value={editingUser.email}
@@ -409,14 +412,14 @@ export default function Users() {
                                     className="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                   />
                                 ) : (
-                                  user.email
+                                  userRow.email
                                 )}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {editingUser?.id === user.id ? (
+                          {editingUser?.id === userRow.id ? (
                             <select
                               value={editingUser.role}
                               onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
@@ -427,13 +430,13 @@ export default function Users() {
                               <option value="readonly">Read Only</option>
                             </select>
                           ) : (
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(user.role)}`}>
-                              {user.role}
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(userRow.role)}`}>
+                              {userRow.role}
                             </span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {editingUser?.id === user.id ? (
+                          {editingUser?.id === userRow.id ? (
                             <select
                               value={editingUser.is_active ? 'true' : 'false'}
                               onChange={(e) => setEditingUser({...editingUser, is_active: e.target.value === 'true'})}
@@ -444,53 +447,55 @@ export default function Users() {
                             </select>
                           ) : (
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              userRow.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                             }`}>
-                              {user.is_active ? 'Active' : 'Inactive'}
+                              {userRow.is_active ? 'Active' : 'Inactive'}
                             </span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(user.created_at).toLocaleDateString()}
+                          {new Date(userRow.created_at).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          {editingUser?.id === user.id ? (
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => handleUpdate(editingUser)}
-                                className="text-green-600 hover:text-green-900"
-                              >
-                                <CheckIcon className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() => setEditingUser(null)}
-                                className="text-gray-600 hover:text-gray-900"
-                              >
-                                <XMarkIcon className="h-5 w-5" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => setEditingUser(user)}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                <PencilIcon className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() => setShowPasswordReset(user.id)}
-                                className="text-yellow-600 hover:text-yellow-900"
-                              >
-                                <KeyIcon className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(user.id)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <TrashIcon className="h-5 w-5" />
-                              </button>
-                            </div>
-                          )}
+                          {user?.role === 'admin' ? (
+                            editingUser?.id === userRow.id ? (
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleUpdate(editingUser)}
+                                  className="text-green-600 hover:text-green-900"
+                                >
+                                  <CheckIcon className="h-5 w-5" />
+                                </button>
+                                <button
+                                  onClick={() => setEditingUser(null)}
+                                  className="text-gray-600 hover:text-gray-900"
+                                >
+                                  <XMarkIcon className="h-5 w-5" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => setEditingUser(userRow)}
+                                  className="text-blue-600 hover:text-blue-900"
+                                >
+                                  <PencilIcon className="h-5 w-5" />
+                                </button>
+                                <button
+                                  onClick={() => setShowPasswordReset(userRow.id)}
+                                  className="text-yellow-600 hover:text-yellow-900"
+                                >
+                                  <KeyIcon className="h-5 w-5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(userRow.id)}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  <TrashIcon className="h-5 w-5" />
+                                </button>
+                              </div>
+                            )
+                          ) : null}
                         </td>
                       </tr>
                     ))
@@ -503,7 +508,7 @@ export default function Users() {
       </div>
 
       {/* Password Reset Modal */}
-      {showPasswordReset && (
+      {user?.role === 'admin' && showPasswordReset && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
