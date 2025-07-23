@@ -78,11 +78,11 @@
   }
 
   .label {
-    @apply block text-sm font-medium text-gray-300 mb-1;
+    @apply block text-sm font-medium text-gray-700 mb-1;
   }
 
   .label-text {
-    @apply text-sm font-medium text-gray-300;
+    @apply text-sm font-medium text-gray-700;
   }
   
   .sidebar-bg {
