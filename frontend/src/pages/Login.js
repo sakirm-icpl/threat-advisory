@@ -9,6 +9,14 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [imageError, setImageError] = useState(false);
+  const [imagePaths] = useState([
+    '/infologo.png',
+    './infologo.png', 
+    '/static/infologo.png',
+    '/public/infologo.png'
+  ]);
+  const [currentPathIndex, setCurrentPathIndex] = useState(0);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -26,70 +34,170 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
-      <div className="card max-w-md w-full p-8 shadow-xl">
-        <div className="flex flex-col items-center mb-6">
-          <img src="/infologo.png" alt="Infopercept Logo" className="h-16 w-auto object-contain mb-2" />
-          <h2 className="text-2xl font-bold text-gray-900 text-center">Infopercept VersionIntel</h2>
-          <p className="text-sm text-gray-500 text-center mt-1">Infopercept Version Detection Research Platform</p>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+      {/* Animated background elements */}
+      <div className="absolute inset-0">
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+        
+        {/* Floating code elements */}
+        <div className="absolute top-20 left-20 text-blue-400/20 font-mono text-sm animate-pulse">
+          <div>version: "2.1.4"</div>
+          <div>build: 20240115</div>
         </div>
-        <form className="space-y-5" onSubmit={handleSubmit} autoComplete="off">
+        
+        <div className="absolute top-40 right-32 text-indigo-400/20 font-mono text-xs animate-pulse delay-1000">
+          <div>HTTP/1.1 200 OK</div>
+          <div>Server: nginx/1.18.0</div>
+        </div>
+        
+        <div className="absolute bottom-32 left-16 text-purple-400/20 font-mono text-xs animate-pulse delay-2000">
+          <div>regex: /(\d+\.\d+\.\d+)/</div>
+          <div>match: true</div>
+        </div>
+        
+        <div className="absolute bottom-20 right-20 text-cyan-400/20 font-mono text-sm animate-pulse delay-500">
+          <div>Apache/2.4.41</div>
+          <div>OpenSSL/1.1.1</div>
+        </div>
+        
+        {/* Floating geometric shapes */}
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-blue-500/20 rounded-lg rotate-45 animate-spin-slow"></div>
+        <div className="absolute top-3/4 right-1/4 w-24 h-24 border border-indigo-500/20 rounded-full animate-pulse"></div>
+        <div className="absolute top-1/2 left-1/6 w-16 h-16 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg animate-bounce-slow"></div>
+        
+        {/* Network connection lines */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none">
+          <defs>
+            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.1"/>
+              <stop offset="100%" stopColor="rgb(147, 51, 234)" stopOpacity="0.1"/>
+            </linearGradient>
+          </defs>
+          <line x1="10%" y1="20%" x2="90%" y2="80%" stroke="url(#lineGradient)" strokeWidth="1" className="animate-pulse"/>
+          <line x1="20%" y1="80%" x2="80%" y2="20%" stroke="url(#lineGradient)" strokeWidth="1" className="animate-pulse delay-1000"/>
+          <circle cx="15%" cy="25%" r="3" fill="rgb(59, 130, 246)" fillOpacity="0.2" className="animate-ping"/>
+          <circle cx="85%" cy="75%" r="2" fill="rgb(147, 51, 234)" fillOpacity="0.2" className="animate-ping delay-500"/>
+        </svg>
+        
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-slate-900/30"></div>
+      </div>
+      <div className="relative bg-white/10 backdrop-blur-xl max-w-md w-full p-10 shadow-2xl rounded-3xl border border-white/30 mx-4 glass-effect">
+        <div className="flex flex-col items-center mb-8">
+          <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 rounded-2xl shadow-lg mb-4 relative overflow-hidden">
+            {/* Background pattern */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-500/20"></div>
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-2 left-2 w-2 h-2 bg-white/30 rounded-full"></div>
+              <div className="absolute top-4 right-4 w-1 h-1 bg-white/40 rounded-full"></div>
+              <div className="absolute bottom-3 left-4 w-1.5 h-1.5 bg-white/25 rounded-full"></div>
+              <div className="absolute bottom-2 right-2 w-2 h-2 bg-white/35 rounded-full"></div>
+            </div>
+            
+            {/* Logo content - Try to load original Infopercept logo */}
+            <div className="relative z-10 flex items-center justify-center">
+              {!imageError ? (
+                <div className="bg-white rounded-lg p-3 shadow-lg">
+                  <img 
+                    src={imagePaths[currentPathIndex]}
+                    alt="Infopercept Logo" 
+                    className="h-12 w-auto object-contain"
+                    onError={() => {
+                      if (currentPathIndex < imagePaths.length - 1) {
+                        // Try next path
+                        setCurrentPathIndex(currentPathIndex + 1);
+                      } else {
+                        // All paths failed, show fallback
+                        setImageError(true);
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
+                /* Fallback when original logo fails */
+                <div className="text-center">
+                  <div className="text-white text-2xl font-bold tracking-wider">
+                    INFOPERCEPT
+                  </div>
+                  <div className="text-white/80 text-xs font-medium mt-1 tracking-widest">
+                    VERSION INTEL
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent text-center">
+            Infopercept VersionIntel
+          </h2>
+          <p className="text-sm text-gray-300 text-center mt-2 font-medium">Version Detection Research Platform</p>
+        </div>
+        <form className="space-y-6" onSubmit={handleSubmit} autoComplete="off">
             <div>
-            <label htmlFor="username" className="label-text mb-1">Username</label>
+              <label htmlFor="username" className="label">Username</label>
               <input
                 id="username"
                 name="username"
                 type="text"
                 required
-              className="input input-bordered"
-              placeholder="Enter your username"
+                className="input"
+                placeholder="Enter your username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-              autoFocus
+                autoFocus
               />
             </div>
             <div className="relative">
-            <label htmlFor="password" className="label-text mb-1">Password</label>
+              <label htmlFor="password" className="label">Password</label>
               <input
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 required
-              className="input input-bordered pr-10"
-              placeholder="Enter your password"
+                className="input pr-12"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute right-3 top-9 p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
                 tabIndex={-1}
                 onClick={() => setShowPassword(!showPassword)}
-                style={{ height: 90 }}
               >
                 {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                  <EyeSlashIcon className="h-5 w-5" />
                 ) : (
-                  <EyeIcon className="h-5 w-5 text-gray-400" />
+                  <EyeIcon className="h-5 w-5" />
                 )}
               </button>
             </div>
           {error && (
-            <div className="alert alert-warning text-center text-sm mb-2">{error}</div>
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-center text-sm font-medium">
+              <div className="flex items-center justify-center">
+                <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {error}
+              </div>
+            </div>
           )}
             <button
               type="submit"
               disabled={loading}
-            className="btn btn-primary w-full flex justify-center items-center"
+              className="btn btn-primary w-full flex justify-center items-center text-lg py-3 mt-8"
             >
               {loading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Signing in...
+                </div>
               ) : (
                 'Sign in'
               )}
             </button>
         </form>
-        <div className="mt-8 text-xs text-gray-400 text-center select-none">
+        <div className="mt-8 text-xs text-gray-400 text-center select-none font-medium">
           &copy; {new Date().getFullYear()} Infopercept. All rights reserved.
         </div>
       </div>
