@@ -1,11 +1,22 @@
 import axios from 'axios';
 
-if (!process.env.REACT_APP_API_URL) {
-  throw new Error('REACT_APP_API_URL is not set. Please set it in your .env file or docker-compose.');
-}
+// Get API URL from environment or default to current host
+const getApiUrl = () => {
+  // In development, use the environment variable
+  if (process.env.NODE_ENV === 'development') {
+    return process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  }
+  
+  // In production, construct the API URL based on current host
+  const protocol = window.location.protocol;
+  const host = window.location.hostname;
+  const port = '8000'; // Backend port
+  
+  return `${protocol}//${host}:${port}`;
+};
 
 export const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
+  baseURL: getApiUrl(),
   timeout: 10000,
 });
 

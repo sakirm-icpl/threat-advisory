@@ -75,11 +75,14 @@ const CVESearch = () => {
     // If we have search results and the user changes results per page, trigger a new search
     if (searchResults.length > 0 && (unifiedQuery || keyword)) {
       setCurrentPage(1); // Reset to first page
-      if (activeTab === 0 && unifiedQuery) {
-        handleUnifiedSearch(1);
-      } else if (activeTab === 1 && keyword) {
-        handleKeywordSearch(1);
-      }
+      // Use setTimeout to ensure state updates are processed
+      setTimeout(() => {
+        if (activeTab === 0 && unifiedQuery) {
+          handleUnifiedSearch(1);
+        } else if (activeTab === 1 && keyword) {
+          handleKeywordSearch(1);
+        }
+      }, 0);
     }
   }, [resultsPerPage]);
 
@@ -415,10 +418,93 @@ const CVESearch = () => {
     { name: 'Statistics', icon: InformationCircleIcon }
   ];
 
-  const renderCVEList = (cves, title) => (
+  const renderModernPagination = (currentPage, totalResults, resultsPerPage, onPageChange) => {
+    const totalPages = Math.ceil(totalResults / resultsPerPage);
+    
+    if (totalPages <= 1) return null;
+    
+    const getVisiblePages = () => {
+      const maxVisiblePages = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+      
+      if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+      
+      const pages = [];
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      
+      return { pages, startPage, endPage };
+    };
+    
+    const { pages, startPage, endPage } = getVisiblePages();
+    
+    return (
+      <div className="flex justify-center items-center space-x-2 mt-6">
+        {/* Previous Button */}
+        {currentPage > 1 && (
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200"
+          >
+            PREV
+          </button>
+        )}
+        
+        {/* Page Numbers */}
+        {pages.map(page => (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={`w-10 h-10 text-sm font-medium rounded-full border transition-colors duration-200 ${
+              currentPage === page
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+        
+        {/* Ellipsis and Last Page */}
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && (
+              <span className="text-gray-500 text-sm font-medium">...</span>
+            )}
+            <button
+              onClick={() => onPageChange(totalPages)}
+              className={`w-10 h-10 text-sm font-medium rounded-full border transition-colors duration-200 ${
+                currentPage === totalPages
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+              }`}
+            >
+              {totalPages}
+            </button>
+          </>
+        )}
+        
+        {/* Next Button */}
+        {currentPage < totalPages && (
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200"
+          >
+            NEXT
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const renderCVEList = (cves, title, totalCount = null) => (
     <div>
       <h3 className="text-lg font-medium text-gray-900 mb-4">
-        {title} ({cves.length} results)
+        {totalCount !== null ? `Found ${totalCount} CVEs` : `${title} (${cves.length} results)`}
       </h3>
       {cves.length === 0 ? (
         <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
@@ -544,7 +630,7 @@ const CVESearch = () => {
                     <p className="text-sm text-red-700">{search.cve_results.error}</p>
                   </div>
                 ) : (
-                  renderCVEList(search.cve_results.results, 'CVEs')
+                  renderCVEList(search.cve_results.results, 'CVEs', search.cve_results.total_results)
                 )}
               </div>
             </div>
@@ -681,66 +767,10 @@ const CVESearch = () => {
                 </div>
                 {searchResults.length > 0 && (
                   <div className="mt-8">
-                    {renderCVEList(searchResults, 'Search Results')}
+                    {renderCVEList(searchResults, 'Search Results', totalResults)}
                     {totalResults >= resultsPerPage && (
-                      <div className="mt-6 flex justify-center">
-                        <nav className="flex items-center space-x-2">
-                          {/* Previous button */}
-                          {currentPage > 1 && (
-                            <button
-                              onClick={() => handlePageChange(currentPage - 1)}
-                              className="px-3 py-2 text-sm font-medium rounded-md bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                            >
-                              Previous
-                            </button>
-                          )}
-                          
-                          {/* Page numbers */}
-                          {(() => {
-                            const totalPages = Math.ceil(totalResults / resultsPerPage);
-                            const maxVisiblePages = 5;
-                            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-                            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-                            
-                            if (endPage - startPage + 1 < maxVisiblePages) {
-                              startPage = Math.max(1, endPage - maxVisiblePages + 1);
-                            }
-                            
-                            const pages = [];
-                            for (let i = startPage; i <= endPage; i++) {
-                              pages.push(i);
-                            }
-                            
-                            return pages.map(page => (
-                              <button
-                                key={page}
-                                onClick={() => handlePageChange(page)}
-                                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                                  currentPage === page
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                                }`}
-                              >
-                                {page}
-                              </button>
-                            ));
-                          })()}
-                          
-                          {/* Next button */}
-                          {currentPage < Math.ceil(totalResults / resultsPerPage) && (
-                            <button
-                              onClick={() => handlePageChange(currentPage + 1)}
-                              className="px-3 py-2 text-sm font-medium rounded-md bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                            >
-                              Next
-                            </button>
-                          )}
-                        </nav>
-                        
-                        {/* Results info */}
-                        <div className="mt-4 text-center text-sm text-gray-600">
-                          Showing {((currentPage - 1) * resultsPerPage) + 1} to {Math.min(currentPage * resultsPerPage, totalResults)} of {totalResults} results
-                        </div>
+                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        {renderModernPagination(currentPage, totalResults, resultsPerPage, handlePageChange)}
                       </div>
                     )}
                     {searchResults.length > 0 && (
@@ -819,66 +849,10 @@ const CVESearch = () => {
                 </div>
                 {searchResults.length > 0 && (
                   <div className="mt-8">
-                    {renderCVEList(searchResults, 'Search Results')}
+                    {renderCVEList(searchResults, 'Search Results', totalResults)}
                     {totalResults >= resultsPerPage && (
-                      <div className="mt-6 flex justify-center">
-                        <nav className="flex items-center space-x-2">
-                          {/* Previous button */}
-                          {currentPage > 1 && (
-                            <button
-                              onClick={() => handlePageChange(currentPage - 1)}
-                              className="px-3 py-2 text-sm font-medium rounded-md bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                            >
-                              Previous
-                            </button>
-                          )}
-                          
-                          {/* Page numbers */}
-                          {(() => {
-                            const totalPages = Math.ceil(totalResults / resultsPerPage);
-                            const maxVisiblePages = 5;
-                            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-                            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-                            
-                            if (endPage - startPage + 1 < maxVisiblePages) {
-                              startPage = Math.max(1, endPage - maxVisiblePages + 1);
-                            }
-                            
-                            const pages = [];
-                            for (let i = startPage; i <= endPage; i++) {
-                              pages.push(i);
-                            }
-                            
-                            return pages.map(page => (
-                              <button
-                                key={page}
-                                onClick={() => handlePageChange(page)}
-                                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                                  currentPage === page
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                                }`}
-                              >
-                                {page}
-                              </button>
-                            ));
-                          })()}
-                          
-                          {/* Next button */}
-                          {currentPage < Math.ceil(totalResults / resultsPerPage) && (
-                            <button
-                              onClick={() => handlePageChange(currentPage + 1)}
-                              className="px-3 py-2 text-sm font-medium rounded-md bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                            >
-                              Next
-                            </button>
-                          )}
-                        </nav>
-                        
-                        {/* Results info */}
-                        <div className="mt-4 text-center text-sm text-gray-600">
-                          Showing {((currentPage - 1) * resultsPerPage) + 1} to {Math.min(currentPage * resultsPerPage, totalResults)} of {totalResults} results
-                        </div>
+                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        {renderModernPagination(currentPage, totalResults, resultsPerPage, handlePageChange)}
                       </div>
                     )}
                     {searchResults.length > 0 && (
@@ -1058,7 +1032,7 @@ const CVESearch = () => {
                   </div>
                 </div>
                 
-                {renderCVEList(recentCves, 'Recent CVEs')}
+                {renderCVEList(recentCves, 'Recent CVEs', recentCves.length)}
               </div>
             )}
 

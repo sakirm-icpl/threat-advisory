@@ -24,33 +24,19 @@ def search_cves_unified():
         elif limit < 1 or limit > 5000:
             return jsonify({'error': 'Limit must be between 1 and 5000'}), 400
         
-        # Detect search type based on query pattern
-        cve_pattern = re.compile(r'^CVE-\d{4}-\d{4,}$', re.IGNORECASE)
+        # Use the unified service method which handles all search types
+        print(f"DEBUG: Unified search for query: {query}, limit={limit}")
+        results = cve_service.search_cves_unified(
+            query=query,
+            limit=limit,
+            start_index=start_index
+        )
         
-        if cve_pattern.match(query):
-            # CVE ID search
-            print(f"DEBUG: Searching for specific CVE ID: {query}")
-            results = cve_service.get_cve_details(query)
-            if 'error' not in results:
-                # Format as list for consistency
-                return jsonify({
-                    'results': [results],
-                    'total_results': 1,
-                    'search_type': 'cve_id',
-                    'search_params': {'query': query}
-                })
-            else:
-                return jsonify(results), 404
-        else:
-            # Vendor/Product/Keyword search
-            print(f"DEBUG: Unified search for query: {query}, limit={limit}")
-            results = cve_service.search_cves_unified(
-                query=query,
-                limit=limit,
-                start_index=start_index
-            )
-            
-            return jsonify(results)
+        # Handle CVE ID not found case
+        if results.get('search_type') == 'cve_id_not_found':
+            return jsonify(results), 404
+        
+        return jsonify(results)
         
     except Exception as e:
         print(f"ERROR: Exception in search_cves_unified: {e}")
