@@ -1,184 +1,97 @@
 # VersionIntel Setup Guide
 
-This guide will help you set up VersionIntel on your local machine or server.
+Detailed installation and configuration guide for VersionIntel.
 
-## Prerequisites
+## System Requirements
 
-- Docker (version 20.10 or higher)
-- Docker Compose (version 2.0 or higher)
-- Git
+- **Docker**: 20.10 or higher
+- **Docker Compose**: 2.0 or higher
+- **Git**: Latest version
+- **Operating System**: Linux, macOS, or Windows
+- **RAM**: Minimum 2GB available
+- **Storage**: 1GB free space
 
-## Quick Start
+## Installation Methods
 
-### 1. Clone the Repository
+### Method 1: Automated Deployment (Recommended)
+
 ```bash
+# Clone repository
 git clone <repository-url>
 cd versionintel
+
+# Run deployment script
+./build-and-deploy.sh    # Linux/Mac
+build-and-deploy.bat     # Windows
 ```
 
-### 2. Run the Application
-```bash
-# Option 1: Use the automated deployment script (recommended)
-./deploy.sh
+### Method 2: Manual Docker Deployment
 
-# Option 2: Manual deployment
+```bash
+# Clone repository
+git clone <repository-url>
+cd versionintel
+
+# Create frontend environment
+echo "REACT_APP_API_URL=http://localhost:8000" > frontend/.env
+
+# Build and start services
 docker-compose up --build -d
 ```
 
-### 3. Access the Application
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
+## First Time Setup
 
-### 4. Login
-- **Username**: `admin`
-- **Password**: `Admin@1234`
-
-⚠️ **Important**: Change the default password after first login!
+1. **Access the application**: http://localhost:3000
+2. **Login with default credentials**:
+   - Username: `admin`
+   - Password: `Admin@1234`
+3. **Change default password** immediately after login
+4. **Verify all services** are running: `docker-compose ps`
 
 ## 🛠️ Development Setup
 
-If you want to develop locally (without Docker):
+For local development without Docker:
+
+### Prerequisites
+- Python 3.8+
+- Node.js 16+
+- PostgreSQL 13+
 
 ### Backend Development
 ```bash
-# Navigate to backend directory
 cd backend
-
-# Create virtual environment
 python3 -m venv venv
-
-# Activate virtual environment
-source venv/bin/activate  # On Linux/Mac
-# or
-venv\Scripts\activate     # On Windows
-
-# Install dependencies
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 
 # Set environment variables
-export FLASK_ENV=development
-export FLASK_DEBUG=1
 export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/versionintel
-
-# Run the application
 python wsgi.py
 ```
 
 ### Frontend Development
 ```bash
-# Navigate to frontend directory
 cd frontend
-
-# Install dependencies
 npm install
-
-# Create environment file
 echo "REACT_APP_API_URL=http://localhost:8000" > .env
-
-# Start development server
 npm start
 ```
 
-### Database Setup (for local development)
+### Database Setup
 ```bash
-# Start only the database
+# Start database only
 docker-compose up db -d
 
 # Initialize database
-cd backend
-python init_database.py
+cd backend && python init_database.py
 ```
 
-## Troubleshooting
-
-### Common Issues
-
-#### 1. Port Already in Use
-If you get port conflicts, you can modify the ports in `docker-compose.yml`:
-```yaml
-ports:
-  - "3001:3000"  # Change 3000 to 3001
-  - "8001:5000"  # Change 8000 to 8001
-```
-
-#### 2. Database Connection Issues
-If the backend can't connect to the database:
-```bash
-# Check if database container is running
-docker-compose ps
-
-# View database logs
-docker-compose logs db
-
-# Restart the database
-docker-compose restart db
-```
-
-#### 3. Frontend Can't Connect to Backend
-Check the `REACT_APP_API_URL` in `frontend/.env`:
-```bash
-# Should point to your backend URL
-REACT_APP_API_URL=http://localhost:8000
-```
-
-#### 4. Permission Issues
-If you get permission errors:
-```bash
-# Make deploy script executable
-chmod +x deploy.sh
-
-# Run with sudo if needed
-sudo docker-compose up --build -d
-```
-
-#### 5. Python Environment Issues
-If you get "externally-managed-environment" errors:
-```bash
-# Use virtual environment
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Or use Docker (recommended)
-docker-compose up --build -d
-```
-
-### Useful Commands
-
-```bash
-# View all logs
-docker-compose logs -f
-
-# View specific service logs
-docker-compose logs -f backend
-docker-compose logs -f frontend
-docker-compose logs -f db
-
-# Stop all services
-docker-compose down
-
-# Restart services
-docker-compose restart
-
-# Rebuild and restart
-docker-compose up --build -d
-
-# Check service status
-docker-compose ps
-
-# Access backend shell
-docker-compose exec backend bash
-
-# Access database
-docker-compose exec db psql -U postgres -d versionintel
-```
+## Configuration
 
 ### Environment Variables
 
-You can customize the application by setting environment variables:
-
-#### Backend (in docker-compose.yml)
+#### Backend (docker-compose.yml)
 ```yaml
 environment:
   - SECRET_KEY=your-secret-key
@@ -187,44 +100,58 @@ environment:
   - NVD_API_KEY=your-nvd-api-key
 ```
 
-#### Frontend (in frontend/.env)
+#### Frontend (.env)
 ```bash
-REACT_APP_API_URL=http://your-backend-url:8000
+REACT_APP_API_URL=http://localhost:8000
 ```
 
-### Production Deployment
+## Troubleshooting
 
-For production deployment:
+### Quick Fixes
 
-1. **Change default passwords** in `docker-compose.yml`
-2. **Update secret keys** for security
-3. **Configure SSL/TLS** using a reverse proxy
-4. **Set up proper firewall rules**
-5. **Use environment-specific configuration**
-
-### Support
-
-If you encounter issues:
-1. Check the logs: `docker-compose logs -f`
-2. Verify all prerequisites are installed
-3. Ensure ports are not in use by other applications
-4. Check your network configuration
-
-## Architecture
-
-```
-versionintel/
-├── backend/          # Flask API (port 8000)
-├── frontend/         # React App (port 3000)
-├── db/              # Database initialization
-├── docker-compose.yml
-├── deploy.sh        # Automated deployment
-└── README.md
+**Port conflicts?**
+```bash
+# Modify ports in docker-compose.yml
+ports:
+  - "3001:3000"  # Frontend
+  - "8001:5000"  # Backend
 ```
 
-The application uses:
-- **PostgreSQL** for data storage
-- **Flask** for the backend API
-- **React** for the frontend
-- **Docker** for containerization
-- **Nginx** for serving the frontend 
+**Services not starting?**
+```bash
+# Check logs
+docker-compose logs -f
+
+# Restart services
+docker-compose restart
+```
+
+**Permission errors?**
+```bash
+chmod +x build-and-deploy.sh
+```
+
+**Frontend can't reach backend?**
+- Verify `REACT_APP_API_URL=http://localhost:8000` in `frontend/.env`
+
+### Useful Commands
+
+```bash
+# Service management
+docker-compose ps              # Check status
+docker-compose logs -f         # View logs
+docker-compose down            # Stop services
+docker-compose restart         # Restart services
+
+# Development
+docker-compose exec backend bash    # Backend shell
+docker-compose exec db psql -U postgres -d versionintel  # Database access
+```
+
+## Support
+
+For issues:
+1. Check service logs: `docker-compose logs -f`
+2. Verify prerequisites are installed
+3. Ensure ports are available
+4. Review [Production Deployment](PRODUCTION_DEPLOYMENT.md) for advanced setup 
