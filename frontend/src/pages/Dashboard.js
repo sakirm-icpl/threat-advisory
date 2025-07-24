@@ -280,23 +280,23 @@ export default function Dashboard() {
         ))}
       </div>
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <Link
             key={stat.name}
             to={stat.href}
-            className="card hover:shadow-lg transition-shadow duration-200"
+            className="stat-card group"
           >
             <div className="flex items-center">
-              <div className={`flex-shrink-0 ${stat.color} rounded-md p-3`}>
-                <stat.icon className="h-6 w-6 text-white" />
+              <div className={`flex-shrink-0 ${stat.color} rounded-xl p-4 shadow-lg group-hover:shadow-xl transition-all duration-300`}>
+                <stat.icon className="h-8 w-8 text-white" />
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
+                  <dt className="text-sm font-semibold text-gray-600 truncate uppercase tracking-wide">
                     {stat.name}
                   </dt>
-                  <dd className="text-lg font-medium text-gray-900">
+                  <dd className="text-2xl font-bold text-gray-900 mt-1">
                     {stat.value}
                   </dd>
                 </dl>
@@ -308,17 +308,23 @@ export default function Dashboard() {
       {/* Products per Vendor Chart */}
       {widgetPrefs.productsPerVendor && (
         <div className="my-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Products per Vendor</h2>
-          <div className="bg-white rounded-lg border p-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Products per Vendor</h2>
+          <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl border border-blue-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={productsPerVendor} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} />
                 <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="count" fill="#2563eb">
+                <Tooltip contentStyle={{ backgroundColor: '#1e40af', color: 'white', borderRadius: '8px', border: 'none' }} />
+                <Bar dataKey="count" fill="url(#blueGradient)" radius={[4, 4, 0, 0]}>
                   <LabelList dataKey="count" position="top" />
                 </Bar>
+                <defs>
+                  <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3b82f6" />
+                    <stop offset="100%" stopColor="#1e40af" />
+                  </linearGradient>
+                </defs>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -327,17 +333,23 @@ export default function Dashboard() {
       {/* Detection Methods per Product Chart */}
       {widgetPrefs.methodsPerProduct && (
         <div className="my-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Detection Methods per Product</h2>
-          <div className="bg-white rounded-lg border p-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Detection Methods per Product</h2>
+          <div className="bg-gradient-to-br from-white to-orange-50 rounded-2xl border border-orange-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={methodsPerProduct} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} />
                 <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="count" fill="#f59e42">
+                <Tooltip contentStyle={{ backgroundColor: '#ea580c', color: 'white', borderRadius: '8px', border: 'none' }} />
+                <Bar dataKey="count" fill="url(#orangeGradient)" radius={[4, 4, 0, 0]}>
                   <LabelList dataKey="count" position="top" />
                 </Bar>
+                <defs>
+                  <linearGradient id="orangeGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f97316" />
+                    <stop offset="100%" stopColor="#ea580c" />
+                  </linearGradient>
+                </defs>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -346,8 +358,8 @@ export default function Dashboard() {
       {/* Setup Guide Coverage Donut Chart */}
       {widgetPrefs.setupGuideCoverage && (
         <div className="my-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Setup Guide Coverage</h2>
-          <div className="bg-white rounded-lg border p-4 flex flex-col items-center">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Setup Guide Coverage</h2>
+          <div className="bg-gradient-to-br from-white to-green-50 rounded-2xl border border-green-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -363,15 +375,21 @@ export default function Dashboard() {
                 >
                   {/* Custom colors */}
                   {setupGuideCoverageData.map((entry, idx) => (
-                    <Cell key={`cell-${idx}`} fill={idx === 0 ? '#34d399' : '#f87171'} />
+                    <Cell key={`cell-${idx}`} fill={idx === 0 ? '#10b981' : '#ef4444'} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip contentStyle={{ backgroundColor: '#065f46', color: 'white', borderRadius: '8px', border: 'none' }} />
               </PieChart>
             </ResponsiveContainer>
-            <div className="mt-4 flex gap-4">
-              <span className="flex items-center"><span className="inline-block w-3 h-3 rounded-full mr-2" style={{background:'#34d399'}}></span>With Setup Guide</span>
-              <span className="flex items-center"><span className="inline-block w-3 h-3 rounded-full mr-2" style={{background:'#f87171'}}></span>Without Setup Guide</span>
+            <div className="mt-6 flex gap-6">
+              <span className="flex items-center bg-green-100 px-3 py-1 rounded-full">
+                <span className="inline-block w-3 h-3 rounded-full mr-2 bg-green-500"></span>
+                <span className="text-sm font-medium text-green-800">With Setup Guide</span>
+              </span>
+              <span className="flex items-center bg-red-100 px-3 py-1 rounded-full">
+                <span className="inline-block w-3 h-3 rounded-full mr-2 bg-red-500"></span>
+                <span className="text-sm font-medium text-red-800">Without Setup Guide</span>
+              </span>
             </div>
           </div>
         </div>
@@ -379,18 +397,18 @@ export default function Dashboard() {
       {/* Recent Trends Line Chart */}
       {widgetPrefs.recentTrends && (
         <div className="my-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Recent Trends (Last 8 Weeks)</h2>
-          <div className="bg-white rounded-lg border p-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Trends (Last 8 Weeks)</h2>
+          <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl border border-purple-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={trendsData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="week" angle={-20} textAnchor="end" interval={0} height={60} />
                 <YAxis allowDecimals={false} />
-                <Tooltip />
+                <Tooltip contentStyle={{ backgroundColor: '#7c3aed', color: 'white', borderRadius: '8px', border: 'none' }} />
                 <Legend />
-                <Line type="monotone" dataKey="Products" stroke="#2563eb" strokeWidth={2} />
-                <Line type="monotone" dataKey="Methods" stroke="#f59e42" strokeWidth={2} />
-                <Line type="monotone" dataKey="Guides" stroke="#34d399" strokeWidth={2} />
+                <Line type="monotone" dataKey="Products" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }} />
+                <Line type="monotone" dataKey="Methods" stroke="#f97316" strokeWidth={3} dot={{ fill: '#f97316', strokeWidth: 2, r: 4 }} />
+                <Line type="monotone" dataKey="Guides" stroke="#10b981" strokeWidth={3} dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -399,16 +417,16 @@ export default function Dashboard() {
       {/* User Registrations Line Chart */}
       {widgetPrefs.userRegistrations && user && user.role === 'admin' && (
         <div className="my-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">User Registrations (Last 8 Weeks)</h2>
-          <div className="bg-white rounded-lg border p-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">User Registrations (Last 8 Weeks)</h2>
+          <div className="bg-gradient-to-br from-white to-indigo-50 rounded-2xl border border-indigo-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={userTrendsData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="week" angle={-20} textAnchor="end" interval={0} height={60} />
                 <YAxis allowDecimals={false} />
-                <Tooltip />
+                <Tooltip contentStyle={{ backgroundColor: '#4f46e5', color: 'white', borderRadius: '8px', border: 'none' }} />
                 <Legend />
-                <Line type="monotone" dataKey="Users" stroke="#6366f1" strokeWidth={2} />
+                <Line type="monotone" dataKey="Users" stroke="#6366f1" strokeWidth={3} dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -417,20 +435,20 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {quickActions.map((action) => (
             <Link
               key={action.name}
               to={action.href}
-              className="card hover:shadow-lg transition-shadow duration-200"
+              className="stat-card group"
             >
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-gray-100 rounded-md p-3">
-                  <action.icon className="h-6 w-6 text-gray-600" />
+                <div className="flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-4 shadow-lg group-hover:shadow-xl transition-all duration-300">
+                  <action.icon className="h-6 w-6 text-white" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-sm font-medium text-gray-900">
+                  <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200">
                     {action.name}
                   </h3>
                   <p className="text-sm text-gray-500">{action.description}</p>
@@ -442,29 +460,53 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Activity */}
-      <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h2>
-        <div className="card">
+      <div className="my-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Activity</h2>
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
           {activityLoading ? (
-            <div className="text-center py-8 text-gray-500">Loading recent activity...</div>
-          ) : activityError ? (
-            <div className="text-center py-8 text-red-500">Failed to load recent activity</div>
-          ) : activities.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">No recent activity to display</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-500">Loading recent activity...</p>
+            </div>
+          ) : activityError ? (
+            <div className="text-center py-8">
+              <div className="bg-red-100 rounded-full p-3 w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-red-600 font-medium">Failed to load recent activity</p>
+            </div>
+          ) : activities.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="bg-gray-100 rounded-full p-3 w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <p className="text-gray-500 font-medium">No recent activity to display</p>
               <p className="text-sm text-gray-400 mt-2">
                 Start by adding vendors, products, or detection methods
               </p>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-200">
+            <ul className="divide-y divide-gray-100">
               {activities.map((activity, idx) => (
-                <li key={idx} className="flex items-center justify-between py-4 px-6">
-                  <div>
-                    <span className="font-medium text-gray-800">{activity.type}:</span>{' '}
-                    <span className="text-gray-700">{activity.name}</span>
+                <li key={idx} className="flex items-center justify-between py-4 px-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-lg transition-all duration-200">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 rounded-full p-2 mr-4">
+                      <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-800">{activity.type}:</span>{' '}
+                      <span className="text-gray-700">{activity.name}</span>
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-500">{formatDate(activity.created_at)}</div>
+                  <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    {formatDate(activity.created_at)}
+                  </div>
                 </li>
               ))}
             </ul>

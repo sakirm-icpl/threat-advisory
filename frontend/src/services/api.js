@@ -159,6 +159,25 @@ export const endpoints = {
   // Dashboard
   getDashboardSummary: () => api.get('/dashboard/summary'),
   getRecentActivity: () => api.get('/dashboard/recent-activity'),
-}; 
+  
+  // CVE Search
+  searchCvesUnified: (query, limit, startIndex) => api.get('/api/cve/search/unified', { 
+    params: { query, limit, start_index: startIndex } 
+  }),
+  searchCvesByVendor: (vendor, limit, startIndex) => api.get('/api/cve/search/vendor', { 
+    params: { vendor, limit, start_index: startIndex } 
+  }),
+  searchCvesByVendorProduct: (vendor, product, limit, startIndex) => api.get('/api/cve/search/vendor-product', { 
+    params: { vendor, product, limit, start_index: startIndex } 
+  }),
+  searchCvesByKeyword: (keyword, limit, startIndex) => api.get('/api/cve/search/keyword', { 
+    params: { keyword, limit, start_index: startIndex } 
+  }),
+  getRecentCves: (days, limit) => api.get('/api/cve/recent', { 
+    params: { days, limit } 
+  }),
+  getCveStats: () => api.get('/api/cve/stats'),
+  getCveDetails: (cveId) => api.get(`/api/cve/details/${cveId}`),
+};
 
 export default api; 

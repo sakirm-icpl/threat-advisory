@@ -42,6 +42,37 @@ def search_cves_unified():
         print(f"ERROR: Exception in search_cves_unified: {e}")
         return jsonify({'error': str(e)}), 500
 
+@bp.route('/search/vendor', methods=['GET'])
+@require_permission('read')
+def search_cves_by_vendor():
+    """Search for CVEs by vendor only - returns all CVEs affecting any products from the vendor"""
+    try:
+        vendor = request.args.get('vendor')
+        limit = request.args.get('limit', 20, type=int)
+        start_index = request.args.get('start_index', 0, type=int)
+        
+        if not vendor:
+            return jsonify({'error': 'Vendor parameter is required'}), 400
+        
+        # Handle "All" option (-1) and larger limits
+        if limit == -1:
+            limit = 5000  # Set a reasonable maximum for "All"
+        elif limit < 1 or limit > 5000:
+            return jsonify({'error': 'Limit must be between 1 and 5000'}), 400
+        
+        print(f"DEBUG: Searching CVEs for vendor={vendor}, limit={limit}")
+        results = cve_service.search_cves_by_vendor_only(
+            vendor=vendor,
+            limit=limit,
+            start_index=start_index
+        )
+        
+        return jsonify(results)
+        
+    except Exception as e:
+        print(f"ERROR: Exception in search_cves_by_vendor: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @bp.route('/search/vendor-product', methods=['GET'])
 @require_permission('read')
 def search_cves_by_vendor_product():
@@ -109,18 +140,18 @@ def search_cves_by_keyword():
 @bp.route('/recent', methods=['GET'])
 @require_permission('read')
 def get_recent_cves():
-    """Get recent CVEs"""
+    """Get recent CVEs from the last N days"""
     try:
-        days = request.args.get('days', 7, type=int)
+        days = request.args.get('days', 30, type=int)
         limit = request.args.get('limit', 20, type=int)
         
         if days < 1 or days > 365:
             return jsonify({'error': 'Days must be between 1 and 365'}), 400
         
-        if limit < 1 or limit > 100:
-            return jsonify({'error': 'Limit must be between 1 and 100'}), 400
+        if limit < 1 or limit > 1000:
+            return jsonify({'error': 'Limit must be between 1 and 1000'}), 400
         
-        print(f"DEBUG: Getting recent CVEs for last {days} days")
+        print(f"DEBUG: Getting recent CVEs for last {days} days, limit={limit}")
         results = cve_service.get_recent_cves(days=days, limit=limit)
         
         return jsonify(results)
@@ -132,43 +163,44 @@ def get_recent_cves():
 @bp.route('/stats', methods=['GET'])
 @require_permission('read')
 def get_cve_stats():
-    """Get CVE statistics"""
+    """Get CVE statistics and summary information"""
     try:
-        print("DEBUG: Getting CVE statistics")
+        # Get recent CVEs for stats
+        recent_results = cve_service.get_recent_cves(days=30, limit=100)
         
-        # Get recent CVEs for statistics
-        recent_results = cve_service.get_recent_cves(days=7, limit=100)
-        recent_cves = recent_results.get('results', [])
+        if 'error' in recent_results:
+            return jsonify(recent_results), 500
         
-        # Calculate statistics
-        severity_distribution = {}
-        vendor_product_counts = {}
+        # Calculate basic stats
+        total_recent = recent_results.get('total_results', 0)
+        cves = recent_results.get('results', [])
         
-        for cve in recent_cves:
-            # Severity distribution
-            severity = cve.get('severity', 'unknown').lower()
-            severity_distribution[severity] = severity_distribution.get(severity, 0) + 1
+        # Count by severity
+        severity_counts = {}
+        vendor_counts = {}
+        
+        for cve in cves:
+            severity = cve.get('severity', 'UNKNOWN')
+            severity_counts[severity] = severity_counts.get(severity, 0) + 1
             
-            # Vendor/product distribution
-            if cve.get('vendors_products'):
-                for vp in cve['vendors_products']:
-                    vendor_product = f"{vp.get('vendor', 'unknown')}/{vp.get('product', 'unknown')}"
-                    vendor_product_counts[vendor_product] = vendor_product_counts.get(vendor_product, 0) + 1
+            # Count vendors
+            vendors_products = cve.get('vendors_products', [])
+            for vp in vendors_products:
+                vendor = vp.get('vendor', 'Unknown')
+                vendor_counts[vendor] = vendor_counts.get(vendor, 0) + 1
         
-        # Get top vendor/products
-        top_vendor_products = sorted(
-            [{'vendor_product': k, 'count': v} for k, v in vendor_product_counts.items()],
-            key=lambda x: x['count'],
-            reverse=True
-        )[:10]
+        # Get top vendors
+        top_vendors = sorted(vendor_counts.items(), key=lambda x: x[1], reverse=True)[:10]
         
-        stats = {
-            'recent_cves_7_days': len(recent_cves),
-            'severity_distribution': severity_distribution,
-            'top_vendor_products': top_vendor_products
-        }
-        
-        return jsonify(stats)
+        return jsonify({
+            'total_recent_cves': total_recent,
+            'severity_distribution': severity_counts,
+            'top_vendors': top_vendors,
+            'search_params': {
+                'days': 30,
+                'method': 'stats_calculation'
+            }
+        })
         
     except Exception as e:
         print(f"ERROR: Exception in get_cve_stats: {e}")
@@ -177,10 +209,18 @@ def get_cve_stats():
 @bp.route('/details/<cve_id>', methods=['GET'])
 @require_permission('read')
 def get_cve_details(cve_id):
-    """Get detailed information about a specific CVE"""
+    """Get detailed information for a specific CVE"""
     try:
-        print(f"DEBUG: Getting details for CVE {cve_id}")
+        # Validate CVE ID format
+        cve_pattern = re.compile(r'^CVE-\d{4}-\d{4,}$', re.IGNORECASE)
+        if not cve_pattern.match(cve_id):
+            return jsonify({'error': 'Invalid CVE ID format'}), 400
+        
+        print(f"DEBUG: Getting details for CVE: {cve_id}")
         results = cve_service.get_cve_details(cve_id)
+        
+        if 'error' in results:
+            return jsonify(results), 404
         
         return jsonify(results)
         

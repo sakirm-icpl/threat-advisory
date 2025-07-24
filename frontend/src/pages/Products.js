@@ -75,25 +75,28 @@ export default function Products() {
   };
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">Products</h2>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Products</h1>
+        <p className="text-gray-600">Manage your product catalog and version detection targets</p>
+      </div>
       {user?.role === 'admin' && (
-        <div className="mb-4">
+        <div className="mb-6">
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="btn btn-primary"
           >
-            {showAddForm ? 'Cancel' : 'Add Product'}
+            {showAddForm ? 'Cancel' : '+ Add Product'}
           </button>
         </div>
       )}
       {user?.role === 'admin' && showAddForm && (
-        <form onSubmit={addProduct} className="bg-gray-50 p-6 rounded-lg mb-6 w-full flex flex-col gap-4 shadow">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <form onSubmit={addProduct} className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
-              <label className="block text-sm font-medium mb-1">Product Name *</label>
+              <label className="label">Product Name *</label>
               <input
-                className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="input"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Product name"
@@ -101,18 +104,18 @@ export default function Products() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Category</label>
+              <label className="label">Category</label>
               <input
-                className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="input"
                 value={category}
                 onChange={e => setCategory(e.target.value)}
                 placeholder="e.g., Web Application, Service, OS"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Vendor *</label>
+              <label className="label">Vendor *</label>
               <select
-                className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="input"
                 value={vendorId}
                 onChange={e => setVendorId(e.target.value)}
                 required
@@ -124,64 +127,83 @@ export default function Products() {
               </select>
             </div>
             <div className="flex items-end">
-              <button className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" type="submit">Add Product</button>
+              <button className="btn btn-primary w-full" type="submit">Add Product</button>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Description (Markdown supported)</label>
+            <label className="label">Description (Markdown supported)</label>
             <textarea
-              className="w-full border px-3 py-2 rounded h-32 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input h-32 font-mono text-sm resize-none"
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder={`Describe what this product does, its features, etc.\n\nYou can use Markdown formatting:\n**Bold text**\n*Italic text*\n- Bullet points\n1. Numbered lists\n\`\`\`code blocks\`\`\`\n[Links](https://example.com)`}
             />
             {description && (
-              <div className="mt-2 p-3 bg-gray-50 rounded border">
-                <div className="text-xs text-gray-500 mb-2">Preview:</div>
+              <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Preview:</div>
                 <MarkdownRenderer content={description} />
               </div>
             )}
           </div>
         </form>
       )}
-      {error && <div className="text-red-600 mb-2 p-3 bg-red-50 rounded border">{error}</div>}
+      {error && (
+        <div className="alert alert-warning mb-6">
+          <div className="flex items-center">
+            <svg className="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {error}
+          </div>
+        </div>
+      )}
       {loading ? (
-        <p>Loading...</p>
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading products...</p>
+        </div>
       ) : (
-        <div className="bg-white rounded-lg border overflow-hidden">
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-lg">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-100">
-                  <th className="p-3 text-left font-medium">Vendor Name</th>
-                  <th className="p-3 text-left font-medium">Product Name</th>
-                  <th className="p-3 text-left font-medium">Category</th>
-                  <th className="p-3 text-left font-medium">Description</th>
+                <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Vendor Name</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Product Name</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Category</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Description</th>
                   {user?.role === 'admin' && (
-                    <th className="p-3 text-center font-medium">Actions</th>
+                    <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
                   )}
                 </tr>
               </thead>
               <tbody>
                 {products.map(p => (
-                  <tr key={p.id} className="border-b hover:bg-gray-50">
-                    <td className="p-3">
-                      <span className="font-medium">{vendors.find(v => v.id === p.vendor_id)?.name || ""}</span>
+                  <tr key={p.id} className="table-row-hover border-b border-gray-100">
+                    <td className="p-4">
+                      <div className="flex items-center">
+                        <div className="bg-blue-100 rounded-full p-2 mr-3">
+                          <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                        </div>
+                        <span className="font-semibold text-gray-800">{vendors.find(v => v.id === p.vendor_id)?.name || ""}</span>
+                      </div>
                     </td>
-                    <td className="p-3">
+                    <td className="p-4">
                       <a
                         href={`/methods?product=${p.id}`}
-                        className="text-blue-600 underline hover:text-blue-800 font-semibold cursor-pointer"
+                        className="text-blue-600 hover:text-blue-800 font-semibold cursor-pointer transition-colors duration-200 hover:underline"
                       >
                         {p.name}
                       </a>
                     </td>
-                    <td className="p-3">
-                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                    <td className="p-4">
+                        <span className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
                           {p.category || "Not specified"}
                         </span>
                     </td>
-                    <td className="p-3">
+                    <td className="p-4">
                         <div className="max-w-xs">
                           {p.description ? (
                             <div className="text-sm">
@@ -193,7 +215,7 @@ export default function Products() {
                               />
                               {p.description.length > 200 && (
                                 <button 
-                                  className="text-blue-600 text-xs mt-1 underline"
+                                  className="text-blue-600 text-xs mt-2 px-2 py-1 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors duration-200"
                                   onClick={() => {
                                     setModalContent({
                                       isOpen: true,
@@ -207,15 +229,25 @@ export default function Products() {
                               )}
                             </div>
                           ) : (
-                            <span className="text-gray-400 text-xs">No description</span>
+                            <span className="text-gray-400 text-xs italic">No description</span>
                           )}
                         </div>
                     </td>
                     {user?.role === 'admin' && (
-                      <td className="p-3 text-center">
+                      <td className="p-4 text-center">
                         <div className="flex gap-2 justify-center">
-                          <button className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600" onClick={() => navigate(`/products/${p.id}/edit`)}>Edit</button>
-                          <button className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700" onClick={() => deleteProduct(p.id)}>Delete</button>
+                          <button 
+                            className="btn btn-warning btn-sm" 
+                            onClick={() => navigate(`/products/${p.id}/edit`)}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="btn btn-danger btn-sm" 
+                            onClick={() => deleteProduct(p.id)}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </td>
                     )}
@@ -225,8 +257,14 @@ export default function Products() {
             </table>
           </div>
           {products.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              No products found. Add your first product above.
+            <div className="text-center py-16">
+              <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <p className="text-gray-500 font-medium text-lg">No products found</p>
+              <p className="text-gray-400 text-sm mt-2">Add your first product using the button above</p>
             </div>
           )}
         </div>
