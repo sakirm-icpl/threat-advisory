@@ -11,7 +11,24 @@ import {
   InformationCircleIcon,
   EyeIcon,
   EyeSlashIcon,
+  BuildingOfficeIcon,
+  CubeIcon,
+  ServerStackIcon,
+  XMarkIcon,
+  ClipboardIcon,
+  CheckIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
+
+// Add a loading spinner component
+function Spinner() {
+  return (
+    <svg className="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+    </svg>
+  );
+}
 
 export default function BulkOperations() {
   const [activeTab, setActiveTab] = useState('export');
@@ -365,37 +382,52 @@ export default function BulkOperations() {
 
       {/* Export Tab */}
       {activeTab === 'export' && (
-        <div className="space-y-6">
-          <div className="card p-6 shadow-lg rounded-lg bg-white w-full">
-            <h2 className="text-lg font-semibold mb-4">Export Data</h2>
-            <div className="space-y-6">
-              {/* Export by Vendor */}
-              <div>
-                <label className="block font-medium mb-1">Export by Vendor</label>
-                <select value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} className="input input-bordered w-full mb-2">
-                  <option value="">Select Vendor</option>
-                  {vendorsList.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
-                </select>
-                <button className="btn btn-primary w-full" onClick={handleExportVendor} disabled={!selectedVendor || exportLoading}>Export Vendor</button>
+        <div className="flex flex-col lg:flex-row gap-16 items-start w-full justify-center">
+          {/* Left column: Vendor and Product cards */}
+          <div className="flex flex-col gap-10 w-full lg:w-1/2 items-center">
+            {/* Export by Vendor Card */}
+            <div className="card p-6 shadow-xl rounded-lg bg-blue-50 max-w-md w-full flex flex-col gap-4 items-center transition-transform duration-200 hover:shadow-2xl hover:scale-[1.02]">
+              <div className="flex items-center gap-2 mb-2">
+                <BuildingOfficeIcon className="h-6 w-6 text-blue-500" />
+                <h2 className="text-lg font-semibold">Export by Vendor</h2>
               </div>
-              {/* Export by Product */}
-              <div>
-                <label className="block font-medium mb-1">Export by Product</label>
-                <select value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} className="input input-bordered w-full mb-2">
-                  <option value="">Select Vendor</option>
-                  {vendorsList.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
-                </select>
-                <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)} className="input input-bordered w-full mb-2" disabled={!selectedVendor}>
-                  <option value="">Select Product</option>
-                  {filteredProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
-                <button className="btn btn-primary w-full" onClick={handleExportProduct} disabled={!selectedProduct || exportLoading}>Export Product</button>
+              <select value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} className="input input-bordered w-full mb-2">
+                <option value="">Select Vendor</option>
+                {vendorsList.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+              </select>
+              <button className="btn btn-primary w-full flex items-center justify-center" onClick={handleExportVendor} disabled={!selectedVendor || exportLoading}>
+                {exportLoading ? <Spinner /> : 'Export Vendor'}
+              </button>
+            </div>
+            {/* Export by Product Card */}
+            <div className="card p-6 shadow-xl rounded-lg bg-blue-50 max-w-md w-full flex flex-col gap-4 items-center transition-transform duration-200 hover:shadow-2xl hover:scale-[1.02]">
+              <div className="flex items-center gap-2 mb-2">
+                <CubeIcon className="h-6 w-6 text-green-500" />
+                <h2 className="text-lg font-semibold">Export by Product</h2>
               </div>
-              {/* Export All Data */}
-              <div>
-                <label className="block font-medium mb-1">Export All Data</label>
-                <button className="btn btn-primary w-full" onClick={handleExportAll} disabled={exportLoading}>Export All</button>
+              <select value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} className="input input-bordered w-full mb-2">
+                <option value="">Select Vendor</option>
+                {vendorsList.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+              </select>
+              <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)} className="input input-bordered w-full mb-2" disabled={!selectedVendor}>
+                <option value="">Select Product</option>
+                {filteredProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <button className="btn btn-primary w-full flex items-center justify-center" onClick={handleExportProduct} disabled={!selectedProduct || exportLoading}>
+                {exportLoading ? <Spinner /> : 'Export Product'}
+              </button>
+            </div>
+          </div>
+          {/* Right column: Export All Data card (no divider, flush left) */}
+          <div className="flex flex-col items-start w-full lg:w-1/2">
+            <div className="card p-6 shadow-xl rounded-lg bg-blue-50 max-w-md w-full flex flex-col gap-4 items-center self-start transition-transform duration-200 hover:shadow-2xl hover:scale-[1.02]">
+              <div className="flex items-center gap-2 mb-2">
+                <ServerStackIcon className="h-6 w-6 text-purple-500" />
+                <h2 className="text-lg font-semibold">Export All Data</h2>
               </div>
+              <button className="btn btn-primary w-full flex items-center justify-center" onClick={handleExportAll} disabled={exportLoading}>
+                {exportLoading ? <Spinner /> : 'Export All'}
+              </button>
             </div>
           </div>
         </div>
@@ -783,12 +815,34 @@ export default function BulkOperations() {
       {previewModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative">
+            {/* Cancel Icon in top right */}
+            <button
+              title="Cancel"
+              className="absolute top-4 right-4 hover:bg-gray-200 rounded-full p-2 transition"
+              onClick={() => setPreviewModalOpen(false)}
+            >
+              <XMarkIcon className="h-6 w-6 text-red-500" />
+            </button>
             <h3 className="text-lg font-semibold mb-4">Export Preview</h3>
             <pre ref={previewJsonRef} className="bg-gray-100 rounded p-4 max-h-96 overflow-auto text-xs mb-4">{JSON.stringify(previewJson, null, 2)}</pre>
-            <div className="flex gap-2 justify-end">
-              <button className="btn btn-outline" onClick={() => setPreviewModalOpen(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={handleDownload}>Download</button>
-              <button className="btn btn-secondary" onClick={handleCopy}>{copyStatus}</button>
+            <div className="flex gap-4 justify-end items-center">
+              {/* Copy Icon (now left) */}
+              <button
+                title={copyStatus === 'Copied' ? 'Copied!' : 'Copy'}
+                className="hover:bg-gray-200 rounded-full p-2 transition"
+                onClick={handleCopy}
+                disabled={copyStatus === 'Copied'}
+              >
+                {copyStatus === 'Copied' ? (
+                  <CheckIcon className="h-6 w-6 text-green-500 transition-transform duration-200 scale-110" />
+                ) : (
+                  <ClipboardIcon className="h-6 w-6 text-gray-700 transition-transform duration-200" />
+                )}
+              </button>
+              {/* Download Icon (now right) */}
+              <button title="Download" className="hover:bg-gray-200 rounded-full p-2 transition" onClick={handleDownload}>
+                <ArrowDownTrayIcon className="h-6 w-6 text-blue-500" />
+              </button>
             </div>
           </div>
         </div>
