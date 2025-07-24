@@ -18,7 +18,11 @@ export default function BulkOperations() {
   const [exportFormat, setExportFormat] = useState('json');
   const [exportCompleteFormat, setExportCompleteFormat] = useState('json');
   const [selectedVendor, setSelectedVendor] = useState('');
-  const [vendorExportFormat, setVendorExportFormat] = useState('json');
+  const [selectedProduct, setSelectedProduct] = useState('');
+  const [vendorsList, setVendorsList] = useState([]);
+  const [productsList, setProductsList] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [exportLoading, setExportLoading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
   const [importError, setImportError] = useState(null);
@@ -38,6 +42,10 @@ export default function BulkOperations() {
   const importFileRef = useRef();
   const restoreFileRef = useRef();
   const queryClient = useQueryClient();
+  const previewJsonRef = useRef();
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [previewJson, setPreviewJson] = useState(null);
+  const [copyStatus, setCopyStatus] = useState('Copy');
 
   // Queries
   const { data: vendorsData, error: vendorsError, isLoading: vendorsLoading } = useQuery('vendors', endpoints.getVendors, {
@@ -57,6 +65,51 @@ export default function BulkOperations() {
       setShowBulkDeleteConfirm(false);
     },
   });
+
+  // Fetch vendors and products for dropdowns
+  useEffect(() => {
+    endpoints.getVendors().then(res => setVendorsList(res.data)).catch(() => setVendorsList([]));
+    endpoints.getProducts().then(res => setProductsList(res.data)).catch(() => setProductsList([]));
+  }, []);
+
+  // Filter products by selected vendor
+  useEffect(() => {
+    if (selectedVendor) {
+      setFilteredProducts(productsList.filter(p => p.vendor_id === parseInt(selectedVendor)));
+    } else {
+      setFilteredProducts([]);
+    }
+    setSelectedProduct('');
+  }, [selectedVendor, productsList]);
+
+  // Helper to show preview modal
+  const showPreview = (json) => {
+    setPreviewJson(json);
+    setPreviewModalOpen(true);
+    setCopyStatus('Copy');
+  };
+
+  // Copy JSON to clipboard
+  const handleCopy = () => {
+    if (previewJsonRef.current) {
+      navigator.clipboard.writeText(JSON.stringify(previewJson, null, 2));
+      setCopyStatus('Copied');
+      setTimeout(() => setCopyStatus('Copy'), 2000);
+    }
+  };
+
+  // Download JSON
+  const handleDownload = () => {
+    const blob = new Blob([JSON.stringify(previewJson, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'export.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   // Export data
   const handleExport = async () => {
@@ -106,22 +159,50 @@ export default function BulkOperations() {
       alert('Please select a vendor.');
       return;
     }
+    setExportLoading(true);
     try {
-      const res = await endpoints.exportVendorData(selectedVendor, vendorExportFormat);
-      const data = res.data;
-      const blob = new Blob([
-        vendorExportFormat === 'json' ? JSON.stringify(data, null, 2) : data
-      ], { type: vendorExportFormat === 'json' ? 'application/json' : (vendorExportFormat === 'csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `versionintel_vendor_export.${vendorExportFormat}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      alert('Vendor export failed.');
+      const res = await endpoints.exportVendor(selectedVendor);
+      let data = res.data;
+      if (typeof data === 'string') {
+        data = JSON.parse(data);
+      }
+      showPreview(data);
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  // Export product data
+  const handleExportProduct = async () => {
+    if (!selectedProduct) {
+      alert('Please select a product.');
+      return;
+    }
+    setExportLoading(true);
+    try {
+      const res = await endpoints.exportProduct(selectedProduct);
+      let data = res.data;
+      if (typeof data === 'string') {
+        data = JSON.parse(data);
+      }
+      showPreview(data);
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  // Export All data
+  const handleExportAll = async () => {
+    setExportLoading(true);
+    try {
+      const res = await endpoints.exportAllData();
+      let data = res.data;
+      if (typeof data === 'string') {
+        data = JSON.parse(data);
+      }
+      showPreview(data);
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -214,34 +295,6 @@ export default function BulkOperations() {
     }
   };
 
-  // Export All data
-  const handleExportAll = async () => {
-    setExportAllError(null);
-    try {
-      const res = await endpoints.exportAllData(exportAllFormat);
-      if (exportAllFormat === 'docx' || exportAllFormat === 'pdf') {
-        if (res.data && res.data.error) {
-          setExportAllError(res.data.error);
-          return;
-        }
-      }
-      const data = res.data;
-      const blob = new Blob([
-        exportAllFormat === 'json' ? JSON.stringify(data, null, 2) : data
-      ], { type: exportAllFormat === 'json' ? 'application/json' : (exportAllFormat === 'csv' ? 'text/csv' : (exportAllFormat === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf')) });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `versionintel_export_all.${exportAllFormat}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      setExportAllError('Export All failed.');
-    }
-  };
-
   // Cleanup data
   const handleCleanup = async () => {
     if (selectedCleanupTypes.length === 0) {
@@ -313,148 +366,35 @@ export default function BulkOperations() {
       {/* Export Tab */}
       {activeTab === 'export' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Basic Export */}
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <DocumentArrowDownIcon className="h-5 w-5" />
-                Basic Export
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <label className="text-sm font-medium">Format:</label>
-                  <select 
-                    value={exportFormat} 
-                    onChange={e => setExportFormat(e.target.value)} 
-                    className="input input-bordered flex-1"
-                  >
-            <option value="json">JSON</option>
-            <option value="csv">CSV (vendors only)</option>
-          </select>
-                </div>
-                <button className="btn btn-primary w-full" onClick={handleExport}>
-                  Export Basic Data
-                </button>
-                <p className="text-xs text-gray-500">
-                  CSV export currently includes only vendors. JSON export includes all data.
-                </p>
+          <div className="card p-6 shadow-lg rounded-lg bg-white w-full">
+            <h2 className="text-lg font-semibold mb-4">Export Data</h2>
+            <div className="space-y-6">
+              {/* Export by Vendor */}
+              <div>
+                <label className="block font-medium mb-1">Export by Vendor</label>
+                <select value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} className="input input-bordered w-full mb-2">
+                  <option value="">Select Vendor</option>
+                  {vendorsList.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                </select>
+                <button className="btn btn-primary w-full" onClick={handleExportVendor} disabled={!selectedVendor || exportLoading}>Export Vendor</button>
               </div>
-            </div>
-
-            {/* Export All Complete */}
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <DocumentArrowDownIcon className="h-5 w-5" />
-                Export All Complete
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <label className="text-sm font-medium">Format:</label>
-                  <select 
-                    value={exportCompleteFormat} 
-                    onChange={e => setExportCompleteFormat(e.target.value)} 
-                    className="input input-bordered flex-1"
-                  >
-                    <option value="json">JSON (complete)</option>
-                    <option value="csv">CSV (complete)</option>
-                    <option value="docx">Word (DOCX)</option>
-                  </select>
-                </div>
-                <button className="btn btn-primary w-full" onClick={handleExportComplete}>
-                  Export All Complete Data
-                </button>
-                <p className="text-xs text-gray-500">
-                  Exports all vendors with their complete products, methods, and guides.
-                </p>
+              {/* Export by Product */}
+              <div>
+                <label className="block font-medium mb-1">Export by Product</label>
+                <select value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} className="input input-bordered w-full mb-2">
+                  <option value="">Select Vendor</option>
+                  {vendorsList.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                </select>
+                <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)} className="input input-bordered w-full mb-2" disabled={!selectedVendor}>
+                  <option value="">Select Product</option>
+                  {filteredProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+                <button className="btn btn-primary w-full" onClick={handleExportProduct} disabled={!selectedProduct || exportLoading}>Export Product</button>
               </div>
-            </div>
-
-            {/* Export Specific Vendor */}
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <DocumentArrowDownIcon className="h-5 w-5" />
-                Export Specific Vendor
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Select Vendor:</label>
-                  <select 
-                    value={selectedVendor} 
-                    onChange={e => setSelectedVendor(e.target.value)} 
-                    className="input input-bordered w-full mt-1"
-                    disabled={vendorsLoading}
-                  >
-                    <option value="">
-                      {vendorsLoading ? 'Loading vendors...' : 'Choose a vendor...'}
-                    </option>
-                    {vendorsData?.data && Array.isArray(vendorsData.data) && vendorsData.data.length > 0 ? (
-                      vendorsData.data.map(vendor => (
-                        <option key={vendor.id} value={vendor.id}>
-                          {vendor.name}
-                        </option>
-                      ))
-                    ) : (
-                      !vendorsLoading && <option value="" disabled>No vendors available</option>
-                    )}
-                  </select>
-                  {vendorsError && (
-                    <div className="text-red-500 text-xs mt-1">
-                      Error loading vendors: {vendorsError?.response?.data?.error || vendorsError?.message}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-4">
-                  <label className="text-sm font-medium">Format:</label>
-                  <select 
-                    value={vendorExportFormat} 
-                    onChange={e => setVendorExportFormat(e.target.value)} 
-                    className="input input-bordered flex-1"
-                  >
-                    <option value="json">JSON</option>
-                    <option value="csv">CSV</option>
-                    <option value="docx">Word (DOCX)</option>
-                  </select>
-                </div>
-                <button 
-                  className="btn btn-primary w-full" 
-                  onClick={handleExportVendor}
-                  disabled={!selectedVendor}
-                >
-                  Export Vendor Data
-                </button>
-                <p className="text-xs text-gray-500">
-                  Exports selected vendor with all their products, methods, and guides.
-                </p>
-        </div>
-      </div>
-
-            {/* Export All (Original) */}
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <DocumentArrowDownIcon className="h-5 w-5" />
-                Export All (Original)
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <label className="text-sm font-medium">Format:</label>
-                  <select 
-                    value={exportAllFormat} 
-                    onChange={e => setExportAllFormat(e.target.value)} 
-                    className="input input-bordered flex-1"
-                  >
-            <option value="json">JSON (nested, all details)</option>
-            <option value="csv">CSV (flattened)</option>
-            <option value="docx">Word (DOCX)</option>
-            <option value="pdf">PDF</option>
-          </select>
-                </div>
-                <button className="btn btn-primary w-full" onClick={handleExportAll}>
-                  Export All Data
-                </button>
-                {exportAllError && <div className="text-red-500 text-sm">{exportAllError}</div>}
-                <p className="text-xs text-gray-500">
-                  Exports all vendors, their products, detection methods, and setup guides.
-                </p>
+              {/* Export All Data */}
+              <div>
+                <label className="block font-medium mb-1">Export All Data</label>
+                <button className="btn btn-primary w-full" onClick={handleExportAll} disabled={exportLoading}>Export All</button>
               </div>
             </div>
           </div>
@@ -491,85 +431,85 @@ export default function BulkOperations() {
                 </label>
       </div>
 
-              {importing && (
-                <div className="flex items-center gap-2 text-blue-600">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                  {showImportPreview ? 'Analyzing import data...' : 'Importing...'}
-                </div>
-              )}
+                {importing && (
+                  <div className="flex items-center gap-2 text-blue-600">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    {showImportPreview ? 'Analyzing import data...' : 'Importing...'}
+                  </div>
+                )}
 
-              {importPreviewData && (
-                <div className="card bg-blue-50 p-4">
-                  <h3 className="font-semibold mb-2">Import Preview</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">Vendors:</span>
-                      <div>New: {importPreviewData.vendors.new}</div>
-                      <div>Existing: {importPreviewData.vendors.existing}</div>
+                {importPreviewData && (
+                  <div className="card bg-blue-50 p-4">
+                    <h3 className="font-semibold mb-2">Import Preview</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium">Vendors:</span>
+                        <div>New: {importPreviewData.vendors.new}</div>
+                        <div>Existing: {importPreviewData.vendors.existing}</div>
+                      </div>
+                      <div>
+                        <span className="font-medium">Products:</span>
+                        <div>New: {importPreviewData.products.new}</div>
+                        <div>Existing: {importPreviewData.products.existing}</div>
+                      </div>
+                      <div>
+                        <span className="font-medium">Methods:</span>
+                        <div>New: {importPreviewData.methods.new}</div>
+                        <div>Existing: {importPreviewData.methods.existing}</div>
+                      </div>
+                      <div>
+                        <span className="font-medium">Guides:</span>
+                        <div>New: {importPreviewData.guides.new}</div>
+                        <div>Existing: {importPreviewData.guides.existing}</div>
+                      </div>
                     </div>
-                    <div>
-                      <span className="font-medium">Products:</span>
-                      <div>New: {importPreviewData.products.new}</div>
-                      <div>Existing: {importPreviewData.products.existing}</div>
-                    </div>
-                    <div>
-                      <span className="font-medium">Methods:</span>
-                      <div>New: {importPreviewData.methods.new}</div>
-                      <div>Existing: {importPreviewData.methods.existing}</div>
-                    </div>
-                    <div>
-                      <span className="font-medium">Guides:</span>
-                      <div>New: {importPreviewData.guides.new}</div>
-                      <div>Existing: {importPreviewData.guides.existing}</div>
+                    {importPreviewData.warnings.length > 0 && (
+                      <div className="mt-2">
+                        <span className="font-medium text-orange-600">Warnings:</span>
+                        <ul className="list-disc list-inside text-sm text-orange-600">
+                          {importPreviewData.warnings.map((warning, i) => (
+                            <li key={i}>{warning}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <div className="mt-4 flex gap-2">
+                      <button className="btn btn-primary btn-sm" onClick={confirmImport}>
+                        Confirm Import
+                      </button>
+                      <button 
+                        className="btn btn-outline btn-sm" 
+                        onClick={() => setImportPreviewData(null)}
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
-                  {importPreviewData.warnings.length > 0 && (
-                    <div className="mt-2">
-                      <span className="font-medium text-orange-600">Warnings:</span>
-                      <ul className="list-disc list-inside text-sm text-orange-600">
-                        {importPreviewData.warnings.map((warning, i) => (
-                          <li key={i}>{warning}</li>
-                        ))}
-                      </ul>
+                )}
+
+                {importResult && (
+                  <div className="card bg-green-50 p-4">
+                    <h3 className="font-semibold text-green-800 mb-2">Import Complete</h3>
+                    <div className="text-sm text-green-700">
+                      <pre>{JSON.stringify(importResult, null, 2)}</pre>
                     </div>
-                  )}
-                  <div className="mt-4 flex gap-2">
-                    <button className="btn btn-primary btn-sm" onClick={confirmImport}>
-                      Confirm Import
-                    </button>
-                    <button 
-                      className="btn btn-outline btn-sm" 
-                      onClick={() => setImportPreviewData(null)}
-                    >
-                      Cancel
-                    </button>
                   </div>
-                </div>
-              )}
+                )}
 
-              {importResult && (
-                <div className="card bg-green-50 p-4">
-                  <h3 className="font-semibold text-green-800 mb-2">Import Complete</h3>
-                  <div className="text-sm text-green-700">
-                    <pre>{JSON.stringify(importResult, null, 2)}</pre>
+                {importError && (
+                  <div className="card bg-red-50 p-4">
+                    <h3 className="font-semibold text-red-800 mb-2">Import Error</h3>
+                    <div className="text-sm text-red-700">{importError}</div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {importError && (
-                <div className="card bg-red-50 p-4">
-                  <h3 className="font-semibold text-red-800 mb-2">Import Error</h3>
-                  <div className="text-sm text-red-700">{importError}</div>
-                </div>
-              )}
-
-              <p className="text-xs text-gray-500">
-                Import expects a JSON file in the same format as exported data. 
-                Use preview mode to see what will be imported before confirming.
-              </p>
+                <p className="text-xs text-gray-500">
+                  Import expects a JSON file in the same format as exported data. 
+                  Use preview mode to see what will be imported before confirming.
+                </p>
+              </div>
             </div>
-          </div>
-      </div>
+        </div>
       )}
 
       {/* Backup/Restore Tab */}
@@ -838,6 +778,20 @@ export default function BulkOperations() {
             </div>
           )}
       </div>
+      )}
+      {/* Preview Modal */}
+      {previewModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative">
+            <h3 className="text-lg font-semibold mb-4">Export Preview</h3>
+            <pre ref={previewJsonRef} className="bg-gray-100 rounded p-4 max-h-96 overflow-auto text-xs mb-4">{JSON.stringify(previewJson, null, 2)}</pre>
+            <div className="flex gap-2 justify-end">
+              <button className="btn btn-outline" onClick={() => setPreviewModalOpen(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleDownload}>Download</button>
+              <button className="btn btn-secondary" onClick={handleCopy}>{copyStatus}</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

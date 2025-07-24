@@ -142,6 +142,8 @@ export const endpoints = {
   exportSelective: (data) => api.post('/bulk/export-selective', data),
   importPreview: (data) => api.post('/bulk/import-preview', data),
   bulkDelete: (data) => api.post('/bulk/bulk-delete', data),
+  exportVendor: (vendorId) => api.get(`/bulk/export-vendor/${vendorId}`, { responseType: 'json' }),
+  exportProduct: (productId) => api.get(`/bulk/export-product/${productId}`, { responseType: 'json' }),
   exportVendorData: (vendorId, format) => api.get(`/bulk/export-vendor/${vendorId}`, { params: { format } }),
   exportAllComplete: (format) => api.get('/bulk/export-all-complete', { params: { format } }),
   
