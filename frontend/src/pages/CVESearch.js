@@ -8,7 +8,9 @@ import {
   ChevronDownIcon,
   ArrowTopRightOnSquareIcon,
   ArrowPathIcon,
-  CheckIcon
+  CheckIcon,
+  BuildingOfficeIcon,
+  CubeIcon
 } from '@heroicons/react/24/outline';
 
 const CVESearch = () => {
@@ -42,8 +44,6 @@ const CVESearch = () => {
   
   // Daily check state
   const [dailyCheckDone, setDailyCheckDone] = useState(false);
-  
- // 'nvd' or 'circl'
   
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -101,8 +101,9 @@ const CVESearch = () => {
   const loadProducts = async (vendorId) => {
     try {
       const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_BASE_URL}/products?vendor_id=${vendorId}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await axios.get(`${API_BASE_URL}/products`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { vendor_id: vendorId }
       });
       setProducts(response.data);
     } catch (error) {
@@ -111,37 +112,15 @@ const CVESearch = () => {
   };
 
   const loadRecentCves = async () => {
-    setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
-      if (!token) {
-        setError('No authentication token found. Please log in again.');
-        return;
-      }
-      
-      const response = await axios.get(`${API_BASE_URL}/api/cve/recent?days=${recentDays}&limit=20`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await axios.get(`${API_BASE_URL}/api/cve/recent`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { days: recentDays, limit: 10 }
       });
-      
-      if (response.data.error) {
-        setError(response.data.error);
-        setRecentCves([]);
-      } else {
-        setRecentCves(response.data.results || []);
-        setError('');
-      }
+      setRecentCves(response.data.results || []);
     } catch (error) {
       console.error('Error loading recent CVEs:', error);
-      if (error.response?.status === 401) {
-        setError('Authentication failed. Please log in again.');
-      } else if (error.response?.status === 404) {
-        setError('Recent CVEs endpoint not found. Please check the backend configuration.');
-      } else {
-        setError(`Failed to load recent CVEs: ${error.response?.data?.detail || error.message}`);
-      }
-      setRecentCves([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -153,7 +132,7 @@ const CVESearch = () => {
       });
       setStats(response.data);
     } catch (error) {
-      console.error('Error loading stats:', error);
+      console.error('Error loading CVE stats:', error);
     }
   };
 
@@ -258,53 +237,53 @@ const CVESearch = () => {
       const token = localStorage.getItem('access_token');
       
       // Check if vendor and product are selected
-      if (!selectedVendorId || !selectedProductId) {
-        setError('Please select both vendor and product');
+      if (!selectedVendorId) {
+        setError('Please select a vendor');
+        setLoading(false);
         return;
       }
-      
-      // Get vendor and product names from the selected IDs
-      const selectedVendor = vendors.find(v => String(v.id) === String(selectedVendorId));
-      const selectedProduct = products.find(p => String(p.id) === String(selectedProductId));
-      
-      if (!selectedVendor || !selectedProduct) {
-        setError('Selected vendor or product not found. Please try selecting again.');
+
+      const selectedVendor = vendors.find(v => v.id === parseInt(selectedVendorId));
+      const selectedProduct = products.find(p => p.id === parseInt(selectedProductId));
+
+      if (!selectedVendor) {
+        setError('Selected vendor not found');
+        setLoading(false);
         return;
       }
-      
-      // Use the same NVD vendor/product search endpoint with enhanced CPE matching
-      // Always use the same limit logic as Vendor/Product Search
-      const limit = resultsPerPage === -1 ? 5000 : resultsPerPage;
-      const response = await axios.get(`${API_BASE_URL}/api/cve/search/vendor-product`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: {
-          vendor: selectedVendor.name,
-          product: selectedProduct.name,
-          limit: limit,
-          start_index: 0
-        }
-      });
+
+      let response;
+      if (selectedProduct) {
+        // Search for specific vendor + product
+        response = await axios.get(`${API_BASE_URL}/api/cve/search/vendor-product`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            vendor: selectedVendor.name,
+            product: selectedProduct.name,
+            limit: resultsPerPage
+          }
+        });
+      } else {
+        // Search for vendor only
+        response = await axios.get(`${API_BASE_URL}/api/cve/search/vendor`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            vendor: selectedVendor.name,
+            limit: resultsPerPage
+          }
+        });
+      }
 
       if (response.data.error) {
         setError(response.data.error);
         setDatabaseResults([]);
       } else {
-        // Format the results to match the expected structure
-        const formattedResults = [{
-          vendor: selectedVendor.name,
-          product: selectedProduct.name,
-          cve_results: response.data
-        }];
-        setDatabaseResults(formattedResults);
-        setSuccess(`Found ${response.data.total_results} CVEs for ${selectedVendor.name}/${selectedProduct.name} using NVD Enhanced Search`);
+        setDatabaseResults(response.data.results || []);
+        setError('');
       }
     } catch (error) {
-      console.error('Error searching CVEs:', error);
-      if (error.response?.status === 401) {
-        setError('Authentication failed. Please log in again.');
-      } else {
-        setError('Failed to search CVEs. Please try again.');
-      }
+      console.error('Error searching database CVEs:', error);
+      setError('Failed to search CVEs. Please try again.');
       setDatabaseResults([]);
     } finally {
       setLoading(false);
@@ -312,8 +291,15 @@ const CVESearch = () => {
   };
 
   const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-    // Trigger new search with updated page
+    // Calculate total pages to prevent going beyond available data
+    const totalPages = Math.ceil(totalResults / resultsPerPage);
+    
+    // Ensure we don't go beyond the total pages
+    if (newPage < 1 || newPage > totalPages) {
+      console.warn(`Page ${newPage} is out of range (1-${totalPages})`);
+      return;
+    }
+    
     if (activeTab === 0 && unifiedQuery) {
       handleUnifiedSearch(newPage);
     } else if (activeTab === 1 && keyword) {
@@ -322,11 +308,11 @@ const CVESearch = () => {
   };
 
   const getSeverityColor = (severity) => {
-    switch (severity?.toLowerCase()) {
-      case 'critical': return 'bg-red-100 text-red-800';
-      case 'high': return 'bg-orange-100 text-orange-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
+    switch (severity?.toUpperCase()) {
+      case 'CRITICAL': return 'bg-red-100 text-red-800';
+      case 'HIGH': return 'bg-orange-100 text-orange-800';
+      case 'MEDIUM': return 'bg-yellow-100 text-yellow-800';
+      case 'LOW': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -338,25 +324,22 @@ const CVESearch = () => {
 
   const handleTabChange = (newValue) => {
     setActiveTab(newValue);
+    setSearchResults([]);
+    setTotalResults(0);
+    setCurrentPage(1);
     setError('');
-    setSuccess('');
-    // Reset daily check when switching tabs
-    if (newValue !== 3) {
-      setDailyCheckDone(false);
-    }
+    setSearchType('');
   };
 
   const handleCancelSearch = () => {
-    setSearchResults([]);
-    setTotalResults(0);
-    setDatabaseResults([]);
-    setError('');
-    setSuccess('');
     setUnifiedQuery('');
     setKeyword('');
-    setSelectedVendorId('');
-    setSelectedProductId('');
-    setDailyCheckDone(false);
+    setSearchResults([]);
+    setTotalResults(0);
+    setCurrentPage(1);
+    setError('');
+    setSearchType('');
+    setDatabaseResults([]);
   };
 
   const handleDailyCheck = async () => {
@@ -368,742 +351,596 @@ const CVESearch = () => {
         setError('No authentication token found. Please log in again.');
         return;
       }
-      
+
+      // Get recent CVEs from the last 24 hours
       const response = await axios.get(`${API_BASE_URL}/api/cve/recent`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          days: 1,
-          limit: 50
-        }
+        params: { days: 1, limit: 50 }
       });
-      
+
       if (response.data.error) {
         setError(response.data.error);
       } else {
         const recentCves = response.data.results || [];
-        const criticalCves = recentCves.filter(cve => 
-          cve.severity?.toLowerCase() === 'critical' || 
-          (cve.cvss_score && cve.cvss_score >= 9.0)
-        );
-        
-        if (criticalCves.length > 0) {
-          setError(`⚠️ DAILY CHECK: Found ${criticalCves.length} critical CVEs in the last 24 hours! Please review immediately.`);
-        } else {
-          setSuccess(`✅ Daily Check Complete: ${recentCves.length} CVEs published in last 24 hours. No critical vulnerabilities found.`);
-        }
-        
+        setSuccess(`Daily check completed! Found ${recentCves.length} new CVEs in the last 24 hours.`);
         setDailyCheckDone(true);
-        setRecentCves(recentCves);
-        setRecentDays(1);
+        
+        // Auto-refresh recent CVEs
+        loadRecentCves();
       }
     } catch (error) {
-      console.error('Error in daily check:', error);
-      if (error.response?.status === 401) {
-        setError('Authentication failed. Please log in again.');
-      } else if (error.response?.status === 404) {
-        setError('Daily check endpoint not found. Please check the backend configuration.');
-      } else {
-        setError(`Failed to perform daily check: ${error.response?.data?.detail || error.message}`);
-      }
+      console.error('Error during daily check:', error);
+      setError('Failed to perform daily check. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const tabs = [
-    { name: 'Unified Search', icon: MagnifyingGlassIcon },
-    { name: 'Keyword Search', icon: MagnifyingGlassIcon },
-    { name: 'Database Search', icon: ExclamationTriangleIcon },
-    { name: 'Recent CVEs', icon: ChevronDownIcon },
-    { name: 'Statistics', icon: InformationCircleIcon }
-  ];
-
   const renderModernPagination = (currentPage, totalResults, resultsPerPage, onPageChange) => {
     const totalPages = Math.ceil(totalResults / resultsPerPage);
     
-    if (totalPages <= 1) return null;
-    
     const getVisiblePages = () => {
-      const maxVisiblePages = 5;
-      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-      
-      if (endPage - startPage + 1 < maxVisiblePages) {
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      const delta = 2;
+      const range = [];
+      const rangeWithDots = [];
+
+      for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+        range.push(i);
       }
-      
-      const pages = [];
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
+
+      if (currentPage - delta > 2) {
+        rangeWithDots.push(1, '...');
+      } else {
+        rangeWithDots.push(1);
       }
-      
-      return { pages, startPage, endPage };
+
+      rangeWithDots.push(...range);
+
+      if (currentPage + delta < totalPages - 1) {
+        rangeWithDots.push('...', totalPages);
+      } else {
+        rangeWithDots.push(totalPages);
+      }
+
+      return rangeWithDots;
     };
-    
-    const { pages, startPage, endPage } = getVisiblePages();
-    
+
+    if (totalPages <= 1) return null;
+
     return (
-      <div className="flex justify-center items-center space-x-2 mt-6">
-        {/* Previous Button */}
-        {currentPage > 1 && (
+      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+        <div className="flex justify-between flex-1 sm:hidden">
           <button
             onClick={() => onPageChange(currentPage - 1)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200"
+            disabled={currentPage === 1}
+            className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            PREV
+            Previous
           </button>
-        )}
-        
-        {/* Page Numbers */}
-        {pages.map(page => (
-          <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={`w-10 h-10 text-sm font-medium rounded-full border transition-colors duration-200 ${
-              currentPage === page
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
-            }`}
-          >
-            {page}
-          </button>
-        ))}
-        
-        {/* Ellipsis and Last Page */}
-        {endPage < totalPages && (
-          <>
-            {endPage < totalPages - 1 && (
-              <span className="text-gray-500 text-sm font-medium">...</span>
-            )}
-            <button
-              onClick={() => onPageChange(totalPages)}
-              className={`w-10 h-10 text-sm font-medium rounded-full border transition-colors duration-200 ${
-                currentPage === totalPages
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
-              }`}
-            >
-              {totalPages}
-            </button>
-          </>
-        )}
-        
-        {/* Next Button */}
-        {currentPage < totalPages && (
           <button
             onClick={() => onPageChange(currentPage + 1)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200"
+            disabled={currentPage === totalPages}
+            className="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            NEXT
+            Next
           </button>
-        )}
+        </div>
+        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm text-gray-700">
+              Showing <span className="font-medium">{(currentPage - 1) * resultsPerPage + 1}</span> to{' '}
+              <span className="font-medium">
+                {Math.min(currentPage * resultsPerPage, totalResults)}
+              </span>{' '}
+              of <span className="font-medium">{totalResults}</span> results
+            </p>
+          </div>
+          <div>
+            <nav className="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+              <button
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="sr-only">Previous</span>
+                <ChevronDownIcon className="h-5 w-5 transform rotate-90" aria-hidden="true" />
+              </button>
+              
+              {getVisiblePages().map((page, index) => (
+                <button
+                  key={index}
+                  onClick={() => typeof page === 'number' ? onPageChange(page) : null}
+                  disabled={page === '...'}
+                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                    page === currentPage
+                      ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                      : page === '...'
+                      ? 'bg-white border-gray-300 text-gray-700 cursor-default'
+                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              
+              <button
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="sr-only">Next</span>
+                <ChevronDownIcon className="h-5 w-5 transform -rotate-90" aria-hidden="true" />
+              </button>
+            </nav>
+          </div>
+        </div>
       </div>
     );
   };
 
   const renderCVEList = (cves, title, totalCount = null) => (
-    <div>
-      <h3 className="text-lg font-medium text-gray-900 mb-4">
-        {totalCount !== null ? `Found ${totalCount} CVEs` : `${title} (${cves.length} results)`}
-      </h3>
-      {cves.length === 0 ? (
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-          <div className="flex">
-            <InformationCircleIcon className="h-5 w-5 text-blue-400" />
-            <div className="ml-3">
-              <p className="text-sm text-blue-700">No CVEs found</p>
-            </div>
-          </div>
+    <div className="bg-white shadow rounded-lg">
+      <div className="px-4 py-5 sm:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">{title}</h3>
+          {totalCount !== null && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {totalCount} results
+            </span>
+          )}
         </div>
-      ) : (
-        <div className="space-y-4">
-          {cves.map((cve, index) => (
-            <div key={index} className="bg-white shadow rounded-lg border border-gray-200">
-              <div className="p-6">
-                <div className="flex justify-between items-start">
+        
+        {cves.length === 0 ? (
+          <div className="text-center py-8">
+            <ShieldExclamationIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No CVEs found</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Try adjusting your search criteria or check back later for new vulnerabilities.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {cves.map((cve, index) => (
+              <div key={cve.id || index} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h4 className="text-lg font-semibold text-blue-600 mb-2">
-                      {cve.cve_id}
-                    </h4>
-                    
-                    {/* Vendor and Product Information */}
-                    {cve.vendors_products && cve.vendors_products.length > 0 && (
-                      <div className="mb-3 p-3 bg-gray-50 rounded-md border border-gray-200">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {(() => {
-                            // Remove duplicates by creating unique vendor/product combinations
-                            const uniqueVendorProducts = [];
-                            const seen = new Set();
-                            
-                            cve.vendors_products.forEach(vp => {
-                              // Normalize vendor and product names for better duplicate detection
-                              const vendor = (vp.vendor || '').toLowerCase().trim();
-                              const product = (vp.product || '').toLowerCase().trim();
-                              
-                              if (vendor && product) {
-                                const key = `${vendor}/${product}`;
-                                if (!seen.has(key)) {
-                                  seen.add(key);
-                                  uniqueVendorProducts.push({
-                                    vendor: vp.vendor || 'Unknown',
-                                    product: vp.product || 'Unknown'
-                                  });
-                                }
-                              }
-                            });
-                            
-                            return uniqueVendorProducts.map((vp, vpIndex) => (
-                              <div key={`${cve.cve_id}-${vpIndex}`} className="flex items-center space-x-2">
-                                <span className="text-sm font-medium text-gray-700">Vendor:</span>
-                                <span className="text-sm text-gray-900 bg-white px-2 py-1 rounded border">{vp.vendor}</span>
-                                <span className="text-sm font-medium text-gray-700">Product:</span>
-                                <span className="text-sm text-gray-900 bg-white px-2 py-1 rounded border">{vp.product}</span>
-                              </div>
-                            ));
-                          })()}
-                        </div>
-                      </div>
-                    )}
-                    
-                    <p className="text-gray-600 mb-3">
-                      {cve.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <h4 className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                        <a 
+                          href={`https://nvd.nist.gov/vuln/detail/${cve.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center space-x-1"
+                        >
+                          <span>{cve.id}</span>
+                          <ArrowTopRightOnSquareIcon className="h-4 w-4" />
+                        </a>
+                      </h4>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSeverityColor(cve.severity)}`}>
-                        {cve.severity}
+                        {cve.severity || 'UNKNOWN'}
                       </span>
-                      {cve.cvss_score > 0 && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      {cve.cvss_score && (
+                        <span className="text-xs text-gray-500">
                           CVSS: {cve.cvss_score}
                         </span>
                       )}
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        Published: {formatDate(cve.published_date)}
-                      </span>
                     </div>
+                    
+                    <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                      {cve.description || 'No description available'}
+                    </p>
+                    
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span>Published: {formatDate(cve.published_date)}</span>
+                      <span>Modified: {formatDate(cve.last_modified_date)}</span>
+                    </div>
+                    
+                    {cve.vendors_products && cve.vendors_products.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {cve.vendors_products.slice(0, 3).map((vp, idx) => (
+                          <span key={idx} className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                            <BuildingOfficeIcon className="h-3 w-3 mr-1" />
+                            {vp.vendor}
+                            {vp.product && (
+                              <>
+                                <CubeIcon className="h-3 w-3 mx-1" />
+                                {vp.product}
+                              </>
+                            )}
+                          </span>
+                        ))}
+                        {cve.vendors_products.length > 3 && (
+                          <span className="text-xs text-gray-500">
+                            +{cve.vendors_products.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <button
-                    onClick={() => window.open(cve.url, '_blank')}
-                    className="ml-4 p-2 text-gray-400 hover:text-gray-600"
-                    title="View on NVD"
-                  >
-                    <ArrowTopRightOnSquareIcon className="h-5 w-5" />
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 
   const renderDatabaseResults = () => (
-    <div>
-      <h3 className="text-lg font-medium text-gray-900 mb-4">
-        Database Search Results
-      </h3>
-      {databaseResults.length === 0 ? (
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-          <div className="flex">
-            <InformationCircleIcon className="h-5 w-5 text-blue-400" />
-            <div className="ml-3">
-              <p className="text-sm text-blue-700">No results found</p>
-            </div>
+    <div className="bg-white shadow rounded-lg">
+      <div className="px-4 py-5 sm:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">Database Search Results</h3>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            {databaseResults.length} results
+          </span>
+        </div>
+        
+        {databaseResults.length === 0 ? (
+          <div className="text-center py-8">
+            <ShieldExclamationIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No CVEs found</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Try selecting a different vendor or product combination.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {databaseResults.map((cve, index) => (
+              <div key={cve.id || index} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <h4 className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                        <a 
+                          href={`https://nvd.nist.gov/vuln/detail/${cve.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center space-x-1"
+                        >
+                          <span>{cve.id}</span>
+                          <ArrowTopRightOnSquareIcon className="h-4 w-4" />
+                        </a>
+                      </h4>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSeverityColor(cve.severity)}`}>
+                        {cve.severity || 'UNKNOWN'}
+                      </span>
+                    </div>
+                    
+                    <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                      {cve.description || 'No description available'}
+                    </p>
+                    
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span>Published: {formatDate(cve.published_date)}</span>
+                      <span>Modified: {formatDate(cve.last_modified_date)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderSearchExamples = () => (
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <div className="flex items-start">
+        <InformationCircleIcon className="h-5 w-5 text-blue-400 mt-0.5 mr-2 flex-shrink-0" />
+        <div>
+          <h4 className="text-sm font-medium text-blue-800 mb-2">Search Examples</h4>
+          <div className="text-sm text-blue-700 space-y-1">
+            <p><strong>Vendor Only:</strong> "apache" - Returns all CVEs affecting any Apache products (httpd, tomcat, struts, etc.)</p>
+            <p><strong>Vendor + Product:</strong> "apache tomcat" - Returns CVEs specifically affecting Apache Tomcat</p>
+            <p><strong>CVE ID:</strong> "CVE-2021-44228" - Returns specific CVE details</p>
+            <p><strong>Keyword:</strong> "log4j" - Returns CVEs containing the keyword</p>
           </div>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {databaseResults.map((search, index) => (
-            <div key={index} className="bg-white shadow rounded-lg border border-gray-200">
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-lg font-medium text-gray-900">
-                    {search.vendor} / {search.product}
-                  </h4>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {search.cve_results.total_results} CVEs
-                  </span>
-                </div>
-                {search.cve_results.error ? (
-                  <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                    <p className="text-sm text-red-700">{search.cve_results.error}</p>
-                  </div>
-                ) : (
-                  renderCVEList(search.cve_results.results, 'CVEs', search.cve_results.total_results)
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <ShieldExclamationIcon className="h-8 w-8 text-blue-600" />
-            CVE Search Tool
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Search for Common Vulnerabilities and Exposures (CVEs) using the National Vulnerability Database
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex">
-              <ExclamationTriangleIcon className="h-5 w-5 text-red-400" />
-              <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            </div>
+    <div className="space-y-6">
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">CVE Search</h2>
+            <button
+              onClick={handleDailyCheck}
+              disabled={loading}
+              className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            >
+              <ArrowPathIcon className="h-4 w-4 mr-1" />
+              Daily Check
+            </button>
           </div>
-        )}
 
-        {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
-            <div className="flex">
-              <InformationCircleIcon className="h-5 w-5 text-green-400" />
-              <div className="ml-3">
-                <p className="text-sm text-green-700">{success}</p>
-              </div>
-            </div>
-          </div>
-        )}
+          {renderSearchExamples()}
 
-        <div className="bg-white shadow rounded-lg">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8 px-6">
-              {tabs.map((tab, index) => (
+          {/* Tab Navigation */}
+          <div className="border-b border-gray-200 mb-6">
+            <nav className="-mb-px flex space-x-8">
+              {[
+                { id: 0, name: 'Unified Search', icon: MagnifyingGlassIcon },
+                { id: 1, name: 'Keyword Search', icon: MagnifyingGlassIcon },
+                { id: 2, name: 'Database Search', icon: BuildingOfficeIcon },
+                { id: 3, name: 'Recent CVEs', icon: ShieldExclamationIcon },
+                { id: 4, name: 'Statistics', icon: InformationCircleIcon }
+              ].map((tab) => (
                 <button
-                  key={tab.name}
-                  onClick={() => handleTabChange(index)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
-                    activeTab === index
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-1 ${
+                    activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  <tab.icon className="h-5 w-5" />
-                  {tab.name}
+                  <tab.icon className="h-4 w-4" />
+                  <span>{tab.name}</span>
                 </button>
               ))}
             </nav>
           </div>
 
-          <div className="p-6">
-            {/* Unified Search Tab */}
-            {activeTab === 0 && (
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Unified CVE Search
-                </h3>
-                <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
-                  <p className="text-sm text-blue-800">
-                    <strong>Smart Search:</strong> Search by vendor, product, CVE ID, or keywords. Examples: "Apache httpd", "CVE-2023-1234", "log4j", "Microsoft Windows"
-                  </p>
+          {/* Error and Success Messages */}
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-4">
+              <div className="flex">
+                <ExclamationTriangleIcon className="h-5 w-5 text-red-400" />
+                <div className="ml-3">
+                  <p className="text-sm text-red-800">{error}</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Search Query
-                    </label>
-                    <input
-                      type="text"
-                      value={unifiedQuery}
-                      onChange={(e) => setUnifiedQuery(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && unifiedQuery.trim()) {
-                          handleUnifiedSearch();
-                        }
-                      }}
-                      placeholder="e.g., Apache httpd, CVE-2023-1234, log4j, Microsoft Windows"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Results per page
-                    </label>
-                    <select
-                      value={resultsPerPage}
-                      onChange={(e) => setResultsPerPage(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value={5}>5</option>
-                      <option value={10}>10</option>
-                      <option value={15}>15</option>
-                      <option value={20}>20</option>
-                      <option value={25}>25</option>
-                      <option value={30}>30</option>
-                    </select>
-                  </div>
-                  <div className="md:col-span-3 flex gap-2">
-                    <button
-                      onClick={handleUnifiedSearch}
-                      disabled={loading}
-                      className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {loading ? (
-                        <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <MagnifyingGlassIcon className="h-4 w-4" />
-                      )}
-                      Search
-                    </button>
-                    {(searchResults.length > 0 || unifiedQuery) && (
-                      <button
-                        onClick={handleCancelSearch}
-                        className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {searchResults.length > 0 && (
-                  <div className="mt-8">
-                    {renderCVEList(searchResults, 'Search Results', totalResults)}
-                    {totalResults >= resultsPerPage && (
-                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        {renderModernPagination(currentPage, totalResults, resultsPerPage, handlePageChange)}
-                      </div>
-                    )}
-                    {searchResults.length > 0 && (
-                      <div className="mb-4 text-xs text-gray-500">
-                        Showing results from: <span className="font-semibold">NVD ({searchType || 'Unified Search'})</span>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Keyword Search Tab */}
-            {activeTab === 1 && (
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Search CVEs by Keyword
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Search Keyword
-                    </label>
-                    <input
-                      type="text"
-                      value={keyword}
-                      onChange={(e) => setKeyword(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && keyword.trim()) {
-                          handleKeywordSearch();
-                        }
-                      }}
-                      placeholder="e.g., log4j, heartbleed, shellshock"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Results per page
-                    </label>
-                    <select
-                      value={resultsPerPage}
-                      onChange={(e) => setResultsPerPage(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value={5}>5</option>
-                      <option value={10}>10</option>
-                      <option value={15}>15</option>
-                      <option value={20}>20</option>
-                      <option value={25}>25</option>
-                      <option value={30}>30</option>
-                    </select>
-                  </div>
-                  <div className="md:col-span-3 flex gap-2">
-                    <button
-                      onClick={handleKeywordSearch}
-                      disabled={loading}
-                      className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {loading ? (
-                        <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <MagnifyingGlassIcon className="h-4 w-4" />
-                      )}
-                      Search
-                    </button>
-                    {(searchResults.length > 0 || keyword) && (
-                      <button
-                        onClick={handleCancelSearch}
-                        className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
+          {success && (
+            <div className="mb-4 bg-green-50 border border-green-200 rounded-md p-4">
+              <div className="flex">
+                <CheckIcon className="h-5 w-5 text-green-400" />
+                <div className="ml-3">
+                  <p className="text-sm text-green-800">{success}</p>
                 </div>
-                {searchResults.length > 0 && (
-                  <div className="mt-8">
-                    {renderCVEList(searchResults, 'Search Results', totalResults)}
-                    {totalResults >= resultsPerPage && (
-                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        {renderModernPagination(currentPage, totalResults, resultsPerPage, handlePageChange)}
-                      </div>
-                    )}
-                    {searchResults.length > 0 && (
-                      <div className="mb-4 text-xs text-gray-500">
-                        Showing results from: <span className="font-semibold">NVD ({searchType || 'Keyword Search'})</span>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Database Search Tab */}
-            {activeTab === 2 && (
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Search CVEs with Dropdown Selection
-                </h3>
-                <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
-                  <p className="text-sm text-blue-800">
-                    <strong>NVD Enhanced Search:</strong> Select from your vendor/product list to search the National Vulnerability Database with comprehensive CPE matching.
-                  </p>
+          {/* Tab Content */}
+          {activeTab === 0 && (
+            <div className="space-y-4">
+              <div className="flex space-x-4">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={unifiedQuery}
+                    onChange={(e) => setUnifiedQuery(e.target.value)}
+                    placeholder="Enter vendor, product, CVE ID, or keyword..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    onKeyPress={(e) => e.key === 'Enter' && handleUnifiedSearch()}
+                  />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Vendor
-                    </label>
-                    <select
-                      value={selectedVendorId}
-                      onChange={(e) => {
-                        setSelectedVendorId(e.target.value);
-                        setSelectedProductId(''); // Reset product selection when vendor changes
-                        setError(''); // Clear error when user makes a selection
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Select a Vendor</option>
-                      {vendors.map((v) => (
-                        <option key={v.id} value={v.id}>{v.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Product
-                    </label>
-                    <select
-                      value={selectedProductId}
-                      onChange={(e) => {
-                        setSelectedProductId(e.target.value);
-                        setError(''); // Clear error when user makes a selection
-                      }}
-                      disabled={!selectedVendorId}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                    >
-                      <option value="">Select a Product</option>
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Results per page
-                    </label>
-                    <select
-                      value={resultsPerPage}
-                      onChange={(e) => setResultsPerPage(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value={5}>5</option>
-                      <option value={10}>10</option>
-                      <option value={15}>15</option>
-                      <option value={20}>20</option>
-                      <option value={25}>25</option>
-                      <option value={30}>30</option>
-                    </select>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleDatabaseSearch}
-                      disabled={loading}
-                      className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {loading ? (
-                        <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <MagnifyingGlassIcon className="h-4 w-4" />
-                      )}
-                      Search NVD
-                    </button>
-                    {(databaseResults.length > 0 || selectedVendorId || selectedProductId) && (
-                      <button
-                        onClick={handleCancelSearch}
-                        className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {databaseResults.length > 0 && (
-                  <div className="mt-8">
-                    {renderDatabaseResults()}
-                  </div>
-                )}
+                <button
+                  onClick={() => handleUnifiedSearch()}
+                  disabled={loading || !unifiedQuery.trim()}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  <MagnifyingGlassIcon className="h-4 w-4 mr-1" />
+                  Search
+                </button>
+                <button
+                  onClick={handleCancelSearch}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Clear
+                </button>
               </div>
-            )}
 
-            {/* Recent CVEs Tab */}
-            {activeTab === 3 && (
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Recent CVEs
-                  </h3>
-                  <div className="flex gap-2 items-center">
-                    <select
-                      value={recentDays}
-                      onChange={(e) => setRecentDays(Number(e.target.value))}
-                      className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value={1}>Last 24 hours</option>
-                      <option value={7}>Last 7 days</option>
-                      <option value={30}>Last 30 days</option>
-                      <option value={90}>Last 90 days</option>
-                    </select>
-                    <button
-                      onClick={loadRecentCves}
-                      disabled={loading}
-                      className="bg-gray-600 text-white px-3 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <ArrowPathIcon className="h-4 w-4" />
-                    </button>
-                  </div>
+              {searchType && (
+                <div className="text-sm text-gray-600">
+                  Search type: <span className="font-medium">{searchType}</span>
                 </div>
-                
-                {/* Daily Check Section */}
-                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-lg font-medium text-yellow-800 flex items-center gap-2">
-                        <ShieldExclamationIcon className="h-5 w-5" />
-                        Daily Security Check
-                      </h4>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        Check for critical CVEs published in the last 24 hours
-                      </p>
-                    </div>
-                    <button
-                      onClick={handleDailyCheck}
-                      disabled={loading || dailyCheckDone}
-                      className={`px-4 py-2 rounded-md font-medium text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                        dailyCheckDone
-                          ? 'bg-green-100 text-green-800 cursor-not-allowed'
-                          : 'bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500'
-                      }`}
-                    >
-                      {loading ? (
-                        <div className="flex items-center gap-2">
-                          <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                          Checking...
-                        </div>
-                      ) : dailyCheckDone ? (
-                        <div className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Checked Today
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <ShieldExclamationIcon className="h-4 w-4" />
-                          Daily Check
-                        </div>
-                      )}
-                    </button>
-                  </div>
+              )}
+
+              {searchResults.length > 0 && (
+                <>
+                  {renderCVEList(searchResults, 'Search Results', totalResults)}
+                  {renderModernPagination(currentPage, totalResults, resultsPerPage, handlePageChange)}
+                </>
+              )}
+            </div>
+          )}
+
+          {activeTab === 1 && (
+            <div className="space-y-4">
+              <div className="flex space-x-4">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    placeholder="Enter keyword to search..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    onKeyPress={(e) => e.key === 'Enter' && handleKeywordSearch()}
+                  />
                 </div>
-                
-                {renderCVEList(recentCves, 'Recent CVEs', recentCves.length)}
+                <button
+                  onClick={() => handleKeywordSearch()}
+                  disabled={loading || !keyword.trim()}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  <MagnifyingGlassIcon className="h-4 w-4 mr-1" />
+                  Search
+                </button>
               </div>
-            )}
 
-            {/* Statistics Tab */}
-            {activeTab === 4 && (
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  CVE Statistics
-                </h3>
-                {stats ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="bg-white p-6 rounded-lg border border-gray-200">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          <ShieldExclamationIcon className="h-8 w-8 text-blue-600" />
-                        </div>
-                        <div className="ml-4">
-                          <p className="text-sm font-medium text-gray-500">Recent CVEs (7 days)</p>
-                          <p className="text-2xl font-semibold text-gray-900">{stats.recent_cves_7_days}</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white p-6 rounded-lg border border-gray-200 md:col-span-2">
-                      <h4 className="text-lg font-medium text-gray-900 mb-4">Severity Distribution</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {Object.entries(stats.severity_distribution).map(([severity, count]) => (
-                          <span key={severity} className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSeverityColor(severity)}`}>
-                            {severity}: {count}
+              {searchResults.length > 0 && (
+                <>
+                  {renderCVEList(searchResults, 'Keyword Search Results', totalResults)}
+                  {renderModernPagination(currentPage, totalResults, resultsPerPage, handlePageChange)}
+                </>
+              )}
+            </div>
+          )}
+
+          {activeTab === 2 && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Vendor
+                  </label>
+                  <select
+                    value={selectedVendorId}
+                    onChange={(e) => setSelectedVendorId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">Select a vendor</option>
+                    {vendors.map((vendor) => (
+                      <option key={vendor.id} value={vendor.id}>
+                        {vendor.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Product (Optional)
+                  </label>
+                  <select
+                    value={selectedProductId}
+                    onChange={(e) => setSelectedProductId(e.target.value)}
+                    disabled={!selectedVendorId}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                  >
+                    <option value="">All products</option>
+                    {products.map((product) => (
+                      <option key={product.id} value={product.id}>
+                        {product.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  onClick={handleDatabaseSearch}
+                  disabled={loading || !selectedVendorId}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  <MagnifyingGlassIcon className="h-4 w-4 mr-1" />
+                  Search Database
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedVendorId('');
+                    setSelectedProductId('');
+                    setDatabaseResults([]);
+                  }}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Clear
+                </button>
+              </div>
+
+              {databaseResults.length > 0 && renderDatabaseResults()}
+            </div>
+          )}
+
+          {activeTab === 3 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-gray-900">Recent CVEs</h3>
+                <div className="flex items-center space-x-2">
+                  <select
+                    value={recentDays}
+                    onChange={(e) => {
+                      setRecentDays(parseInt(e.target.value));
+                      loadRecentCves();
+                    }}
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value={1}>Last 24 hours</option>
+                    <option value={7}>Last 7 days</option>
+                    <option value={30}>Last 30 days</option>
+                  </select>
+                  <button
+                    onClick={loadRecentCves}
+                    className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    <ArrowPathIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              {renderCVEList(recentCves, `Recent CVEs (Last ${recentDays} days)`)}
+            </div>
+          )}
+
+          {activeTab === 4 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900">CVE Statistics</h3>
+              
+              {stats ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-blue-800">Total Recent CVEs</h4>
+                    <p className="text-2xl font-bold text-blue-900">{stats.total_recent_cves}</p>
+                  </div>
+                  
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-green-800">Severity Distribution</h4>
+                    <div className="space-y-1 mt-2">
+                      {Object.entries(stats.severity_distribution || {}).map(([severity, count]) => (
+                        <div key={severity} className="flex justify-between text-sm">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(severity)}`}>
+                            {severity}
                           </span>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white p-6 rounded-lg border border-gray-200 md:col-span-3">
-                      <h4 className="text-lg font-medium text-gray-900 mb-4">Top Affected Vendor/Products</h4>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor/Product</th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CVE Count</th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {stats.top_vendor_products.map((item, index) => (
-                              <tr key={index}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.vendor_product}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.count}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                          <span className="font-medium">{count}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ) : (
-                  <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-                    <div className="flex">
-                      <InformationCircleIcon className="h-5 w-5 text-blue-400" />
-                      <div className="ml-3">
-                        <p className="text-sm text-blue-700">Loading statistics...</p>
-                      </div>
+                  
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-purple-800">Top Vendors</h4>
+                    <div className="space-y-1 mt-2">
+                      {(stats.top_vendors || []).slice(0, 5).map(([vendor, count]) => (
+                        <div key={vendor} className="flex justify-between text-sm">
+                          <span className="truncate">{vendor}</span>
+                          <span className="font-medium">{count}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-          </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <InformationCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No statistics available</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Statistics will be available after performing searches.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 flex items-center space-x-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span className="text-gray-700">Searching...</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
