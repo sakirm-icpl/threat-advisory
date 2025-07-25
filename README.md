@@ -5,8 +5,12 @@ A comprehensive platform for managing internal version detection research for va
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker and Docker Compose
-- Git
+- **Docker**: 20.10 or higher
+- **Docker Compose**: 2.0 or higher
+- **Git**: Latest version
+- **Operating System**: Linux, macOS, or Windows
+- **RAM**: Minimum 2GB available
+- **Storage**: 1GB free space
 
 ### One-Command Deployment
 ```bash
@@ -27,7 +31,7 @@ build-and-deploy.bat     # Windows
 - **Password**: `Admin@1234`
 - **⚠️ Important**: Change the default password after first login!
 
-## 🚀 Features
+## 🎯 Features
 
 - **Vendor Management**: Add, update, delete, and list vendors
 - **Product Management**: Manage products with vendor associations and categories
@@ -65,50 +69,158 @@ versionintel/
 └── build-and-deploy.sh     # Deployment script
 ```
 
-## 📖 Documentation
+## 🔧 Development Setup
 
-- **[Setup Guide](SETUP.md)** - Detailed installation and configuration
-- **[Production Deployment](PRODUCTION_DEPLOYMENT.md)** - Production setup and security
-- **[API Reference](http://localhost:8000/docs)** - Interactive API documentation
-- **[Troubleshooting](#troubleshooting)** - Common issues and solutions
-
-## 🔧 Development
-
-### Local Development Setup
+### Local Development (Without Docker)
 ```bash
-# Backend
+# Backend Setup
 cd backend
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 
-# Frontend
+# Set environment variables
+export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/versionintel
+python wsgi.py
+
+# Frontend Setup (in another terminal)
 cd frontend
 npm install
+echo "REACT_APP_API_URL=http://localhost:8000" > .env
 npm start
 ```
 
-### Useful Commands
+### Database Setup for Development
 ```bash
-# View service status
-docker-compose ps
+# Start database only
+docker-compose up db -d
 
-# View logs
-docker-compose logs -f [service_name]
-
-# Restart services
-docker-compose restart
-
-# Stop services
-docker-compose down
-
-# Access backend shell
-docker-compose exec backend bash
-
-# Access database
-docker-compose exec db psql -U postgres -d versionintel
+# Initialize database
+cd backend && python init_database.py
 ```
+
+## 🚀 Production Deployment
+
+### Pre-Deployment Checklist
+
+**Critical Security Updates Required:**
+
+```yaml
+# Update docker-compose.yml environment variables
+environment:
+  - SECRET_KEY=generate-new-secure-key-here
+  - JWT_SECRET_KEY=generate-new-jwt-secret-here
+  - POSTGRES_PASSWORD=your-secure-database-password
+```
+
+**Default Credentials to Change:**
+- Admin User: `admin` / `Admin@1234`
+- Database: `postgres` / `postgres`
+
+⚠️ **CRITICAL**: Change ALL default passwords before production deployment!
+
+### Server Setup
+
+#### Install Docker
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+```
+
+#### Network Security
+```bash
+# Configure firewall
+sudo ufw allow 22    # SSH
+sudo ufw allow 80    # HTTP
+sudo ufw allow 443   # HTTPS
+sudo ufw enable
+```
+
+### SSL/TLS Setup (Recommended)
+
+#### Nginx Reverse Proxy
+```nginx
+server {
+    listen 443 ssl;
+    server_name your-domain.com;
+    
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+    
+    location /api/ {
+        proxy_pass http://localhost:8000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+### Production Deployment
+```bash
+# Clone and configure
+git clone <repository-url>
+cd versionintel
+
+# Update production settings in docker-compose.yml
+# - Change SECRET_KEY and JWT_SECRET_KEY
+# - Update POSTGRES_PASSWORD
+# - Set REACT_APP_API_URL to your domain
+
+# Deploy
+./build-and-deploy.sh
+```
+
+### Production Optimizations
+```yaml
+# Add to docker-compose.yml
+services:
+  backend:
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+```
+
+### Backup Strategy
+```bash
+#!/bin/bash
+# Create automated backup script
+DATE=$(date +%Y%m%d_%H%M%S)
+docker-compose exec -T db pg_dump -U postgres versionintel > backup_$DATE.sql
+```
+
+## 🔍 Monitoring & Maintenance
+
+### Health Checks
+- Backend: `http://your-domain:8000/health`
+- Frontend: `http://your-domain:3000`
+- Metrics: `http://your-domain:8000/metrics`
+
+### Regular Maintenance
+- [ ] Weekly security updates
+- [ ] Monthly database backups
+- [ ] Quarterly performance reviews
 
 ## ⚠️ Troubleshooting
 
@@ -137,12 +249,82 @@ docker-compose logs -f
 chmod +x build-and-deploy.sh
 ```
 
+**Database connection issues?**
+```bash
+# Check database status
+docker-compose ps db
+
+# View database logs
+docker-compose logs db
+
+# Restart database
+docker-compose restart db
+```
+
+**Memory issues?**
+```bash
+# Check resource usage
+docker stats
+
+# Clean up Docker
+docker system prune -f
+```
+
+### Useful Commands
+```bash
+# View service status
+docker-compose ps
+
+# View logs
+docker-compose logs -f [service_name]
+
+# Restart services
+docker-compose restart
+
+# Stop services
+docker-compose down
+
+# Access backend shell
+docker-compose exec backend bash
+
+# Access database
+docker-compose exec db psql -U postgres -d versionintel
+
+# Rebuild and deploy
+./build-and-deploy.sh
+```
+
 ## 🔐 Security Notes
 
 - **Change default credentials** after first login
 - **Update JWT secrets** in production
 - **Enable HTTPS** for production deployments
 - **Regular security updates** recommended
+- **Set up proper firewall rules**
+- **Use strong passwords** for all services
+
+## 📚 API Documentation
+
+Once the application is running, you can access:
+- **Interactive API Docs**: http://localhost:8000/docs
+- **OpenAPI Schema**: http://localhost:8000/openapi.json
+
+### Authentication
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin@1234"
+}
+```
+
+### Using Authentication
+Include the JWT token in the Authorization header:
+```http
+Authorization: Bearer <your-jwt-token>
+```
 
 ## 🤝 Contributing
 
@@ -154,4 +336,26 @@ chmod +x build-and-deploy.sh
 
 ## 📄 License
 
-This project is licensed under the MIT License. 
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For issues:
+1. Check service logs: `docker-compose logs -f`
+2. Verify prerequisites are installed
+3. Ensure ports are available
+4. Review troubleshooting section above
+5. Check the health endpoints
+
+## 🎯 Production Checklist
+
+- [ ] Update all default passwords
+- [ ] Configure SSL/TLS certificates
+- [ ] Set up firewall rules
+- [ ] Create backup procedures
+- [ ] Test all functionality
+- [ ] Monitor resource usage
+- [ ] Document access procedures
+- [ ] Set up monitoring and alerting
+- [ ] Configure log rotation
+- [ ] Test disaster recovery procedures 
