@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
+import Modal from '../components/Modal';
+import { LockClosedIcon } from '@heroicons/react/24/outline';
 
 export default function Profile() {
   const { user, refreshToken } = useAuth();
@@ -10,6 +12,7 @@ export default function Profile() {
   const [pwMsg, setPwMsg] = useState('');
   const [pwLoading, setPwLoading] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
+  const [pwModalOpen, setPwModalOpen] = useState(false);
 
   if (!user) return <div>Loading...</div>;
 
@@ -42,6 +45,10 @@ export default function Profile() {
       });
       setPwMsg('Password changed successfully!');
       setPwForm({ old: '', new1: '', new2: '' });
+      setTimeout(() => {
+        setPwModalOpen(false);
+        setPwMsg('');
+      }, 1200);
     } catch (e) {
       setPwMsg(e.response?.data?.error || 'Failed to change password');
     }
@@ -49,18 +56,30 @@ export default function Profile() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-8">
-      <div className="card mb-8">
-        <h2 className="text-xl font-bold mb-4 text-blue-900">Profile</h2>
-        <div className="mb-2"><span className="font-semibold">Username:</span> {user.username}</div>
-        <div className="mb-2"><span className="font-semibold">Email:</span> {user.email}</div>
-        <div className="mb-2"><span className="font-semibold">Role:</span> {user.role}</div>
-        <div className="mb-2"><span className="font-semibold">Created At:</span> {user.created_at ? new Date(user.created_at).toLocaleString() : '-'}</div>
-        <div className="mb-2"><span className="font-semibold">Last Login:</span> {user.last_login ? new Date(user.last_login).toLocaleString() : '-'}</div>
+    <div className="max-w-2xl mx-auto mt-10">
+      <div className="relative bg-white rounded-xl shadow p-8 mb-8 flex flex-col sm:flex-row items-center gap-8">
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-20 w-20 rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-bold text-3xl">
+            {user?.username ? user.username[0].toUpperCase() : '?'}
+          </div>
+          <div className="text-lg font-semibold text-blue-900">{user.username}</div>
+        </div>
+        <div className="flex-1 w-full">
+          <div className="mb-2"><span className="font-semibold">Email:</span> {user.email}</div>
+          <div className="mb-2"><span className="font-semibold">Role:</span> {user.role}</div>
+          <div className="mb-2"><span className="font-semibold">Created At:</span> {user.created_at ? new Date(user.created_at).toLocaleString() : '-'}</div>
+          <div className="mb-2"><span className="font-semibold">Last Login:</span> {user.last_login ? new Date(user.last_login).toLocaleString() : '-'}</div>
+        </div>
+        <button
+          className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow"
+          onClick={() => setPwModalOpen(true)}
+        >
+          Change Password
+        </button>
       </div>
-      <div className="card mb-8">
-        <h3 className="text-lg font-semibold mb-2 text-blue-900">Update Email</h3>
-        <form onSubmit={handleEmailUpdate} className="flex gap-2 items-end">
+      <div className="bg-white rounded-xl shadow p-8 mb-8">
+        <h3 className="text-lg font-semibold mb-4 text-blue-900">Update Email</h3>
+        <form onSubmit={handleEmailUpdate} className="flex flex-col sm:flex-row gap-2 items-end">
           <input
             type="email"
             className="input-field flex-1"
@@ -74,39 +93,47 @@ export default function Profile() {
         </form>
         {emailMsg && <div className="mt-2 text-sm text-blue-700">{emailMsg}</div>}
       </div>
-      <div className="card">
-        <h3 className="text-lg font-semibold mb-2 text-blue-900">Change Password</h3>
-        <form onSubmit={handlePwChange} className="space-y-2">
-          <input
-            type="password"
-            className="input-field"
-            placeholder="Old password"
-            value={pwForm.old}
-            onChange={e => setPwForm(f => ({ ...f, old: e.target.value }))}
-            required
-          />
-          <input
-            type="password"
-            className="input-field"
-            placeholder="New password"
-            value={pwForm.new1}
-            onChange={e => setPwForm(f => ({ ...f, new1: e.target.value }))}
-            required
-          />
-          <input
-            type="password"
-            className="input-field"
-            placeholder="Confirm new password"
-            value={pwForm.new2}
-            onChange={e => setPwForm(f => ({ ...f, new2: e.target.value }))}
-            required
-          />
-          <button type="submit" className="btn-primary" disabled={pwLoading}>
+      <Modal isOpen={pwModalOpen} onClose={() => setPwModalOpen(false)} title="Change Password" customClass="w-[500px]">
+        <form onSubmit={handlePwChange} className="space-y-3 p-2">
+          <div className="relative">
+            <input
+              type="password"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white shadow-sm placeholder-gray-400"
+              placeholder="Old password"
+              value={pwForm.old}
+              onChange={e => setPwForm(f => ({ ...f, old: e.target.value }))}
+              required
+            />
+            <LockClosedIcon className="h-4 w-4 text-gray-400 absolute left-2.5 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+          </div>
+          <div className="relative">
+            <input
+              type="password"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white shadow-sm placeholder-gray-400"
+              placeholder="New password"
+              value={pwForm.new1}
+              onChange={e => setPwForm(f => ({ ...f, new1: e.target.value }))}
+              required
+            />
+            <LockClosedIcon className="h-4 w-4 text-gray-400 absolute left-2.5 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+          </div>
+          <div className="relative">
+            <input
+              type="password"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white shadow-sm placeholder-gray-400"
+              placeholder="Confirm new password"
+              value={pwForm.new2}
+              onChange={e => setPwForm(f => ({ ...f, new2: e.target.value }))}
+              required
+            />
+            <LockClosedIcon className="h-4 w-4 text-gray-400 absolute left-2.5 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+          </div>
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 mt-2 shadow transition disabled:opacity-60" disabled={pwLoading}>
             {pwLoading ? 'Saving...' : 'Change Password'}
           </button>
+          {pwMsg && <div className={`mt-2 text-sm ${pwMsg.includes('success') ? 'text-green-700' : 'text-red-600'}`}>{pwMsg}</div>}
         </form>
-        {pwMsg && <div className="mt-2 text-sm text-blue-700">{pwMsg}</div>}
-      </div>
+      </Modal>
     </div>
   );
 }

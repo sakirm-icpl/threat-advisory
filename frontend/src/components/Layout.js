@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import {
@@ -32,6 +32,8 @@ const adminNavigation = [
 
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
   const location = useLocation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -40,6 +42,23 @@ export default function Layout({ children }) {
     logout();
     navigate('/login');
   };
+
+  // Click-away handler for profile dropdown
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    }
+    if (profileOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [profileOpen]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -131,42 +150,40 @@ export default function Layout({ children }) {
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Bars3Icon className="h-6 w-6" />
-          </button>
-
-          <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <div className="flex flex-1" />
-            <div className="flex items-center gap-x-4 lg:gap-x-6">
-              <div className="flex items-center gap-x-2">
-                <span className="text-sm text-gray-700">{user?.username}</span>
-                <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                  {user?.role}
-                </span>
+        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 lg:px-8">
+          {/* Logo on far left, bigger size */}
+          <div className="flex items-center justify-start flex-shrink-0" style={{ minWidth: '72px' }}>
+            {/* Empty, logo is now in header above */}
+          </div>
+          {/* Spacer to push content to the right */}
+          <div className="flex-1" />
+          {/* User Avatar and Dropdown on far right */}
+          <div className="flex items-center gap-x-4 lg:gap-x-6 relative" ref={profileRef}>
+            {user?.username && (
+              <span className="text-base font-medium text-gray-700 mr-2 hidden sm:inline">{user.username}</span>
+            )}
+            <button
+              className="flex items-center gap-2 focus:outline-none"
+              onClick={() => setProfileOpen((open) => !open)}
+            >
+              <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-bold text-lg">
+                {user?.username ? user.username[0].toUpperCase() : '?'}
               </div>
-              <div className="h-6 w-px bg-gray-200" />
-              <Link
-                to="/profile"
-                className="text-sm text-gray-700 hover:text-gray-900"
-              >
-                Profile
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="flex items-center text-sm text-gray-700 hover:text-gray-900"
-              >
-                <ArrowRightOnRectangleIcon className="mr-1 h-4 w-4" />
-                Logout
-              </button>
-            </div>
+            </button>
+            {/* Dropdown menu */}
+            {profileOpen && (
+              <div className="absolute left-1/2 top-full mt-3 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-50 transform -translate-x-1/2 max-h-60 overflow-y-auto">
+                <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</Link>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center"
+                >
+                  <ArrowRightOnRectangleIcon className="mr-2 h-4 w-4" /> Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
-
         {/* Page content */}
         <main className="py-6">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

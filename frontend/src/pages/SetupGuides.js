@@ -90,60 +90,66 @@ export default function SetupGuides() {
   const getProduct = (id) => products.find(p => p.id === id) || {};
 
   return (
-    <div className="p-4 max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Setup Guides</h2>
-      {user?.role === 'admin' && (
-        <div className="mb-4">
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Setup Guides</h1>
+          <p className="text-gray-600">Manage your setup guides for product configuration and onboarding</p>
+        </div>
+        {user?.role === 'admin' && (
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="btn btn-primary"
           >
-            {showAddForm ? 'Cancel' : 'Add Setup Guide'}
+            {showAddForm ? 'Cancel' : '+ Add Setup Guide'}
           </button>
-        </div>
-      )}
+        )}
+      </div>
       {user?.role === 'admin' && showAddForm && (
-        <form onSubmit={addGuide} className="bg-gray-50 p-6 rounded-lg mb-6 w-full flex flex-col gap-4 shadow">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Product *</label>
-              <select
-                className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                name="product_id"
-                value={form.product_id}
-                onChange={handleFormChange}
-                required
-              >
-                <option value="">Select product</option>
-                {products.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Instructions * (Markdown supported)</label>
-              <textarea
-                className="w-full border px-3 py-2 rounded h-32 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                name="instructions"
-                value={form.instructions}
-                onChange={handleFormChange}
-                placeholder={`Setup instructions (markdown supported)\n\nExample:\n# Setup Steps\n1. Install dependencies\n2. Configure settings\n3. Run the application\n\n**Important:** Make sure to...`}
-                required
-              />
-              {form.instructions && (
-                <div className="mt-2 p-2 bg-gray-50 rounded border">
-                  <div className="text-xs text-gray-500 mb-1">Preview:</div>
-                  <MarkdownRenderer content={form.instructions} />
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="flex justify-end">
+        <form onSubmit={addGuide} className="bg-white p-8 rounded-2xl mb-8 w-full shadow-xl border border-blue-100">
+          <div className="flex justify-between items-start mb-6">
+            <div className="font-semibold text-lg">Add Setup Guide</div>
             <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" type="submit">Add Setup Guide</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Product *</label>
+                <select
+                  className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  name="product_id"
+                  value={form.product_id}
+                  onChange={handleFormChange}
+                  required
+                >
+                  <option value="">Select product</option>
+                  {products.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Instructions * (Markdown supported)</label>
+                <textarea
+                  className="w-full border px-3 py-2 rounded h-40 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  name="instructions"
+                  value={form.instructions}
+                  onChange={handleFormChange}
+                  placeholder={`Setup instructions (markdown supported)\n\nExample:\n# Setup Steps\n1. Install dependencies\n2. Configure settings\n3. Run the application\n\n**Important:** Make sure to...`}
+                  required
+                />
+              </div>
+            </div>
+            <div className="bg-gray-50 rounded border p-4 h-full overflow-auto">
+              <div className="text-xs text-gray-500 mb-1 font-semibold">Live Preview:</div>
+              <div className="prose prose-sm max-w-none">
+                <MarkdownRenderer content={form.instructions || 'Nothing to preview yet.'} />
+              </div>
+            </div>
           </div>
         </form>
       )}
-      <div className="flex flex-col md:flex-row gap-2 mb-4">
+      <div className="flex flex-col md:flex-row gap-2 mb-6">
         <select
           className="border px-3 py-2 rounded"
           value={filterProduct}
@@ -164,65 +170,80 @@ export default function SetupGuides() {
       {error && <div className="text-red-600 mb-2 p-2 bg-red-50 rounded border">{error}</div>}
       {success && <div className="text-green-700 mb-2 p-2 bg-green-50 rounded border">{success}</div>}
       {loading ? (
-        <p>Loading...</p>
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading setup guides...</p>
+        </div>
       ) : filteredGuides.length === 0 ? (
-        <div className="text-gray-500 text-center py-8">No setup guides found.</div>
+        <div className="text-center py-16">
+          <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+          </div>
+          <p className="text-gray-500 font-medium text-lg">No setup guides found</p>
+          <p className="text-gray-400 text-sm mt-2">Add your first setup guide using the button above</p>
+        </div>
       ) : (
-        <table className="w-full border text-sm bg-white rounded-lg overflow-hidden">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 text-left">Product</th>
-              <th className="p-2 text-left">Category</th>
-              <th className="p-2 text-left">Description</th>
-              <th className="p-2 text-left">Instructions</th>
-              {user?.role === 'admin' && <th className="p-2">Actions</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredGuides.map(g => {
-              const product = getProduct(g.product_id);
-              const isExpanded = expanded[g.id];
-              return (
-                <tr key={g.id} className="border-t align-top">
-                  <td className="p-2 font-medium">{product.name || "-"}</td>
-                  <td className="p-2">{product.category || <span className="text-gray-400">-</span>}</td>
-                  <td className="p-2 max-w-xs">
-                    {product.description ? (
-                      <span className="text-xs text-gray-700">{product.description.length > 60 ? product.description.slice(0, 60) + "..." : product.description}</span>
-                    ) : <span className="text-gray-400 text-xs">-</span>}
-                  </td>
-                  <td className="p-2 max-w-md">
-                    <div>
-                      <MarkdownRenderer 
-                        content={g.instructions.length < 200 && !isExpanded
-                          ? g.instructions
-                          : g.instructions.slice(0, 200) + '...'}
-                      />
-                    </div>
-                    {g.instructions.length > 200 && (
-                      <button
-                        className="text-blue-600 text-xs mt-1 underline"
-                        onClick={() => setModalContent({
-                          isOpen: true,
-                          title: `${product.name || ''} - Full Instructions`,
-                          content: g.instructions
-                        })}
-                      >
-                        Show More
-                      </button>
-                    )}
-                  </td>
-                  {user?.role === 'admin' && (
-                    <td className="p-2 flex gap-2">
-                      <button className="bg-yellow-500 text-white px-2 py-1 rounded" onClick={() => navigate(`/setup-guides/${g.id}/edit`)}>Edit</button>
-                      <button className="bg-red-600 text-white px-2 py-1 rounded" onClick={() => deleteGuide(g.id)}>Delete</button>
-                    </td>
-                  )}
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-lg">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Product</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Category</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Description</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Instructions</th>
+                  {user?.role === 'admin' && <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {filteredGuides.map(g => {
+                  const product = getProduct(g.product_id);
+                  const isExpanded = expanded[g.id];
+                  return (
+                    <tr key={g.id} className="border-t align-top">
+                      <td className="p-4 font-medium">{product.name || "-"}</td>
+                      <td className="p-4">{product.category || <span className="text-gray-400">-</span>}</td>
+                      <td className="p-4 max-w-xs">
+                        {product.description ? (
+                          <span className="text-xs text-gray-700">{product.description.length > 60 ? product.description.slice(0, 60) + "..." : product.description}</span>
+                        ) : <span className="text-gray-400 text-xs">-</span>}
+                      </td>
+                      <td className="p-4 max-w-md">
+                        <div>
+                          <MarkdownRenderer 
+                            content={g.instructions.length < 200 && !isExpanded
+                              ? g.instructions
+                              : g.instructions.slice(0, 200) + '...'}
+                          />
+                        </div>
+                        {g.instructions.length > 200 && (
+                          <button
+                            className="text-blue-600 text-xs mt-1 underline"
+                            onClick={() => setModalContent({
+                              isOpen: true,
+                              title: `${product.name || ''} - Full Instructions`,
+                              content: g.instructions
+                            })}
+                          >
+                            Show More
+                          </button>
+                        )}
+                      </td>
+                      {user?.role === 'admin' && (
+                        <td className="p-4 flex gap-2">
+                          <button className="bg-yellow-500 text-white px-2 py-1 rounded" onClick={() => navigate(`/setup-guides/${g.id}/edit`)}>Edit</button>
+                          <button className="bg-red-600 text-white px-2 py-1 rounded" onClick={() => deleteGuide(g.id)}>Delete</button>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
       <Modal
         isOpen={modalContent.isOpen}
