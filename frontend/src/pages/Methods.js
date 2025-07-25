@@ -12,6 +12,7 @@ export default function Methods() {
   const [methods, setMethods] = useState([]);
   const [products, setProducts] = useState([]);
   const [filterProduct, setFilterProduct] = useState(getProductIdFromUrl());
+  const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [form, setForm] = useState({
     product_id: "",
@@ -111,41 +112,34 @@ export default function Methods() {
   };
 
   // Filtering
-  const filteredMethods = filterProduct
-    ? methods.filter(m => String(m.product_id) === String(filterProduct))
-    : methods;
+  const filteredMethods = methods.filter(m => {
+    const productMatch = !filterProduct || String(m.product_id) === String(filterProduct);
+    const searchMatch = !search ||
+      m.name.toLowerCase().includes(search.toLowerCase()) ||
+      m.technique.toLowerCase().includes(search.toLowerCase());
+    return productMatch && searchMatch;
+  });
 
   return (
-    <div className="p-4 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Detection Methods</h2>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Detection Methods</h1>
+          <p className="text-gray-600">Manage your detection methods for product version detection</p>
+        </div>
         {user?.role === 'admin' && (
           <button 
             onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="btn btn-primary"
           >
-            {showAddForm ? "Cancel" : "Add New Method"}
+            {showAddForm ? "Cancel" : "+ Add Detection Method"}
           </button>
         )}
       </div>
-      <div className="mb-4 flex gap-2">
-        <select
-          className="border px-3 py-2 rounded"
-          value={filterProduct}
-          onChange={e => setFilterProduct(e.target.value)}
-        >
-          <option value="">All Products</option>
-          {products.map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
-      </div>
-      {/* Add Method Form */}
       {user?.role === 'admin' && showAddForm && (
-        <div className="bg-gray-50 p-6 rounded-lg mb-6 border">
-          <h3 className="text-lg font-semibold mb-4">Add New Detection Method</h3>
-          <form onSubmit={addMethod} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <form onSubmit={addMethod} className="bg-white p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
+          <h3 className="text-lg font-semibold mb-4">Add Detection Method</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Product *</label>
                 <select
@@ -230,77 +224,96 @@ export default function Methods() {
               />
             </div>
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                name="requires_auth"
-                checked={form.requires_auth}
-                onChange={handleFormChange}
-                className="mr-2"
-              />
-              <label className="text-sm font-medium">Requires Authentication</label>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mt-2">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="requires_auth"
+                  checked={form.requires_auth}
+                  onChange={handleFormChange}
+                  className="mr-2"
+                />
+                <label className="text-sm font-medium">Requires Authentication</label>
+              </div>
+              <div className="flex gap-2 md:ml-auto">
+                <button 
+                  type="submit" 
+                  className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                >
+                  Add Method
+                </button>
+                <button 
+                  type="button" 
+                  onClick={resetForm}
+                  className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-
-            <div className="flex gap-2">
-              <button 
-                type="submit" 
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Add Method
-              </button>
-              <button 
-                type="button" 
-                onClick={resetForm}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
+        </form>
       )}
+      <div className="mb-6 flex flex-col md:flex-row gap-2">
+        <select
+          className="border px-3 py-2 rounded"
+          value={filterProduct}
+          onChange={e => setFilterProduct(e.target.value)}
+        >
+          <option value="">All Products</option>
+          {products.map(p => (
+            <option key={p.id} value={p.id}>{p.name}</option>
+          ))}
+        </select>
+        <input
+          className="border px-3 py-2 rounded flex-1"
+          placeholder="Search methods..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </div>
 
       {error && <div className="text-red-600 mb-4 p-3 bg-red-50 rounded border">{error}</div>}
 
       {/* Methods List */}
       {loading ? (
-        <div className="text-center py-8">
-          <p className="text-gray-600">Loading methods...</p>
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading detection methods...</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border overflow-hidden">
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-lg">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 border-b">
-                  <th className="p-3 text-left font-medium">Product</th>
-                  <th className="p-3 text-left font-medium">Name</th>
-                  <th className="p-3 text-left font-medium">Technique</th>
-                  <th className="p-3 text-left font-medium">Python Regex</th>
-                  <th className="p-3 text-left font-medium">Ruby Regex</th>
-                  <th className="p-3 text-left font-medium">Curl Command</th>
-                  <th className="p-3 text-left font-medium">Expected Response</th>
-                  <th className="p-3 text-center font-medium">Auth</th>
+                <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Product</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Name</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Technique</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Python Regex</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Ruby Regex</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Curl Command</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Expected Response</th>
+                  <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Auth</th>
                   {user?.role === 'admin' && (
-                    <th className="p-3 text-center font-medium">Actions</th>
+                    <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
                   )}
                 </tr>
               </thead>
               <tbody>
                 {filteredMethods.map(m => (
                   <tr key={m.id} className="border-b hover:bg-gray-50">
-                    <td className="p-3">
+                    <td className="p-4">
                       {products.find(p => p.id === m.product_id)?.name || ""}
                     </td>
-                    <td className="p-3">
+                    <td className="p-4">
                       <span className="font-medium">{m.name}</span>
                     </td>
-                    <td className="p-3">
+                    <td className="p-4">
                       <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
                         {m.technique}
                       </span>
                     </td>
-                    <td className="p-3">
+                    <td className="p-4">
                       <div className="max-w-xs">
                         {m.regex_python ? (
                           <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
@@ -314,7 +327,7 @@ export default function Methods() {
                         )}
                       </div>
                     </td>
-                    <td className="p-3">
+                    <td className="p-4">
                       <div className="max-w-xs">
                         {m.regex_ruby ? (
                           <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
@@ -328,7 +341,7 @@ export default function Methods() {
                         )}
                       </div>
                     </td>
-                    <td className="p-3">
+                    <td className="p-4">
                       <div className="max-w-xs">
                         {m.curl_command ? (
                           <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
@@ -342,7 +355,7 @@ export default function Methods() {
                         )}
                       </div>
                     </td>
-                    <td className="p-3">
+                    <td className="p-4">
                       <div className="max-w-xs">
                         {m.expected_response ? (
                           <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
@@ -356,7 +369,7 @@ export default function Methods() {
                         )}
                       </div>
                     </td>
-                    <td className="p-3 text-center">
+                    <td className="p-4 text-center">
                       <span className={`px-2 py-1 rounded text-xs ${
                         m.requires_auth 
                           ? "bg-red-100 text-red-800" 
@@ -366,16 +379,16 @@ export default function Methods() {
                       </span>
                     </td>
                     {user?.role === 'admin' && (
-                      <td className="p-3 text-center">
-                        <div className="flex gap-1 justify-center">
+                      <td className="p-4 text-center">
+                        <div className="flex gap-2 justify-center">
                           <button 
-                            className="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600" 
+                            className="btn btn-warning btn-sm" 
                             onClick={() => navigate(`/methods/${m.id}/edit`)}
                           >
                             Edit
                           </button>
                           <button 
-                            className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700" 
+                            className="btn btn-danger btn-sm" 
                             onClick={() => deleteMethod(m.id)}
                           >
                             Delete
@@ -389,8 +402,14 @@ export default function Methods() {
             </table>
           </div>
           {filteredMethods.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              No detection methods found. Add your first method above.
+            <div className="text-center py-16">
+              <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <p className="text-gray-500 font-medium text-lg">No detection methods found</p>
+              <p className="text-gray-400 text-sm mt-2">Add your first detection method using the button above</p>
             </div>
           )}
         </div>

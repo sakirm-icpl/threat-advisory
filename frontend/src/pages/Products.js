@@ -76,20 +76,20 @@ export default function Products() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Products</h1>
-        <p className="text-gray-600">Manage your product catalog and version detection targets</p>
-      </div>
-      {user?.role === 'admin' && (
-        <div className="mb-6">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+          <p className="text-gray-600">Manage your product catalog and version detection targets</p>
+        </div>
+        {user?.role === 'admin' && (
           <button
             onClick={() => setShowAddForm(!showAddForm)}
             className="btn btn-primary"
           >
             {showAddForm ? 'Cancel' : '+ Add Product'}
           </button>
-        </div>
-      )}
+        )}
+      </div>
       {user?.role === 'admin' && showAddForm && (
         <form onSubmit={addProduct} className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
