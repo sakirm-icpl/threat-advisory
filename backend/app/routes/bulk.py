@@ -20,6 +20,69 @@ from collections import defaultdict
 from collections import OrderedDict
 import sys
 import traceback
+from copy import deepcopy
+
+# Helper: Deeply filter an object to only allowed keys (structure-preserving)
+def filter_json_by_sample(input_obj, sample_obj):
+    if isinstance(sample_obj, list) and isinstance(input_obj, list):
+        return [filter_json_by_sample(item, sample_obj[0]) for item in input_obj]
+    elif isinstance(sample_obj, dict) and isinstance(input_obj, dict):
+        filtered = {}
+        for key in sample_obj:
+            if key in input_obj:
+                filtered[key] = filter_json_by_sample(input_obj[key], sample_obj[key])
+        return filtered
+    else:
+        return input_obj
+
+# Sample JSON structure for validation and filtering
+SAMPLE_JSON = {
+    'vendor': {
+        'name': '',
+        'products': [
+            {
+                'name': '',
+                'category': '',
+                'description': '',
+                'detection_methods': [
+                    {
+                        'name': '',
+                        'technique': '',
+                        'regex_python': '',
+                        'regex_ruby': '',
+                        'curl_command': '',
+                        'expected_response': '',
+                        'requires_auth': False
+                    }
+                ],
+                'setup_guides': [
+                    {
+                        'title': '',
+                        'content': ''
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+# Helper: Deep compare two dicts/lists
+import collections.abc
+
+def deep_equal(a, b):
+    if isinstance(a, dict) and isinstance(b, dict):
+        if set(a.keys()) != set(b.keys()):
+            return False
+        return all(deep_equal(a[k], b[k]) for k in a)
+    elif isinstance(a, list) and isinstance(b, list):
+        if len(a) != len(b):
+            return False
+        # Compare lists as sets of dicts (order-insensitive)
+        a_sorted = sorted(a, key=lambda x: str(x))
+        b_sorted = sorted(b, key=lambda x: str(x))
+        return all(deep_equal(x, y) for x, y in zip(a_sorted, b_sorted))
+    else:
+        return a == b
 
 bp = Blueprint('bulk', __name__, url_prefix='/bulk')
 
@@ -150,91 +213,207 @@ def export_selective():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+def flatten_import_json(nested_json):
+    """Flatten nested vendor->products->methods/guides JSON into flat lists for import."""
+    vendors = []
+    products = []
+    methods = []
+    guides = []
+    # Support both {vendor: {...}} and {vendors: [...]}
+    vendor_objs = []
+    if 'vendor' in nested_json:
+        vendor_objs.append(nested_json['vendor'])
+    if 'vendors' in nested_json:
+        vendor_objs.extend(nested_json['vendors'])
+    for v in vendor_objs:
+        v_name = v.get('name', '').strip()
+        if not v_name:
+            continue
+        vendors.append({'name': v_name})
+        for p in v.get('products', []):
+            p_name = p.get('name', '').strip()
+            if not p_name:
+                continue
+            products.append({
+                'name': p_name,
+                'vendor': v_name,
+                'category': p.get('category', ''),
+                'description': p.get('description', '')
+            })
+            for m in p.get('detection_methods', []):
+                methods.append({
+                    'name': m.get('name', ''),
+                    'product': p_name,
+                    'technique': m.get('technique', ''),
+                    'regex_python': m.get('regex_python', ''),
+                    'regex_ruby': m.get('regex_ruby', ''),
+                    'curl_command': m.get('curl_command', ''),
+                    'expected_response': m.get('expected_response', ''),
+                    'requires_auth': m.get('requires_auth', False)
+                })
+            for g in p.get('setup_guides', []):
+                guides.append({
+                    'title': g.get('title', ''),
+                    'product': p_name,
+                    'content': g.get('content', '')
+                })
+    return {
+        'vendors': vendors,
+        'products': products,
+        'methods': methods,
+        'guides': guides
+    }
+
 @bp.route('/import-preview', methods=['POST'])
 @require_admin
 def import_preview():
-    """Preview what will be imported without actually importing"""
+    """Preview what will be imported or replaced, with deep comparison and structure cleaning."""
     try:
         data = request.json
         if not data:
             return jsonify({'error': 'No data provided'}), 400
-        
-        preview = {
-            'vendors': {'new': 0, 'existing': 0, 'details': []},
-            'products': {'new': 0, 'existing': 0, 'details': []},
-            'methods': {'new': 0, 'existing': 0, 'details': []},
-            'guides': {'new': 0, 'existing': 0, 'details': []},
-            'warnings': []
-        }
-        
-        # Preview vendors
-        if 'vendors' in data:
-            for vendor_data in data['vendors']:
-                existing = Vendor.query.filter_by(name=vendor_data['name']).first()
-                if existing:
-                    preview['vendors']['existing'] += 1
-                    preview['vendors']['details'].append({
-                        'name': vendor_data['name'],
-                        'status': 'existing',
-                        'existing_id': existing.id
-                    })
+        import_data = data.get('data', data)
+        # Clean/filter the uploaded JSON to match the sample structure
+        cleaned_json = filter_json_by_sample(import_data, SAMPLE_JSON)
+        # Flatten for easier DB comparison
+        flat = flatten_import_json(cleaned_json)
+        # DB snapshot
+        vendor_name_to_obj = {v.name: v for v in Vendor.query.all()}
+        print("[DEBUG] Vendor names in DB:", list(vendor_name_to_obj.keys()))
+        vendor = cleaned_json.get('vendor')
+        print("[DEBUG] Incoming vendor name:", vendor.get('name') if vendor else None)
+        product_name_to_obj = {p.name: p for p in Product.query.all()}
+        method_key_to_obj = {(m.name, m.product_id): m for m in DetectionMethod.query.all()}
+        guide_key_to_obj = {(g.title if hasattr(g, 'title') else '', g.product_id): g for g in SetupGuide.query.all()}
+        # --- Deep comparison logic ---
+        preview = {'can_add': False, 'can_replace': False, 'add': {}, 'replace': {}, 'error': None}
+        vendor = cleaned_json.get('vendor')
+        if not vendor or not vendor.get('name'):
+            preview['error'] = 'Vendor name is required.'
+            return jsonify(preview), 400
+        v_name = vendor['name']
+        db_vendor = vendor_name_to_obj.get(v_name)
+        if not db_vendor:
+            print("[DEBUG] Vendor does not exist, can add everything.")
+            preview['can_add'] = True
+            preview['add'] = cleaned_json
+            print("[DEBUG] Returning preview:", preview)
+            return jsonify(preview), 200
+        # Vendor exists, check products
+        db_products = [p for p in Product.query.filter_by(vendor_id=db_vendor.id).all()]
+        db_product_names = {p.name for p in db_products}
+        add_products = []
+        replace_products = []
+        all_products_unchanged = True  # Track if all products are unchanged
+        for prod in vendor.get('products', []):
+            p_name = prod.get('name')
+            if not p_name:
+                continue
+            db_prod = next((p for p in db_products if p.name == p_name), None)
+            if not db_prod:
+                add_products.append(prod)
+                all_products_unchanged = False
+                continue
+            # Product exists, deep compare
+            db_methods = [m for m in DetectionMethod.query.filter_by(product_id=db_prod.id).all()]
+            db_guides = [g for g in SetupGuide.query.filter_by(product_id=db_prod.id).all()]
+            prod_methods = prod.get('detection_methods', [])
+            db_methods_dict = {(m.name): m for m in db_methods}
+            print(f"[DEBUG] Product '{p_name}' has {len(db_methods)} existing methods: {[m.name for m in db_methods]}")
+            print(f"[DEBUG] Import file has {len(prod_methods)} methods: {[m.get('name') for m in prod_methods]}")
+            add_methods = []
+            replace_methods = []
+            for m in prod_methods:
+                m_name = m.get('name')
+                if not m_name:
+                    continue
+                print(f"[DEBUG] Checking method '{m_name}'")
+                # Try to match by all fields except name
+                found_equivalent = False
+                for db_m in db_methods:
+                    db_m_dict = {k: getattr(db_m, k) for k in ['technique','regex_python','regex_ruby','curl_command','expected_response','requires_auth']}
+                    m_compare = {k: m.get(k) for k in ['technique','regex_python','regex_ruby','curl_command','expected_response','requires_auth']}
+                    print(f"[DEBUG] Comparing method '{m_name}' with DB method '{db_m.name}':")
+                    print(f"[DEBUG]   Import: {m_compare}")
+                    print(f"[DEBUG]   DB:     {db_m_dict}")
+                    print(f"[DEBUG]   Deep equal: {deep_equal(m_compare, db_m_dict)}")
+                    if deep_equal(m_compare, db_m_dict):
+                        found_equivalent = True
+                        print(f"[DEBUG] Found equivalent method in DB for '{m_name}' (ignoring name)")
+                        break
+                if not found_equivalent:
+                    print(f"[DEBUG] No equivalent method found for '{m_name}', adding to add_methods")
+                    add_methods.append(m)
+                    all_products_unchanged = False
                 else:
-                    preview['vendors']['new'] += 1
-                    preview['vendors']['details'].append({
-                        'name': vendor_data['name'],
-                        'status': 'new'
-                    })
-        
-        # Preview products
-        if 'products' in data:
-            for product_data in data['products']:
-                existing = Product.query.filter_by(name=product_data['name']).first()
-                if existing:
-                    preview['products']['existing'] += 1
-                    preview['products']['details'].append({
-                        'name': product_data['name'],
-                        'status': 'existing',
-                        'existing_id': existing.id
-                    })
+                    print(f"[DEBUG] Method '{m_name}' matches an existing method (ignoring name)")
+            prod_guides = prod.get('setup_guides', [])
+            add_guides = []
+            replace_guides = []
+            for g in prod_guides:
+                g_title = g.get('title')
+                g_content = g.get('content', '')
+                if not g_title or not g_content:
+                    continue
+                print(f"[DEBUG] Checking guide '{g_title}'")
+                # Try to match by content (ignoring title)
+                found_equivalent = False
+                for db_g in db_guides:
+                    print(f"[DEBUG] Comparing guide '{g_title}' with DB guide:")
+                    print(f"[DEBUG]   Import content: '{g_content}'")
+                    print(f"[DEBUG]   DB instructions: '{db_g.instructions}'")
+                    print(f"[DEBUG]   Direct match: {db_g.instructions == g_content}")
+                    print(f"[DEBUG]   Title format match: {db_g.instructions == f'Title: {g_title}\\n\\n{g_content}'}")
+                    # Check if content matches (ignoring title format)
+                    if db_g.instructions == g_content or db_g.instructions == f"Title: {g_title}\n\n{g_content}":
+                        found_equivalent = True
+                        print(f"[DEBUG] Found equivalent guide in DB for '{g_title}' (ignoring title)")
+                        break
+                if not found_equivalent:
+                    print(f"[DEBUG] No equivalent guide found for '{g_title}', adding to add_guides")
+                    add_guides.append(g)
+                    all_products_unchanged = False
                 else:
-                    # Check if vendor exists
-                    vendor = Vendor.query.get(product_data.get('vendor_id'))
-                    if not vendor:
-                        preview['warnings'].append(f"Product '{product_data['name']}' references non-existent vendor ID {product_data.get('vendor_id')}")
-                    
-                    preview['products']['new'] += 1
-                    preview['products']['details'].append({
-                        'name': product_data['name'],
-                        'status': 'new',
-                        'vendor_id': product_data.get('vendor_id')
-                    })
-        
-        # Preview methods and guides similarly...
-        if 'methods' in data:
-            for method_data in data['methods']:
-                existing = DetectionMethod.query.filter_by(
-                    name=method_data['name'],
-                    product_id=method_data.get('product_id')
-                ).first()
-                if existing:
-                    preview['methods']['existing'] += 1
-                else:
-                    preview['methods']['new'] += 1
-        
-        if 'guides' in data:
-            for guide_data in data['guides']:
-                existing = SetupGuide.query.filter_by(
-                    title=guide_data.get('title', ''),
-                    product_id=guide_data.get('product_id')
-                ).first()
-                if existing:
-                    preview['guides']['existing'] += 1
-                else:
-                    preview['guides']['new'] += 1
-        
+                    print(f"[DEBUG] Guide '{g_title}' matches an existing guide (ignoring title)")
+            print(f"[DEBUG] Product '{p_name}' - add_methods: {len(add_methods)}, replace_methods: {len(replace_methods)}, add_guides: {len(add_guides)}, replace_guides: {len(replace_guides)}")
+            if not add_methods and not replace_methods and not add_guides and not replace_guides:
+                print(f"[DEBUG] Product '{p_name}' has no changes, skipping")
+                continue
+            print(f"[DEBUG] Product '{p_name}' has changes, adding to replace_products")
+            replace_products.append({
+                'name': p_name,
+                'add_methods': add_methods,
+                'replace_methods': replace_methods,
+                'add_guides': add_guides,
+                'replace_guides': replace_guides
+            })
+        # If all products exist and match, error
+        print("[DEBUG] Final check - add_products:", len(add_products), "all_products_unchanged:", all_products_unchanged)
+        if not add_products and all_products_unchanged:
+            print("[DEBUG] All products exist and match. Returning error.")
+            preview['error'] = 'The data already exists.'
+            print("[DEBUG] Returning preview:", preview)
+            return jsonify(preview), 200
+        # If there are products to add, can add
+        if add_products:
+            print("[DEBUG] There are products to add.")
+            preview['can_add'] = True
+            preview['add'] = {'vendor': {'name': v_name, 'products': add_products}}
+        # Only set can_replace if there are actual differences to replace
+        filtered_replace_products = [p for p in replace_products if (
+            (p.get('replace_methods') and len(p['replace_methods']) > 0) or
+            (p.get('replace_guides') and len(p['replace_guides']) > 0)
+        )]
+        if filtered_replace_products:
+            print("[DEBUG] There are products to replace.")
+            preview['can_replace'] = True
+            preview['replace'] = {'vendor': {'name': v_name, 'products': filtered_replace_products}}
+        print("[DEBUG] Returning preview:", preview)
         return jsonify(preview), 200
-        
     except Exception as e:
+        import sys, traceback
+        print("IMPORT PREVIEW ERROR:", file=sys.stderr, flush=True)
+        print(traceback.format_exc(), file=sys.stderr, flush=True)
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/bulk-delete', methods=['POST'])
@@ -345,74 +524,158 @@ def export_data():
 @bp.route('/import', methods=['POST'])
 @require_admin
 def import_data():
-    """Import data from JSON"""
+    """Import data from JSON with proper handling of nested structure and add/replace modes."""
     try:
         data = request.json
         if not data:
             return jsonify({'error': 'No data provided'}), 400
         
-        imported = {'vendors': 0, 'products': 0, 'methods': 0, 'guides': 0}
-        errors = []
+        import_data = data.get('data', data)
+        mode = data.get('mode', 'add')  # 'add' or 'replace'
         
-        # Import vendors
-        if 'vendors' in data:
-            for vendor_data in data['vendors']:
+        # Clean/filter the uploaded JSON to match the sample structure
+        cleaned_json = filter_json_by_sample(import_data, SAMPLE_JSON)
+        
+        summary = {
+            'vendors': {'added': [], 'errors': []},
+            'products': {'added': [], 'errors': []},
+            'methods': {'added': [], 'errors': []},
+            'guides': {'added': [], 'errors': []},
+            'errors': []
+        }
+
+        vendor_data = cleaned_json.get('vendor')
+        if not vendor_data or not vendor_data.get('name'):
+            return jsonify({'error': 'Vendor name is required'}), 400
+
+        vendor_name = vendor_data['name'].strip()
+        
+        # Check if vendor exists
+        existing_vendor = Vendor.query.filter_by(name=vendor_name).first()
+        
+        if not existing_vendor:
+            # Create new vendor
+            try:
+                existing_vendor = Vendor(name=vendor_name)
+                db.session.add(existing_vendor)
+                db.session.flush()  # Get the ID
+                summary['vendors']['added'].append({'name': vendor_name})
+            except Exception as e:
+                summary['vendors']['errors'].append(f"Vendor {vendor_name}: {str(e)}")
+                db.session.rollback()
+                return jsonify({'error': f"Failed to create vendor: {str(e)}"}), 500
+
+        # Process products
+        for product_data in vendor_data.get('products', []):
+            product_name = product_data.get('name', '').strip()
+            if not product_name:
+                summary['products']['errors'].append('Product with missing name')
+                continue
+
+            # Check if product exists
+            existing_product = Product.query.filter_by(name=product_name, vendor_id=existing_vendor.id).first()
+            
+            if not existing_product:
+                # Create new product
                 try:
-                    existing = Vendor.query.filter_by(name=vendor_data['name']).first()
-                    if not existing:
-                        vendor = Vendor(name=vendor_data['name'])
-                        db.session.add(vendor)
-                        imported['vendors'] += 1
+                    existing_product = Product(
+                        name=product_name,
+                        vendor_id=existing_vendor.id,
+                        category=product_data.get('category'),
+                        description=product_data.get('description')
+                    )
+                    db.session.add(existing_product)
+                    db.session.flush()  # Get the ID
+                    summary['products']['added'].append({'name': product_name, 'vendor': vendor_name})
                 except Exception as e:
-                    errors.append(f"Vendor {vendor_data.get('name', 'Unknown')}: {str(e)}")
-        
-        # Import products
-        if 'products' in data:
-            for product_data in data['products']:
-                try:
-                    existing = Product.query.filter_by(name=product_data['name']).first()
-                    if not existing:
-                        product = Product(
-                            name=product_data['name'],
-                            vendor_id=product_data['vendor_id'],
-                            category=product_data.get('category'),
-                            description=product_data.get('description')
+                    summary['products']['errors'].append(f"Product {product_name}: {str(e)}")
+                    continue
+
+            # Process detection methods
+            for method_data in product_data.get('detection_methods', []):
+                method_name = method_data.get('name', '').strip()
+                if not method_name:
+                    summary['methods']['errors'].append(f"Method missing name for product {product_name}")
+                    continue
+
+                existing_method = DetectionMethod.query.filter_by(name=method_name, product_id=existing_product.id).first()
+                
+                if not existing_method:
+                    # Add new method
+                    try:
+                        method = DetectionMethod(
+                            name=method_name,
+                            product_id=existing_product.id,
+                            technique=method_data.get('technique'),
+                            regex_python=method_data.get('regex_python'),
+                            regex_ruby=method_data.get('regex_ruby'),
+                            curl_command=method_data.get('curl_command'),
+                            expected_response=method_data.get('expected_response'),
+                            requires_auth=method_data.get('requires_auth', False)
                         )
-                        db.session.add(product)
-                        imported['products'] += 1
-                except Exception as e:
-                    errors.append(f"Product {product_data.get('name', 'Unknown')}: {str(e)}")
-        
-        # Import methods
-        if 'methods' in data:
-            for method_data in data['methods']:
-                try:
-                    method = DetectionMethod(**method_data)
-                    db.session.add(method)
-                    imported['methods'] += 1
-                except Exception as e:
-                    errors.append(f"Method {method_data.get('id', 'Unknown')}: {str(e)}")
-        
-        # Import guides
-        if 'guides' in data:
-            for guide_data in data['guides']:
-                try:
-                    guide = SetupGuide(**guide_data)
-                    db.session.add(guide)
-                    imported['guides'] += 1
-                except Exception as e:
-                    errors.append(f"Guide {guide_data.get('id', 'Unknown')}: {str(e)}")
-        
+                        db.session.add(method)
+                        summary['methods']['added'].append({'name': method_name, 'product': product_name})
+                    except Exception as e:
+                        summary['methods']['errors'].append(f"Method {method_name}: {str(e)}")
+                elif mode == 'replace':
+                    # Replace existing method
+                    try:
+                        existing_method.technique = method_data.get('technique')
+                        existing_method.regex_python = method_data.get('regex_python')
+                        existing_method.regex_ruby = method_data.get('regex_ruby')
+                        existing_method.curl_command = method_data.get('curl_command')
+                        existing_method.expected_response = method_data.get('expected_response')
+                        existing_method.requires_auth = method_data.get('requires_auth', False)
+                        summary['methods']['added'].append({'name': method_name, 'product': product_name, 'action': 'replaced'})
+                    except Exception as e:
+                        summary['methods']['errors'].append(f"Method {method_name}: {str(e)}")
+
+            # Process setup guides
+            for guide_data in product_data.get('setup_guides', []):
+                guide_title = guide_data.get('title', '').strip()
+                if not guide_title:
+                    summary['guides']['errors'].append(f"Guide missing title for product {product_name}")
+                    continue
+
+                # For SetupGuide, we'll use the title as part of the instructions since there's no title field
+                guide_content = guide_data.get('content', '')
+                if not guide_content:
+                    summary['guides']['errors'].append(f"Guide missing content for product {product_name}")
+                    continue
+
+                # Check if guide exists by comparing content (since no title field)
+                existing_guide = SetupGuide.query.filter_by(
+                    product_id=existing_product.id,
+                    instructions=guide_content
+                ).first()
+                
+                if not existing_guide:
+                    # Add new guide
+                    try:
+                        guide = SetupGuide(
+                            instructions=f"Title: {guide_title}\n\n{guide_content}",
+                            product_id=existing_product.id
+                        )
+                        db.session.add(guide)
+                        summary['guides']['added'].append({'title': guide_title, 'product': product_name})
+                    except Exception as e:
+                        summary['guides']['errors'].append(f"Guide {guide_title}: {str(e)}")
+                elif mode == 'replace':
+                    # Replace existing guide (update content)
+                    try:
+                        existing_guide.instructions = f"Title: {guide_title}\n\n{guide_content}"
+                        summary['guides']['added'].append({'title': guide_title, 'product': product_name, 'action': 'replaced'})
+                    except Exception as e:
+                        summary['guides']['errors'].append(f"Guide {guide_title}: {str(e)}")
+
         db.session.commit()
-        
-        return jsonify({
-            'message': 'Import completed',
-            'imported': imported,
-            'errors': errors
-        }), 200
+        return jsonify(summary), 200
         
     except Exception as e:
         db.session.rollback()
+        import sys, traceback
+        print("IMPORT ERROR (POST /bulk/import):", file=sys.stderr, flush=True)
+        print(traceback.format_exc(), file=sys.stderr, flush=True)
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/backup', methods=['GET'])

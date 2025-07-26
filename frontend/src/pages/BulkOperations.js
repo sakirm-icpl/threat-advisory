@@ -30,6 +30,46 @@ function Spinner() {
   );
 }
 
+// Helper for multi-select override
+function MultiSelect({ label, options, selected, onChange }) {
+  return (
+    <div className="mb-2">
+      <label className="block text-sm font-medium mb-1">{label}</label>
+      <select
+        multiple
+        className="input input-bordered w-full"
+        value={selected}
+        onChange={e => {
+          const values = Array.from(e.target.selectedOptions, o => o.value);
+          onChange(values);
+        }}
+      >
+        {options.map(opt => (
+          <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+// Add a helper to recursively remove created_at and updated_at keys
+function removeTimestamps(obj) {
+  if (Array.isArray(obj)) {
+    return obj.map(removeTimestamps);
+  } else if (obj && typeof obj === 'object') {
+    const newObj = {};
+    for (const key in obj) {
+      if (key !== 'created_at' && key !== 'updated_at') {
+        newObj[key] = removeTimestamps(obj[key]);
+      }
+    }
+    return newObj;
+  }
+  return obj;
+}
+
+// Remove filterJsonBySample and sampleJson logic
+
 export default function BulkOperations() {
   const [activeTab, setActiveTab] = useState('export');
   const [exportFormat, setExportFormat] = useState('json');
@@ -55,6 +95,8 @@ export default function BulkOperations() {
   const [selectedCleanupTypes, setSelectedCleanupTypes] = useState([]);
   const [bulkDeleteData, setBulkDeleteData] = useState({});
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [importMode, setImportMode] = useState('add'); // 'add' or 'replace'
+  const [override, setOverride] = useState({ vendors: [], products: [], methods: [], guides: [] });
   
   const importFileRef = useRef();
   const restoreFileRef = useRef();
@@ -63,6 +105,60 @@ export default function BulkOperations() {
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [previewJson, setPreviewJson] = useState(null);
   const [copyStatus, setCopyStatus] = useState('Copy');
+  // Add a state for file input key to force re-render
+  const [importFileInputKey, setImportFileInputKey] = useState(Date.now());
+
+  // 1. Add sample JSON structure at the top
+  // const sampleJson = {
+  //   vendor: {
+  //     name: "Vendor Name",
+  //     products: [
+  //       {
+  //         name: "Product Name",
+  //         category: "Category",
+  //         description: "Description",
+  //         detection_methods: [
+  //           {
+  //             name: "Method Name",
+  //             technique: "Technique",
+  //             regex_python: "",
+  //             regex_ruby: "",
+  //             curl_command: "",
+  //             expected_response: "",
+  //             requires_auth: false
+  //           }
+  //         ],
+  //         setup_guides: [
+  //           {
+  //             title: "Guide Title",
+  //             content: "Guide Content"
+  //           }
+  //         ]
+  //       }
+  //     ]
+  //   }
+  // };
+
+  // 2. Add state for sample modal
+  const [sampleModalOpen, setSampleModalOpen] = useState(false);
+  const [sampleCopyStatus, setSampleCopyStatus] = useState('Copy');
+  const sampleJsonRef = useRef();
+
+  // 1. Add state for raw JSON preview modal
+  const [rawJsonModalOpen, setRawJsonModalOpen] = useState(false);
+  const [rawJson, setRawJson] = useState(null);
+  const [rawJsonFile, setRawJsonFile] = useState(null);
+  const rawJsonRef = useRef();
+  const [rawCopyStatus, setRawCopyStatus] = useState('Copy');
+
+  // 1. Add state for import mode and error
+  const [importFileJson, setImportFileJson] = useState(null);
+  const [importFileRaw, setImportFileRaw] = useState('');
+  const [importFile, setImportFile] = useState(null);
+  const [importCompareResult, setImportCompareResult] = useState(null);
+  const [importAllExists, setImportAllExists] = useState(false);
+  const importJsonRef = useRef();
+  const [importCopyStatus, setImportCopyStatus] = useState('Copy');
 
   // Queries
   const { data: vendorsData, error: vendorsError, isLoading: vendorsLoading } = useQuery('vendors', endpoints.getVendors, {
@@ -233,37 +329,62 @@ export default function BulkOperations() {
     try {
       const text = await file.text();
       const json = JSON.parse(text);
-      
-      if (showImportPreview) {
-        const previewRes = await endpoints.importPreview(json);
-        setImportPreviewData(previewRes.data);
-        setShowImportPreview(false);
+      // Send raw JSON to backend for preview/cleaning/comparison
+      const payload = { data: json };
+      const previewRes = await endpoints.importPreview(payload);
+      const preview = previewRes.data;
+      setImportCompareResult(preview);
+      setImportAllExists(false);
+      // Always clear error if backend returns error: null
+      if (preview.error) {
+        setImportError(preview.error);
+        setShowImportPreview(true); // Always show preview even with error
       } else {
-      const res = await endpoints.importData(json);
-      setImportResult(res.data);
-        queryClient.invalidateQueries(['health-check', 'statistics']);
+        setImportError(null);
+        if (preview.can_add || preview.can_replace) {
+          setShowImportPreview(true);
+        } else {
+          setShowImportPreview(false);
+        }
       }
     } catch (err) {
-      setImportError('Import failed. Make sure the file is valid JSON.');
+      let msg = err?.response?.data?.error || 'Import failed.';
+      if (msg && msg.toLowerCase().includes('duplicate key value violates unique constraint')) {
+        msg = 'Data already exists.';
+      }
+      setImportError(msg);
     } finally {
       setImporting(false);
       importFileRef.current.value = '';
     }
   };
 
-  // Confirm import after preview
-  const confirmImport = async () => {
-    if (!importPreviewData) return;
+  // Confirm import after preview (Add or Replace)
+  const confirmImport = async (mode) => {
+    if (!importCompareResult || !importFile) return;
     setImporting(true);
     try {
-      const text = await importFileRef.current.files[0].text();
+      const text = await importFile.text();
       const json = JSON.parse(text);
-      const res = await endpoints.importData(json);
-      setImportResult(res.data);
-      setImportPreviewData(null);
+      const payload = { data: json, mode };
+      const res = await endpoints.importData(payload);
+      setImportResult('Import successful!');
+      setImportFileJson(null);
+      setImportFileRaw('');
+      setImportFile(null);
+      setImportCompareResult(null);
+      setImportAllExists(false);
+      setImportError(null);
+      setImportFileInputKey(Date.now());
+      if (importFileRef.current) importFileRef.current.value = '';
       queryClient.invalidateQueries(['health-check', 'statistics']);
     } catch (err) {
-      setImportError('Import failed.');
+      let msg = err?.response?.data?.error || 'Import failed.';
+      if (msg && msg.toLowerCase().includes('duplicate key value violates unique constraint')) {
+        msg = 'Data already exists.';
+      }
+      setImportError(msg);
+      // Do NOT clear file/preview state on error
     } finally {
       setImporting(false);
     }
@@ -435,112 +556,173 @@ export default function BulkOperations() {
 
       {/* Import Tab */}
       {activeTab === 'import' && (
-        <div className="space-y-6">
-          <div className="card p-6">
+        <div className="flex flex-col items-center w-full">
+          <div className="card p-6 w-[70%] mx-auto">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <DocumentArrowUpIcon className="h-5 w-5" />
               Import Data
+              <button
+                className="ml-auto btn btn-xs btn-outline flex items-center gap-1"
+                onClick={() => setSampleModalOpen(true)}
+                title="Show Sample JSON"
+              >
+                <InformationCircleIcon className="h-4 w-4" />
+                Sample JSON
+              </button>
             </h2>
-            
             <div className="space-y-4">
+              {/* File input */}
               <div className="flex items-center gap-4">
-                <input 
-                  type="file" 
-                  accept="application/json" 
-                  ref={importFileRef} 
-                  onChange={handleImport} 
-                  disabled={importing} 
+                <input
+                  key={importFileInputKey}
+                  type="file"
+                  accept="application/json"
+                  ref={importFileRef}
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    setImportResult(null);
+                    setImportError(null);
+                    setImportCompareResult(null);
+                    setImportAllExists(false);
+                    setImportFileJson(null);
+                    setImportFileRaw('');
+                    setImportFile(null);
+                    if (!file) return;
+                    try {
+                      const text = await file.text();
+                      const json = JSON.parse(text);
+                      setImportFileJson(json);
+                      setImportFileRaw(JSON.stringify(json, null, 2));
+                      setImportFile(file);
+                      setImporting(true);
+                      const payload = { data: json };
+                      const previewRes = await endpoints.importPreview(payload);
+                      const preview = previewRes.data;
+                      setImportCompareResult(preview);
+                      setImportAllExists(false);
+                      // Always clear error if backend returns error: null
+                      if (preview.error) {
+                        setImportError(preview.error);
+                        setShowImportPreview(false);
+                      } else {
+                        setImportError(null);
+                        if (preview.can_add || preview.can_replace) {
+                          setShowImportPreview(true);
+                        } else {
+                          setShowImportPreview(false);
+                        }
+                      }
+                    } catch (err) {
+                      let msg = err?.response?.data?.error || 'Import failed.';
+                      if (msg && msg.toLowerCase().includes('duplicate key value violates unique constraint')) {
+                        msg = 'Data already exists.';
+                      }
+                      setImportError(msg);
+                    } finally {
+                      setImporting(false);
+                      if (importFileRef.current) importFileRef.current.value = '';
+                    }
+                  }}
+                  disabled={importing}
                   className="file-input file-input-bordered flex-1"
                 />
-                <label className="flex items-center gap-2">
-                  <input 
-                    type="checkbox" 
-                    checked={showImportPreview} 
-                    onChange={e => setShowImportPreview(e.target.checked)}
-                    className="checkbox"
-                  />
-                  <span className="text-sm">Preview before import</span>
-                </label>
-      </div>
-
-                {importing && (
-                  <div className="flex items-center gap-2 text-blue-600">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                    {showImportPreview ? 'Analyzing import data...' : 'Importing...'}
-                  </div>
-                )}
-
-                {importPreviewData && (
-                  <div className="card bg-blue-50 p-4">
-                    <h3 className="font-semibold mb-2">Import Preview</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium">Vendors:</span>
-                        <div>New: {importPreviewData.vendors.new}</div>
-                        <div>Existing: {importPreviewData.vendors.existing}</div>
-                      </div>
-                      <div>
-                        <span className="font-medium">Products:</span>
-                        <div>New: {importPreviewData.products.new}</div>
-                        <div>Existing: {importPreviewData.products.existing}</div>
-                      </div>
-                      <div>
-                        <span className="font-medium">Methods:</span>
-                        <div>New: {importPreviewData.methods.new}</div>
-                        <div>Existing: {importPreviewData.methods.existing}</div>
-                      </div>
-                      <div>
-                        <span className="font-medium">Guides:</span>
-                        <div>New: {importPreviewData.guides.new}</div>
-                        <div>Existing: {importPreviewData.guides.existing}</div>
-                      </div>
+              </div>
+              {/* Import error message if all data exists or other error */}
+              {importError && (
+                <div className="card bg-red-50 p-4 mb-4">
+                  <h3 className="font-semibold text-red-800 mb-2">Import Error</h3>
+                  <div className="text-sm text-red-700">{importError}</div>
+                </div>
+              )}
+              {/* Show raw JSON preview always if a file is selected */}
+              {importFileJson && (
+                <div className="mt-4">
+                  <h3 className="font-semibold mb-2">Selected File Preview</h3>
+                  <pre ref={importJsonRef} className="bg-gray-100 rounded p-4 max-h-96 overflow-auto text-xs mb-4">{importFileRaw}</pre>
+                  {/* Only show Add/Replace if there is no error */}
+                  {!importError && (
+                    <div className="flex gap-4 mb-4">
+                      {importCompareResult && (
+                        <>
+                          {importCompareResult.can_add && (
+                            <button
+                              className="btn btn-primary"
+                              onClick={() => confirmImport('add')}
+                              disabled={importing}
+                            >Add</button>
+                          )}
+                          {importCompareResult.can_replace &&
+                            importCompareResult.replace &&
+                            importCompareResult.replace.vendor &&
+                            Array.isArray(importCompareResult.replace.vendor.products) &&
+                            importCompareResult.replace.vendor.products.length > 0 && (
+                              <button
+                                className="btn btn-warning"
+                                onClick={() => confirmImport('replace')}
+                                disabled={importing}
+                              >Replace</button>
+                          )}
+                        </>
+                      )}
                     </div>
-                    {importPreviewData.warnings.length > 0 && (
-                      <div className="mt-2">
-                        <span className="font-medium text-orange-600">Warnings:</span>
-                        <ul className="list-disc list-inside text-sm text-orange-600">
-                          {importPreviewData.warnings.map((warning, i) => (
-                            <li key={i}>{warning}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    <div className="mt-4 flex gap-2">
-                      <button className="btn btn-primary btn-sm" onClick={confirmImport}>
-                        Confirm Import
-                      </button>
-                      <button 
-                        className="btn btn-outline btn-sm" 
-                        onClick={() => setImportPreviewData(null)}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {importResult && (
-                  <div className="card bg-green-50 p-4">
-                    <h3 className="font-semibold text-green-800 mb-2">Import Complete</h3>
-                    <div className="text-sm text-green-700">
-                      <pre>{JSON.stringify(importResult, null, 2)}</pre>
-                    </div>
-                  </div>
-                )}
-
-                {importError && (
-                  <div className="card bg-red-50 p-4">
-                    <h3 className="font-semibold text-red-800 mb-2">Import Error</h3>
-                    <div className="text-sm text-red-700">{importError}</div>
-                  </div>
-                )}
-
-                <p className="text-xs text-gray-500">
-                  Import expects a JSON file in the same format as exported data. 
-                  Use preview mode to see what will be imported before confirming.
-                </p>
+                  )}
+                </div>
+              )}
+              {/* Show import result message if present */}
+              {importResult && (
+                <div className="card bg-green-50 p-4">
+                  <h3 className="font-semibold mb-2 text-green-800">Import Complete</h3>
+                  <div className="text-sm text-green-700">{importResult}</div>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Sample JSON Modal */}
+          {sampleModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative">
+                <button
+                  title="Cancel"
+                  className="absolute top-4 right-4 hover:bg-gray-200 rounded-full p-2 transition"
+                  onClick={() => setSampleModalOpen(false)}
+                >
+                  <XMarkIcon className="h-6 w-6 text-red-500" />
+                </button>
+                <h3 className="text-lg font-semibold mb-4">Sample JSON Structure</h3>
+                <pre className="bg-gray-100 rounded p-4 max-h-96 overflow-auto text-xs mb-4">{`
+{
+  "vendor": {
+    "name": "Vendor Name",
+    "products": [
+      {
+        "name": "Product Name",
+        "category": "Category",
+        "description": "Description",
+        "detection_methods": [
+          {
+            "name": "Method Name",
+            "technique": "Technique",
+            "regex_python": "",
+            "regex_ruby": "",
+            "curl_command": "",
+            "expected_response": "",
+            "requires_auth": false
+          }
+        ],
+        "setup_guides": [
+          {
+            "title": "Guide Title",
+            "content": "Guide Content"
+          }
+        ]
+      }
+    ]
+  }
+}
+`}</pre>
               </div>
             </div>
+          )}
         </div>
       )}
 
@@ -843,6 +1025,81 @@ export default function BulkOperations() {
               <button title="Download" className="hover:bg-gray-200 rounded-full p-2 transition" onClick={handleDownload}>
                 <ArrowDownTrayIcon className="h-6 w-6 text-blue-500" />
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Raw JSON Preview Modal */}
+      {rawJsonModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative">
+            <button
+              title="Cancel"
+              className="absolute top-4 right-4 hover:bg-gray-200 rounded-full p-2 transition"
+              onClick={() => setRawJsonModalOpen(false)}
+            >
+              <XMarkIcon className="h-6 w-6 text-red-500" />
+            </button>
+            <h3 className="text-lg font-semibold mb-4">Import File Preview</h3>
+            <pre ref={rawJsonRef} className="bg-gray-100 rounded p-4 max-h-96 overflow-auto text-xs mb-4">{JSON.stringify(rawJson, null, 2)}</pre>
+            <div className="flex gap-4 justify-end items-center">
+              <button
+                title={rawCopyStatus === 'Copied' ? 'Copied!' : 'Copy'}
+                className="hover:bg-gray-200 rounded-full p-2 transition"
+                onClick={() => {
+                  if (rawJsonRef.current) {
+                    navigator.clipboard.writeText(JSON.stringify(rawJson, null, 2));
+                    setRawCopyStatus('Copied');
+                    setTimeout(() => setRawCopyStatus('Copy'), 2000);
+                  }
+                }}
+                disabled={rawCopyStatus === 'Copied'}
+              >
+                {rawCopyStatus === 'Copied' ? (
+                  <CheckIcon className="h-6 w-6 text-green-500 transition-transform duration-200 scale-110" />
+                ) : (
+                  <ClipboardIcon className="h-6 w-6 text-gray-700 transition-transform duration-200" />
+                )}
+              </button>
+              <button title="Download" className="hover:bg-gray-200 rounded-full p-2 transition" onClick={() => {
+                const blob = new Blob([JSON.stringify(rawJson, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'import.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }}>
+                <ArrowDownTrayIcon className="h-6 w-6 text-blue-500" />
+              </button>
+              <button className="btn btn-primary" onClick={async () => {
+                setRawJsonModalOpen(false);
+                setImporting(true);
+                setImportError(null);
+                setImportPreviewData(null);
+                try {
+                  const payload = { data: rawJson };
+                  const previewRes = await endpoints.importPreview(payload);
+                  // If all items are unchanged, show error and do not allow import
+                  const allUnchanged =
+                    (!previewRes.data.vendors?.new?.length && !previewRes.data.vendors?.updated?.length) &&
+                    (!previewRes.data.products?.new?.length && !previewRes.data.products?.updated?.length) &&
+                    (!previewRes.data.methods?.new?.length && !previewRes.data.methods?.updated?.length) &&
+                    (!previewRes.data.guides?.new?.length && !previewRes.data.guides?.updated?.length);
+                  if (allUnchanged) {
+                    setImportError('All data already exists, nothing to import.');
+                  } else {
+                    setImportPreviewData(previewRes.data);
+                  }
+                } catch (err) {
+                  setImportError('Import failed. Make sure the file is valid JSON.');
+                } finally {
+                  setImporting(false);
+                }
+              }}>Proceed</button>
+              <button className="btn btn-outline" onClick={() => setRawJsonModalOpen(false)}>Cancel</button>
             </div>
           </div>
         </div>
