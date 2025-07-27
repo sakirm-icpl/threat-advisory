@@ -1,26 +1,82 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { endpoints } from '../services/api';
 import {
-  CloudArrowUpIcon,
-  CloudArrowDownIcon,
   DocumentArrowDownIcon,
   DocumentArrowUpIcon,
-  TrashIcon,
-  CogIcon,
   InformationCircleIcon,
-  EyeIcon,
-  EyeSlashIcon,
   BuildingOfficeIcon,
   CubeIcon,
   ServerStackIcon,
-  XMarkIcon,
   ClipboardIcon,
   CheckIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 
-// Add a loading spinner component
+// Reusable PreviewModal Component
+function PreviewModal({ isOpen, onClose, title, content, downloadFileName = 'export.json' }) {
+  const [copyStatus, setCopyStatus] = useState('Copy');
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(typeof content === 'string' ? content : JSON.stringify(content, null, 2));
+    setCopyStatus('Copied');
+    setTimeout(() => setCopyStatus('Copy'), 2000);
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([typeof content === 'string' ? content : JSON.stringify(content, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = downloadFileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-8 relative h-[80vh] flex flex-col">
+        <button
+          className="absolute top-3 right-3 btn btn-sm btn-circle btn-ghost text-2xl"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          &times;
+        </button>
+        <h2 className="text-xl font-bold mb-4">{title}</h2>
+        <pre className="bg-gray-100 rounded p-4 overflow-x-auto overflow-y-auto text-xs flex-1">
+          {typeof content === 'string' ? content : JSON.stringify(content, null, 2)}
+        </pre>
+        <div className="flex justify-end gap-2 mt-4">
+          <button
+            className="hover:bg-gray-200 rounded-full p-2 transition"
+            onClick={handleCopy}
+            title="Copy"
+          >
+            {copyStatus === 'Copied' ? (
+              <CheckIcon className="h-6 w-6 text-green-500 transition-transform duration-200 scale-110" />
+            ) : (
+              <ClipboardIcon className="h-6 w-6 text-gray-700 transition-transform duration-200" />
+            )}
+          </button>
+          <button
+            className="hover:bg-gray-200 rounded-full p-2 transition"
+            onClick={handleDownload}
+            title="Download"
+          >
+            <ArrowDownTrayIcon className="h-6 w-6 text-blue-500" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Loading spinner component
 function Spinner() {
   return (
     <svg className="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -30,29 +86,7 @@ function Spinner() {
   );
 }
 
-// Helper for multi-select override
-function MultiSelect({ label, options, selected, onChange }) {
-  return (
-    <div className="mb-2">
-      <label className="block text-sm font-medium mb-1">{label}</label>
-      <select
-        multiple
-        className="input input-bordered w-full"
-        value={selected}
-        onChange={e => {
-          const values = Array.from(e.target.selectedOptions, o => o.value);
-          onChange(values);
-        }}
-      >
-        {options.map(opt => (
-          <option key={opt} value={opt}>{opt}</option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-// Add a helper to recursively remove created_at and updated_at keys
+// Helper to recursively remove created_at and updated_at keys
 function removeTimestamps(obj) {
   if (Array.isArray(obj)) {
     return obj.map(removeTimestamps);
@@ -68,12 +102,40 @@ function removeTimestamps(obj) {
   return obj;
 }
 
-// Remove filterJsonBySample and sampleJson logic
+// Sample JSON structure for import
+  const sampleJson = {
+  "vendor": {
+    "name": "Sample Vendor",
+    "products": [
+      {
+        "name": "Sample Product",
+        "category": "Web Application",
+        "description": "Sample product description.",
+        "detection_methods": [
+          {
+            "name": "Sample Method",
+            "technique": "HTTP Response Analysis",
+            "regex_python": "pattern",
+            "regex_ruby": "pattern",
+            "curl_command": "curl ...",
+            "expected_response": "Sample",
+            "requires_auth": false
+          }
+        ],
+        "setup_guides": [
+          {
+            "title": "Sample Guide",
+            "content": "Guide content goes here."
+            }
+          ]
+        }
+      ]
+    }
+  };
 
 export default function BulkOperations() {
+  // State management
   const [activeTab, setActiveTab] = useState('export');
-  const [exportFormat, setExportFormat] = useState('json');
-  const [exportCompleteFormat, setExportCompleteFormat] = useState('json');
   const [selectedVendor, setSelectedVendor] = useState('');
   const [selectedProduct, setSelectedProduct] = useState('');
   const [vendorsList, setVendorsList] = useState([]);
@@ -83,100 +145,27 @@ export default function BulkOperations() {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
   const [importError, setImportError] = useState(null);
-  const [backupResult, setBackupResult] = useState(null);
-  const [backupError, setBackupError] = useState(null);
-  const [restoring, setRestoring] = useState(false);
-  const [restoreResult, setRestoreResult] = useState(null);
-  const [restoreError, setRestoreError] = useState(null);
-  const [exportAllFormat, setExportAllFormat] = useState('json');
-  const [exportAllError, setExportAllError] = useState(null);
-  const [showImportPreview, setShowImportPreview] = useState(false);
-  const [importPreviewData, setImportPreviewData] = useState(null);
-  const [selectedCleanupTypes, setSelectedCleanupTypes] = useState([]);
-  const [bulkDeleteData, setBulkDeleteData] = useState({});
-  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
-  const [importMode, setImportMode] = useState('add'); // 'add' or 'replace'
-  const [override, setOverride] = useState({ vendors: [], products: [], methods: [], guides: [] });
-  
-  const importFileRef = useRef();
-  const restoreFileRef = useRef();
-  const queryClient = useQueryClient();
-  const previewJsonRef = useRef();
-  const [previewModalOpen, setPreviewModalOpen] = useState(false);
-  const [previewJson, setPreviewJson] = useState(null);
-  const [copyStatus, setCopyStatus] = useState('Copy');
-  // Add a state for file input key to force re-render
-  const [importFileInputKey, setImportFileInputKey] = useState(Date.now());
-
-  // 1. Add sample JSON structure at the top
-  // const sampleJson = {
-  //   vendor: {
-  //     name: "Vendor Name",
-  //     products: [
-  //       {
-  //         name: "Product Name",
-  //         category: "Category",
-  //         description: "Description",
-  //         detection_methods: [
-  //           {
-  //             name: "Method Name",
-  //             technique: "Technique",
-  //             regex_python: "",
-  //             regex_ruby: "",
-  //             curl_command: "",
-  //             expected_response: "",
-  //             requires_auth: false
-  //           }
-  //         ],
-  //         setup_guides: [
-  //           {
-  //             title: "Guide Title",
-  //             content: "Guide Content"
-  //           }
-  //         ]
-  //       }
-  //     ]
-  //   }
-  // };
-
-  // 2. Add state for sample modal
-  const [sampleModalOpen, setSampleModalOpen] = useState(false);
-  const [sampleCopyStatus, setSampleCopyStatus] = useState('Copy');
-  const sampleJsonRef = useRef();
-
-  // 1. Add state for raw JSON preview modal
-  const [rawJsonModalOpen, setRawJsonModalOpen] = useState(false);
-  const [rawJson, setRawJson] = useState(null);
-  const [rawJsonFile, setRawJsonFile] = useState(null);
-  const rawJsonRef = useRef();
-  const [rawCopyStatus, setRawCopyStatus] = useState('Copy');
-
-  // 1. Add state for import mode and error
   const [importFileJson, setImportFileJson] = useState(null);
   const [importFileRaw, setImportFileRaw] = useState('');
   const [importFile, setImportFile] = useState(null);
   const [importCompareResult, setImportCompareResult] = useState(null);
-  const [importAllExists, setImportAllExists] = useState(false);
+  const [importFileInputKey, setImportFileInputKey] = useState(Date.now());
+  const [showUserGuide, setShowUserGuide] = useState(false);
+
+  // Modal states
+  const [sampleModalOpen, setSampleModalOpen] = useState(false);
+  const [rawJsonModalOpen, setRawJsonModalOpen] = useState(false);
+  const [rawJson, setRawJson] = useState(null);
+
+  // Refs
+  const importFileRef = useRef();
   const importJsonRef = useRef();
-  const [importCopyStatus, setImportCopyStatus] = useState('Copy');
+  const queryClient = useQueryClient();
 
   // Queries
   const { data: vendorsData, error: vendorsError, isLoading: vendorsLoading } = useQuery('vendors', endpoints.getVendors, {
     refetchOnWindowFocus: false,
     retry: 1,
-  });
-
-  // Mutations
-  const cleanupMutation = useMutation(endpoints.cleanupData, {
-    onSuccess: () => {
-      // Refresh data if needed
-    },
-  });
-
-  const bulkDeleteMutation = useMutation(endpoints.bulkDelete, {
-    onSuccess: () => {
-      setShowBulkDeleteConfirm(false);
-    },
   });
 
   // Fetch vendors and products for dropdowns
@@ -195,77 +184,6 @@ export default function BulkOperations() {
     setSelectedProduct('');
   }, [selectedVendor, productsList]);
 
-  // Helper to show preview modal
-  const showPreview = (json) => {
-    setPreviewJson(json);
-    setPreviewModalOpen(true);
-    setCopyStatus('Copy');
-  };
-
-  // Copy JSON to clipboard
-  const handleCopy = () => {
-    if (previewJsonRef.current) {
-      navigator.clipboard.writeText(JSON.stringify(previewJson, null, 2));
-      setCopyStatus('Copied');
-      setTimeout(() => setCopyStatus('Copy'), 2000);
-    }
-  };
-
-  // Download JSON
-  const handleDownload = () => {
-    const blob = new Blob([JSON.stringify(previewJson, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'export.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  // Export data
-  const handleExport = async () => {
-    try {
-      const res = await endpoints.exportData(exportFormat);
-      const data = res.data;
-      const blob = new Blob([
-        exportFormat === 'json' ? JSON.stringify(data, null, 2) : data
-      ], { type: exportFormat === 'json' ? 'application/json' : 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `versionintel_export.${exportFormat}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      alert('Export failed.');
-    }
-  };
-
-  // Export complete data
-  const handleExportComplete = async () => {
-    try {
-      const res = await endpoints.exportAllComplete(exportCompleteFormat);
-      const data = res.data;
-      const blob = new Blob([
-        exportCompleteFormat === 'json' ? JSON.stringify(data, null, 2) : data
-      ], { type: exportCompleteFormat === 'json' ? 'application/json' : (exportCompleteFormat === 'csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `versionintel_complete_export.${exportCompleteFormat}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      alert('Complete export failed.');
-    }
-  };
-
   // Export vendor data
   const handleExportVendor = async () => {
     if (!selectedVendor) {
@@ -279,7 +197,8 @@ export default function BulkOperations() {
       if (typeof data === 'string') {
         data = JSON.parse(data);
       }
-      showPreview(data);
+      setRawJson(data);
+      setRawJsonModalOpen(true);
     } finally {
       setExportLoading(false);
     }
@@ -298,7 +217,8 @@ export default function BulkOperations() {
       if (typeof data === 'string') {
         data = JSON.parse(data);
       }
-      showPreview(data);
+      setRawJson(data);
+      setRawJsonModalOpen(true);
     } finally {
       setExportLoading(false);
     }
@@ -313,7 +233,8 @@ export default function BulkOperations() {
       if (typeof data === 'string') {
         data = JSON.parse(data);
       }
-      showPreview(data);
+      setRawJson(data);
+      setRawJsonModalOpen(true);
     } finally {
       setExportLoading(false);
     }
@@ -329,23 +250,15 @@ export default function BulkOperations() {
     try {
       const text = await file.text();
       const json = JSON.parse(text);
-      // Send raw JSON to backend for preview/cleaning/comparison
       const payload = { data: json };
       const previewRes = await endpoints.importPreview(payload);
       const preview = previewRes.data;
       setImportCompareResult(preview);
-      setImportAllExists(false);
-      // Always clear error if backend returns error: null
+      
       if (preview.error) {
         setImportError(preview.error);
-        setShowImportPreview(true); // Always show preview even with error
       } else {
         setImportError(null);
-        if (preview.can_add || preview.can_replace) {
-          setShowImportPreview(true);
-        } else {
-          setShowImportPreview(false);
-        }
       }
     } catch (err) {
       let msg = err?.response?.data?.error || 'Import failed.';
@@ -373,7 +286,6 @@ export default function BulkOperations() {
       setImportFileRaw('');
       setImportFile(null);
       setImportCompareResult(null);
-      setImportAllExists(false);
       setImportError(null);
       setImportFileInputKey(Date.now());
       if (importFileRef.current) importFileRef.current.value = '';
@@ -384,95 +296,16 @@ export default function BulkOperations() {
         msg = 'Data already exists.';
       }
       setImportError(msg);
-      // Do NOT clear file/preview state on error
     } finally {
       setImporting(false);
     }
   };
 
-  // Backup
-  const handleBackup = async () => {
-    setBackupResult(null);
-    setBackupError(null);
-    try {
-      const res = await endpoints.createBackup();
-      const data = res.data;
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `versionintel_backup.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      setBackupResult('Backup downloaded.');
-    } catch (err) {
-      setBackupError('Backup failed.');
-    }
-  };
-
-  // Restore
-  const handleRestore = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setRestoring(true);
-    setRestoreResult(null);
-    setRestoreError(null);
-    try {
-      const text = await file.text();
-      const json = JSON.parse(text);
-      const res = await endpoints.restoreBackup(json);
-      setRestoreResult(res.data);
-      queryClient.invalidateQueries(['health-check', 'statistics']);
-    } catch (err) {
-      setRestoreError('Restore failed. Make sure the file is a valid backup JSON.');
-    } finally {
-      setRestoring(false);
-      restoreFileRef.current.value = '';
-    }
-  };
-
-  // Cleanup data
-  const handleCleanup = async () => {
-    if (selectedCleanupTypes.length === 0) {
-      alert('Please select at least one cleanup type.');
-      return;
-    }
-    
-    if (!window.confirm(`Are you sure you want to clean up: ${selectedCleanupTypes.join(', ')}?`)) {
-      return;
-    }
-    
-    cleanupMutation.mutate({ types: selectedCleanupTypes });
-  };
-
-  // Bulk delete
-  const handleBulkDelete = async () => {
-    if (Object.keys(bulkDeleteData).length === 0) {
-      alert('Please select items to delete.');
-      return;
-    }
-    
-    bulkDeleteMutation.mutate({ types: bulkDeleteData });
-  };
-
+  // Tab configuration
   const tabs = [
     { id: 'export', name: 'Export', icon: DocumentArrowDownIcon },
     { id: 'import', name: 'Import', icon: DocumentArrowUpIcon },
-    { id: 'backup', name: 'Backup/Restore', icon: CloudArrowUpIcon },
-    { id: 'cleanup', name: 'Cleanup', icon: CogIcon },
-    { id: 'bulk-delete', name: 'Bulk Delete', icon: TrashIcon },
   ];
-
-  const cleanupOptions = [
-    { id: 'orphaned_products', label: 'Orphaned Products', description: 'Products without valid vendors' },
-    { id: 'orphaned_methods', label: 'Orphaned Methods', description: 'Detection methods without valid products' },
-    { id: 'orphaned_guides', label: 'Orphaned Guides', description: 'Setup guides without valid products' },
-    { id: 'empty_vendors', label: 'Empty Vendors', description: 'Vendors without any products' },
-  ];
-
-
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
@@ -520,6 +353,7 @@ export default function BulkOperations() {
                 {exportLoading ? <Spinner /> : 'Export Vendor'}
               </button>
             </div>
+            
             {/* Export by Product Card */}
             <div className="card p-6 shadow-xl rounded-lg bg-blue-50 max-w-md w-full flex flex-col gap-4 items-center transition-transform duration-200 hover:shadow-2xl hover:scale-[1.02]">
               <div className="flex items-center gap-2 mb-2">
@@ -539,7 +373,8 @@ export default function BulkOperations() {
               </button>
             </div>
           </div>
-          {/* Right column: Export All Data card (no divider, flush left) */}
+          
+          {/* Right column: Export All Data card */}
           <div className="flex flex-col items-start w-full lg:w-1/2">
             <div className="card p-6 shadow-xl rounded-lg bg-blue-50 max-w-md w-full flex flex-col gap-4 items-center self-start transition-transform duration-200 hover:shadow-2xl hover:scale-[1.02]">
               <div className="flex items-center gap-2 mb-2">
@@ -558,18 +393,30 @@ export default function BulkOperations() {
       {activeTab === 'import' && (
         <div className="flex flex-col items-center w-full">
           <div className="card p-6 w-[70%] mx-auto">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
               <DocumentArrowUpIcon className="h-5 w-5" />
               Import Data
+              </h2>
+              <div className="flex items-center gap-3">
               <button
-                className="ml-auto btn btn-xs btn-outline flex items-center gap-1"
+                  className="btn btn-outline btn-sm"
                 onClick={() => setSampleModalOpen(true)}
-                title="Show Sample JSON"
+                  type="button"
               >
-                <InformationCircleIcon className="h-4 w-4" />
                 Sample JSON
               </button>
-            </h2>
+                <button
+                  className="p-1 rounded-full hover:bg-gray-200 focus:outline-none"
+                  style={{ minWidth: 32, minHeight: 32 }}
+                  onClick={() => setShowUserGuide(true)}
+                  type="button"
+                  title="Show Import User Guide"
+                >
+                  <InformationCircleIcon className="h-6 w-6 text-blue-500" />
+                </button>
+              </div>
+            </div>
             <div className="space-y-4">
               {/* File input */}
               <div className="flex items-center gap-4">
@@ -583,7 +430,6 @@ export default function BulkOperations() {
                     setImportResult(null);
                     setImportError(null);
                     setImportCompareResult(null);
-                    setImportAllExists(false);
                     setImportFileJson(null);
                     setImportFileRaw('');
                     setImportFile(null);
@@ -599,18 +445,11 @@ export default function BulkOperations() {
                       const previewRes = await endpoints.importPreview(payload);
                       const preview = previewRes.data;
                       setImportCompareResult(preview);
-                      setImportAllExists(false);
-                      // Always clear error if backend returns error: null
+                      
                       if (preview.error) {
                         setImportError(preview.error);
-                        setShowImportPreview(false);
                       } else {
                         setImportError(null);
-                        if (preview.can_add || preview.can_replace) {
-                          setShowImportPreview(true);
-                        } else {
-                          setShowImportPreview(false);
-                        }
                       }
                     } catch (err) {
                       let msg = err?.response?.data?.error || 'Import failed.';
@@ -627,48 +466,52 @@ export default function BulkOperations() {
                   className="file-input file-input-bordered flex-1"
                 />
               </div>
-              {/* Import error message if all data exists or other error */}
+              
+              {/* Import error message */}
               {importError && (
                 <div className="card bg-red-50 p-4 mb-4">
                   <h3 className="font-semibold text-red-800 mb-2">Import Error</h3>
                   <div className="text-sm text-red-700">{importError}</div>
                 </div>
               )}
-              {/* Show raw JSON preview always if a file is selected */}
+              
+              {/* Show raw JSON preview if file is selected */}
               {importFileJson && (
                 <div className="mt-4">
                   <h3 className="font-semibold mb-2">Selected File Preview</h3>
                   <pre ref={importJsonRef} className="bg-gray-100 rounded p-4 max-h-96 overflow-auto text-xs mb-4">{importFileRaw}</pre>
-                  {/* Only show Add/Replace if there is no error */}
+                  
+                  {/* Show Add/Replace buttons if no error */}
                   {!importError && (
-                    <div className="flex gap-4 mb-4">
+                  <div className="flex gap-4 mb-4">
                       {importCompareResult && (
                         <>
                           {importCompareResult.can_add && (
-                            <button
-                              className="btn btn-primary"
+                    <button
+                      className="btn btn-primary"
                               onClick={() => confirmImport('add')}
-                              disabled={importing}
-                            >Add</button>
+                      disabled={importing}
+                            >
+                              Add
+                            </button>
                           )}
-                          {importCompareResult.can_replace &&
-                            importCompareResult.replace &&
-                            importCompareResult.replace.vendor &&
-                            Array.isArray(importCompareResult.replace.vendor.products) &&
-                            importCompareResult.replace.vendor.products.length > 0 && (
-                              <button
-                                className="btn btn-warning"
+                          {importCompareResult.can_replace && (
+                    <button
+                      className="btn btn-warning"
                                 onClick={() => confirmImport('replace')}
-                                disabled={importing}
-                              >Replace</button>
-                          )}
+                      disabled={importing}
+                              >
+                                Replace
+                </button>
+                            )}
                         </>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-              {/* Show import result message if present */}
+          )}
+        </div>
+      )}
+        </div>
+      )}
+
+              {/* Show import result message */}
               {importResult && (
                 <div className="card bg-green-50 p-4">
                   <h3 className="font-semibold mb-2 text-green-800">Import Complete</h3>
@@ -677,429 +520,60 @@ export default function BulkOperations() {
               )}
             </div>
           </div>
-          {/* Sample JSON Modal */}
-          {sampleModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative">
-                <button
-                  title="Cancel"
-                  className="absolute top-4 right-4 hover:bg-gray-200 rounded-full p-2 transition"
-                  onClick={() => setSampleModalOpen(false)}
-                >
-                  <XMarkIcon className="h-6 w-6 text-red-500" />
-                </button>
-                <h3 className="text-lg font-semibold mb-4">Sample JSON Structure</h3>
-                <pre className="bg-gray-100 rounded p-4 max-h-96 overflow-auto text-xs mb-4">{`
-{
-  "vendor": {
-    "name": "Vendor Name",
-    "products": [
-      {
-        "name": "Product Name",
-        "category": "Category",
-        "description": "Description",
-        "detection_methods": [
-          {
-            "name": "Method Name",
-            "technique": "Technique",
-            "regex_python": "",
-            "regex_ruby": "",
-            "curl_command": "",
-            "expected_response": "",
-            "requires_auth": false
-          }
-        ],
-        "setup_guides": [
-          {
-            "title": "Guide Title",
-            "content": "Guide Content"
-          }
-        ]
-      }
-    ]
-  }
-}
-`}</pre>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
-      {/* Backup/Restore Tab */}
-      {activeTab === 'backup' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Backup */}
-          <div className="card p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <CloudArrowUpIcon className="h-5 w-5" />
-              Create Backup
-            </h2>
-            <div className="space-y-4">
-              <button className="btn btn-secondary w-full" onClick={handleBackup}>
-                Download Complete Backup
-              </button>
-              {backupResult && (
-                <div className="text-green-600 text-sm">{backupResult}</div>
-              )}
-              {backupError && (
-                <div className="text-red-500 text-sm">{backupError}</div>
-              )}
-              <p className="text-xs text-gray-500">
-                Backup includes all data and can be restored below.
-              </p>
-            </div>
-      </div>
+      {/* Unified Preview Modals */}
+      <PreviewModal
+        isOpen={rawJsonModalOpen}
+        onClose={() => setRawJsonModalOpen(false)}
+        title="Export Preview"
+        content={rawJson}
+        downloadFileName="export.json"
+      />
 
-      {/* Restore */}
-          <div className="card p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <CloudArrowDownIcon className="h-5 w-5" />
-              Restore Backup
-            </h2>
-            <div className="space-y-4">
-              <input 
-                type="file" 
-                accept="application/json" 
-                ref={restoreFileRef} 
-                onChange={handleRestore} 
-                disabled={restoring} 
-                className="file-input file-input-bordered w-full"
-              />
-              {restoring && (
-                <div className="flex items-center gap-2 text-blue-600">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                  Restoring...
-                </div>
-              )}
-              {restoreResult && (
-                <div className="text-green-600 text-sm">
-                  Restore complete: {JSON.stringify(restoreResult)}
-                </div>
-              )}
-              {restoreError && (
-                <div className="text-red-500 text-sm">{restoreError}</div>
-              )}
-              <p className="text-xs text-gray-500">
-                Restore expects a backup JSON file exported from this system.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      <PreviewModal
+        isOpen={sampleModalOpen}
+        onClose={() => setSampleModalOpen(false)}
+        title="Sample JSON Structure"
+        content={sampleJson}
+        downloadFileName="sample.json"
+      />
 
-
-
-
-
-
-
-      {/* Cleanup Tab */}
-      {activeTab === 'cleanup' && (
-        <div className="space-y-6">
-          <div className="card p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <CogIcon className="h-5 w-5" />
-              Data Cleanup
-            </h2>
-            
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {cleanupOptions.map((option) => (
-                  <label key={option.id} className="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input
-                      type="checkbox"
-                      checked={selectedCleanupTypes.includes(option.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedCleanupTypes([...selectedCleanupTypes, option.id]);
-                        } else {
-                          setSelectedCleanupTypes(selectedCleanupTypes.filter(id => id !== option.id));
-                        }
-                      }}
-                      className="checkbox mt-1"
-                    />
-                    <div>
-                      <div className="font-medium">{option.label}</div>
-                      <div className="text-sm text-gray-600">{option.description}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-
+      {/* User Guide Modal */}
+      {showUserGuide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-8 relative max-h-[90vh] overflow-y-auto">
               <button 
-                className="btn btn-warning w-full" 
-                onClick={handleCleanup}
-                disabled={selectedCleanupTypes.length === 0 || cleanupMutation.isLoading}
-              >
-                {cleanupMutation.isLoading ? 'Cleaning...' : 'Clean Selected Issues'}
+              className="absolute top-3 right-3 btn btn-sm btn-circle btn-ghost text-2xl"
+              onClick={() => setShowUserGuide(false)}
+              aria-label="Close"
+            >
+              &times;
               </button>
-
-              {cleanupMutation.isSuccess && (
-                <div className="card bg-green-50 p-4">
-                  <h3 className="font-semibold text-green-800 mb-2">Cleanup Complete</h3>
-                  <div className="text-sm text-green-700">
-                    <pre>{JSON.stringify(cleanupMutation.data.data, null, 2)}</pre>
-                  </div>
-                </div>
-              )}
-
-              {cleanupMutation.isError && (
-                <div className="card bg-red-50 p-4">
-                  <h3 className="font-semibold text-red-800 mb-2">Cleanup Error</h3>
-                  <div className="text-sm text-red-700">
-                    {cleanupMutation.error?.response?.data?.error || 'An error occurred during cleanup'}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Bulk Delete Tab */}
-      {activeTab === 'bulk-delete' && (
-        <div className="space-y-6">
-          <div className="card p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <TrashIcon className="h-5 w-5" />
-              Bulk Delete
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <InformationCircleIcon className="h-7 w-7 text-blue-500" />
+              Import User Guide
             </h2>
-            
-            <div className="space-y-4">
-              <div className="alert alert-warning">
-                <div>
-                  <h3 className="font-medium">⚠️ Warning</h3>
-                  <div className="text-sm">
-                    Bulk delete operations are irreversible. Please be careful when selecting items to delete.
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="label">
-                    <span className="label-text">Vendor IDs (comma-separated)</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="1,2,3"
-                    className="input input-bordered w-full"
-                    onChange={(e) => {
-                      const ids = e.target.value.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
-                      setBulkDeleteData({...bulkDeleteData, vendor_ids: ids});
-                    }}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="label">
-                    <span className="label-text">Product IDs (comma-separated)</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="1,2,3"
-                    className="input input-bordered w-full"
-                    onChange={(e) => {
-                      const ids = e.target.value.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
-                      setBulkDeleteData({...bulkDeleteData, product_ids: ids});
-                    }}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="label">
-                    <span className="label-text">Method IDs (comma-separated)</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="1,2,3"
-                    className="input input-bordered w-full"
-                    onChange={(e) => {
-                      const ids = e.target.value.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
-                      setBulkDeleteData({...bulkDeleteData, method_ids: ids});
-                    }}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="label">
-                    <span className="label-text">Guide IDs (comma-separated)</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="1,2,3"
-                    className="input input-bordered w-full"
-                    onChange={(e) => {
-                      const ids = e.target.value.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
-                      setBulkDeleteData({...bulkDeleteData, guide_ids: ids});
-                    }}
-                  />
-                </div>
-              </div>
-
-              <button 
-                className="btn btn-error w-full" 
-                onClick={() => setShowBulkDeleteConfirm(true)}
-                disabled={Object.keys(bulkDeleteData).length === 0 || bulkDeleteMutation.isLoading}
-              >
-                {bulkDeleteMutation.isLoading ? 'Deleting...' : 'Delete Selected Items'}
-              </button>
-
-              {bulkDeleteMutation.isSuccess && (
-                <div className="card bg-green-50 p-4">
-                  <h3 className="font-semibold text-green-800 mb-2">Delete Complete</h3>
-                  <div className="text-sm text-green-700">
-                    <pre>{JSON.stringify(bulkDeleteMutation.data.data, null, 2)}</pre>
-                  </div>
-                </div>
-              )}
-
-              {bulkDeleteMutation.isError && (
-                <div className="card bg-red-50 p-4">
-                  <h3 className="font-semibold text-red-800 mb-2">Delete Error</h3>
-                  <div className="text-sm text-red-700">
-                    {bulkDeleteMutation.error?.response?.data?.error || 'An error occurred during deletion'}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Confirmation Modal */}
-          {showBulkDeleteConfirm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="card p-6 max-w-md mx-4">
-                <h3 className="font-semibold text-lg mb-4">Confirm Bulk Delete</h3>
-                <p className="text-gray-600 mb-4">
-                  Are you sure you want to delete the selected items? This action cannot be undone.
-                </p>
-                <div className="flex gap-2">
-                  <button 
-                    className="btn btn-error flex-1" 
-                    onClick={handleBulkDelete}
-                  >
-                    Confirm Delete
-                  </button>
-                  <button 
-                    className="btn btn-outline flex-1" 
-                    onClick={() => setShowBulkDeleteConfirm(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-      </div>
-      )}
-      {/* Preview Modal */}
-      {previewModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative">
-            {/* Cancel Icon in top right */}
-            <button
-              title="Cancel"
-              className="absolute top-4 right-4 hover:bg-gray-200 rounded-full p-2 transition"
-              onClick={() => setPreviewModalOpen(false)}
-            >
-              <XMarkIcon className="h-6 w-6 text-red-500" />
-            </button>
-            <h3 className="text-lg font-semibold mb-4">Export Preview</h3>
-            <pre ref={previewJsonRef} className="bg-gray-100 rounded p-4 max-h-96 overflow-auto text-xs mb-4">{JSON.stringify(previewJson, null, 2)}</pre>
-            <div className="flex gap-4 justify-end items-center">
-              {/* Copy Icon (now left) */}
-              <button
-                title={copyStatus === 'Copied' ? 'Copied!' : 'Copy'}
-                className="hover:bg-gray-200 rounded-full p-2 transition"
-                onClick={handleCopy}
-                disabled={copyStatus === 'Copied'}
-              >
-                {copyStatus === 'Copied' ? (
-                  <CheckIcon className="h-6 w-6 text-green-500 transition-transform duration-200 scale-110" />
-                ) : (
-                  <ClipboardIcon className="h-6 w-6 text-gray-700 transition-transform duration-200" />
-                )}
-              </button>
-              {/* Download Icon (now right) */}
-              <button title="Download" className="hover:bg-gray-200 rounded-full p-2 transition" onClick={handleDownload}>
-                <ArrowDownTrayIcon className="h-6 w-6 text-blue-500" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* Raw JSON Preview Modal */}
-      {rawJsonModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative">
-            <button
-              title="Cancel"
-              className="absolute top-4 right-4 hover:bg-gray-200 rounded-full p-2 transition"
-              onClick={() => setRawJsonModalOpen(false)}
-            >
-              <XMarkIcon className="h-6 w-6 text-red-500" />
-            </button>
-            <h3 className="text-lg font-semibold mb-4">Import File Preview</h3>
-            <pre ref={rawJsonRef} className="bg-gray-100 rounded p-4 max-h-96 overflow-auto text-xs mb-4">{JSON.stringify(rawJson, null, 2)}</pre>
-            <div className="flex gap-4 justify-end items-center">
-              <button
-                title={rawCopyStatus === 'Copied' ? 'Copied!' : 'Copy'}
-                className="hover:bg-gray-200 rounded-full p-2 transition"
-                onClick={() => {
-                  if (rawJsonRef.current) {
-                    navigator.clipboard.writeText(JSON.stringify(rawJson, null, 2));
-                    setRawCopyStatus('Copied');
-                    setTimeout(() => setRawCopyStatus('Copy'), 2000);
-                  }
-                }}
-                disabled={rawCopyStatus === 'Copied'}
-              >
-                {rawCopyStatus === 'Copied' ? (
-                  <CheckIcon className="h-6 w-6 text-green-500 transition-transform duration-200 scale-110" />
-                ) : (
-                  <ClipboardIcon className="h-6 w-6 text-gray-700 transition-transform duration-200" />
-                )}
-              </button>
-              <button title="Download" className="hover:bg-gray-200 rounded-full p-2 transition" onClick={() => {
-                const blob = new Blob([JSON.stringify(rawJson, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'import.json';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              }}>
-                <ArrowDownTrayIcon className="h-6 w-6 text-blue-500" />
-              </button>
-              <button className="btn btn-primary" onClick={async () => {
-                setRawJsonModalOpen(false);
-                setImporting(true);
-                setImportError(null);
-                setImportPreviewData(null);
-                try {
-                  const payload = { data: rawJson };
-                  const previewRes = await endpoints.importPreview(payload);
-                  // If all items are unchanged, show error and do not allow import
-                  const allUnchanged =
-                    (!previewRes.data.vendors?.new?.length && !previewRes.data.vendors?.updated?.length) &&
-                    (!previewRes.data.products?.new?.length && !previewRes.data.products?.updated?.length) &&
-                    (!previewRes.data.methods?.new?.length && !previewRes.data.methods?.updated?.length) &&
-                    (!previewRes.data.guides?.new?.length && !previewRes.data.guides?.updated?.length);
-                  if (allUnchanged) {
-                    setImportError('All data already exists, nothing to import.');
-                  } else {
-                    setImportPreviewData(previewRes.data);
-                  }
-                } catch (err) {
-                  setImportError('Import failed. Make sure the file is valid JSON.');
-                } finally {
-                  setImporting(false);
-                }
-              }}>Proceed</button>
-              <button className="btn btn-outline" onClick={() => setRawJsonModalOpen(false)}>Cancel</button>
+            <div className="prose max-w-none text-base">
+              <h3 className="mt-4 mb-2 text-lg font-semibold">Add Mode</h3>
+              <ul className="mb-4 text-sm space-y-1 list-disc pl-5">
+                <li><b>If vendor doesn't exist:</b> Create vendor + all products + all methods + all guides</li>
+                <li><b>If vendor exists but product doesn't:</b> Create product + all methods + all guides</li>
+                <li><b>If vendor and product exist:</b> Only add new methods/guides <span className="italic">(don't overwrite existing)</span></li>
+              </ul>
+              <h3 className="mt-4 mb-2 text-lg font-semibold">Replace Mode</h3>
+              <ul className="mb-4 text-sm space-y-1 list-disc pl-5">
+                <li><b>If vendor doesn't exist:</b> <code>Error "Cannot replace because vendor does not exist"</code></li>
+                <li><b>If vendor exists but product doesn't exist:</b> <code>Error "Cannot replace because product does not exist"</code></li>
+                <li><b>If vendor and product exist:</b> Replace all methods and guides with new ones</li>
+              </ul>
+              <h3 className="mt-4 mb-2 text-lg font-semibold">Preview Logic</h3>
+              <ul className="mb-4 text-sm space-y-1 list-disc pl-5">
+                <li>If <b>ALL</b> data exists and matches exactly: <code>Show "Data already exists" error</code></li>
+                <li>If <b>ANY</b> data is new or different: <code>Show preview with Add/Replace options</code></li>
+                <li><b>Replace</b> button only enabled if vendor+product exist <b>AND</b> there are actual differences</li>
+              </ul>
             </div>
           </div>
         </div>

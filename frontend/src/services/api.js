@@ -130,22 +130,14 @@ export const endpoints = {
   search: ({ q, type }) => api.get('/search', { params: { q, type } }),
   advancedSearch: (data) => api.post('/search/advanced', data),
   
-  // Bulk Operations
-  exportData: (format) => api.get('/bulk/export', { params: { format } }),
+  // Bulk Operations - Import/Export only
+  exportData: () => api.get('/bulk/export'),
   importData: (data) => api.post('/bulk/import', data),
-  createBackup: () => api.get('/bulk/backup'),
-  restoreBackup: (data) => api.post('/bulk/restore', data),
-  exportAllData: (format) => api.get('/bulk/export-all', { params: { format } }),
-  
-  // Enhanced Bulk Operations
-  cleanupData: (data) => api.post('/bulk/cleanup', data),
-  exportSelective: (data) => api.post('/bulk/export-selective', data),
   importPreview: (data) => api.post('/bulk/import-preview', data),
-  bulkDelete: (data) => api.post('/bulk/bulk-delete', data),
-  exportVendor: (vendorId) => api.get(`/bulk/export-vendor/${vendorId}`, { responseType: 'json' }),
-  exportProduct: (productId) => api.get(`/bulk/export-product/${productId}`, { responseType: 'json' }),
-  exportVendorData: (vendorId, format) => api.get(`/bulk/export-vendor/${vendorId}`, { params: { format } }),
-  exportAllComplete: (format) => api.get('/bulk/export-all-complete', { params: { format } }),
+  exportAllData: () => api.get('/bulk/export-all'),
+  exportVendor: (vendorId) => api.get(`/bulk/export-vendor/${vendorId}`),
+  exportProduct: (productId) => api.get(`/bulk/export-product/${productId}`),
+  exportAllComplete: () => api.get('/bulk/export-all-complete'),
   
   // Users (Admin only)
   getUsers: () => api.get('/auth/users'),
