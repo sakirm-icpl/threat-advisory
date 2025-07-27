@@ -8,8 +8,8 @@ class Product(db.Model):
     category = db.Column(db.String(128))  # New field for product category
     description = db.Column(db.Text)      # New field for product description
     vendor_id = db.Column(db.Integer, db.ForeignKey("vendor.id"), nullable=False)
-    detection_methods = db.relationship("DetectionMethod", backref="product", lazy=True)
-    setup_guides = db.relationship("SetupGuide", backref="product", lazy=True)
+    detection_methods = db.relationship("DetectionMethod", backref="product", lazy=True, cascade="all, delete-orphan")
+    setup_guides = db.relationship("SetupGuide", backref="product", lazy=True, cascade="all, delete-orphan")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

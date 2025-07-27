@@ -83,7 +83,7 @@ def delete_vendor(vendor_id):
         vendor = Vendor.query.get(vendor_id)
         if not vendor:
             return jsonify({'error': 'Vendor not found'}), 404
-        
+        # Cascade delete: all related products, detection methods, and setup guides will be deleted
         db.session.delete(vendor)
         db.session.commit()
         return jsonify({'message': 'Vendor deleted successfully'})
