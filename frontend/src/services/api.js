@@ -172,6 +172,8 @@ export const endpoints = {
   }),
   getCveStats: () => api.get('/api/cve/stats'),
   getCveDetails: (cveId) => api.get(`/api/cve/details/${cveId}`),
+  // AI Remediation
+  getCveAiRemediation: (cveId) => api.get(`/api/cve/ai/remediation/${cveId}`),
 };
 
 export default api; 

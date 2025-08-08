@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
 from app.services.cve_service import CVEService
 from app.services.auth import require_permission
+from app.services.ai_researcher import AIResearcherService
 import re
 
 bp = Blueprint('cve', __name__, url_prefix='/api/cve')
 cve_service = CVEService()
+ai_service = AIResearcherService()
 
 @bp.route('/search/unified', methods=['GET'])
 @require_permission('read')
@@ -227,3 +229,36 @@ def get_cve_details(cve_id):
     except Exception as e:
         print(f"ERROR: Exception in get_cve_details: {e}")
         return jsonify({'error': str(e)}), 500 
+
+
+@bp.route('/ai/remediation/<cve_id>', methods=['GET'])
+@require_permission('read')
+def ai_cve_remediation(cve_id):
+    """Generate remediation and patching guidance for a CVE via LLM.
+
+    1) Fetch CVE details from NVD
+    2) Build research prompt per spec
+    3) Call LLM provider (OpenAI if configured)
+    4) Return parsed JSON or error
+    """
+    try:
+        # Validate CVE ID format
+        cve_pattern = re.compile(r'^CVE-\d{4}-\d{4,}$', re.IGNORECASE)
+        if not cve_pattern.match(cve_id):
+            return jsonify({'error': 'Invalid CVE ID format'}), 400
+
+        # Ensure AI provider configured
+        if not ai_service.is_configured():
+            return jsonify({'error': 'LLM provider not configured. Set OPENAI_API_KEY on backend to enable this feature.'}), 503
+
+        # Get CVE details (summary with references)
+        details = cve_service.get_cve_details(cve_id)
+        if 'error' in details:
+            return jsonify(details), 404
+
+        result = ai_service.generate_ai_remediation(details)
+        status = 200 if 'data' in result else 500
+        return jsonify(result), status
+    except Exception as e:
+        print(f"ERROR: Exception in ai_cve_remediation: {e}")
+        return jsonify({'error': str(e)}), 500

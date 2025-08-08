@@ -41,6 +41,9 @@ const CVESearch = () => {
   
   // Stats states
   const [stats, setStats] = useState(null);
+  // AI remediation states
+  const [aiCveId, setAiCveId] = useState('');
+  const [aiResult, setAiResult] = useState(null);
   
   // Daily check state
   const [dailyCheckDone, setDailyCheckDone] = useState(false);
@@ -376,6 +379,39 @@ const CVESearch = () => {
     }
   };
 
+  const handleAiRemediation = async () => {
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    setAiResult(null);
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        setError('No authentication token found. Please log in again.');
+        return;
+      }
+      if (!aiCveId || !/^CVE-\d{4}-\d{4,}$/i.test(aiCveId.trim())) {
+        setError('Enter a valid CVE ID, e.g., CVE-2021-44228');
+        return;
+      }
+      const response = await axios.get(`${API_BASE_URL}/api/cve/ai/remediation/${aiCveId.trim()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data?.data) {
+        setAiResult(response.data.data);
+      } else if (response.data?.error) {
+        setError(response.data.error);
+      } else {
+        setError('Unexpected AI response');
+      }
+    } catch (e) {
+      const msg = e?.response?.data?.error || 'Failed to generate AI remediation.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderModernPagination = (currentPage, totalResults, resultsPerPage, onPageChange) => {
     const totalPages = Math.ceil(totalResults / resultsPerPage);
     
@@ -668,7 +704,8 @@ const CVESearch = () => {
                 { id: 1, name: 'Keyword Search', icon: MagnifyingGlassIcon },
                 { id: 2, name: 'Database Search', icon: BuildingOfficeIcon },
                 { id: 3, name: 'Recent CVEs', icon: ShieldExclamationIcon },
-                { id: 4, name: 'Statistics', icon: InformationCircleIcon }
+                { id: 4, name: 'Statistics', icon: InformationCircleIcon },
+                { id: 5, name: 'AI Remediation', icon: InformationCircleIcon }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -927,6 +964,157 @@ const CVESearch = () => {
                   </p>
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 5 && (
+            <div className="space-y-6">
+              <div className="bg-white shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6 space-y-4">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">AI Remediation & Patching Guidance</h3>
+                  <div className="flex gap-3 items-end">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">CVE ID</label>
+                      <input
+                        type="text"
+                        value={aiCveId}
+                        onChange={(e) => setAiCveId(e.target.value)}
+                        placeholder="e.g., CVE-2021-44228"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <button
+                      onClick={handleAiRemediation}
+                      disabled={loading || !aiCveId}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                    >
+                      Generate Guidance
+                    </button>
+                  </div>
+
+                  {aiResult && (
+                    <div className="mt-4 space-y-6">
+                      {/* Header */}
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex flex-wrap items-center gap-3">
+                        <div className="text-lg font-semibold text-gray-900">{aiResult.cve_id || aiCveId}</div>
+                        {aiResult.severity && (
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSeverityColor(aiResult.severity)}`}>
+                            {aiResult.severity}
+                          </span>
+                        )}
+                        {aiResult.cvss_score && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                            CVSS: {aiResult.cvss_score}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Impact */}
+                      {aiResult.impact && (
+                        <div className="card">
+                          <h4 className="text-sm font-semibold text-gray-800 mb-2">Impact</h4>
+                          <p className="text-sm text-gray-700">{aiResult.impact}</p>
+                        </div>
+                      )}
+
+                      {/* Affected systems */}
+                      {Array.isArray(aiResult.affected_systems) && aiResult.affected_systems.length > 0 && (
+                        <div className="card">
+                          <h4 className="text-sm font-semibold text-gray-800 mb-2">Affected Systems</h4>
+                          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                            {aiResult.affected_systems.map((s, idx) => (
+                              <li key={idx}>{s}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Patching steps */}
+                      {Array.isArray(aiResult.patching_steps) && aiResult.patching_steps.length > 0 && (
+                        <div className="card">
+                          <h4 className="text-sm font-semibold text-gray-800 mb-2">Patching Steps</h4>
+                          <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
+                            {aiResult.patching_steps.map((s, idx) => (
+                              <li key={idx}>{s}</li>
+                            ))}
+                          </ol>
+                        </div>
+                      )}
+
+                      {/* Remediation guide */}
+                      {aiResult.remediation_guide && (
+                        <div className="card space-y-4">
+                          <h4 className="text-sm font-semibold text-gray-800">Remediation Guide</h4>
+                          {aiResult.remediation_guide.prerequisites && (
+                            <div>
+                              <div className="text-xs font-semibold text-gray-600 mb-1">Prerequisites</div>
+                              <p className="text-sm text-gray-700">{aiResult.remediation_guide.prerequisites}</p>
+                            </div>
+                          )}
+                          {Array.isArray(aiResult.remediation_guide.steps) && aiResult.remediation_guide.steps.length > 0 && (
+                            <div>
+                              <div className="text-xs font-semibold text-gray-600 mb-1">Steps</div>
+                              <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
+                                {aiResult.remediation_guide.steps.map((s, idx) => (
+                                  <li key={idx}>{s}</li>
+                                ))}
+                              </ol>
+                            </div>
+                          )}
+                          {aiResult.remediation_guide.verification && (
+                            <div>
+                              <div className="text-xs font-semibold text-gray-600 mb-1">Verification</div>
+                              <p className="text-sm text-gray-700">{aiResult.remediation_guide.verification}</p>
+                            </div>
+                          )}
+                          {aiResult.remediation_guide.rollback && (
+                            <div>
+                              <div className="text-xs font-semibold text-gray-600 mb-1">Rollback</div>
+                              <p className="text-sm text-gray-700">{aiResult.remediation_guide.rollback}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Additional resources */}
+                      {Array.isArray(aiResult.additional_resources) && aiResult.additional_resources.length > 0 && (
+                        <div className="card">
+                          <h4 className="text-sm font-semibold text-gray-800 mb-2">Additional Resources</h4>
+                          <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
+                            {aiResult.additional_resources.map((u, idx) => (
+                              <li key={idx}>
+                                <a className="underline" href={u} target="_blank" rel="noopener noreferrer">{u}</a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Notes */}
+                      {aiResult.notes && (
+                        <div className="card">
+                          <h4 className="text-sm font-semibold text-gray-800 mb-2">Notes</h4>
+                          <p className="text-sm text-gray-700">{aiResult.notes}</p>
+                        </div>
+                      )}
+
+                      {/* Raw JSON (toggle) */}
+                      <details className="bg-gray-50 border rounded p-3">
+                        <summary className="cursor-pointer text-sm text-gray-700">Show raw JSON</summary>
+                        <div className="overflow-auto text-xs mt-3">
+                          <pre className="whitespace-pre-wrap">{JSON.stringify(aiResult, null, 2)}</pre>
+                        </div>
+                      </details>
+                    </div>
+                  )}
+
+                  {!aiResult && (
+                    <div className="text-sm text-gray-500">
+                      Enter a CVE ID and click Generate Guidance to get remediation steps, patching instructions, verification and rollback guidance.
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>

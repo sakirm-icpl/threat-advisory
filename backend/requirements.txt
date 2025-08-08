@@ -29,3 +29,7 @@ reportlab==4.0.7
 
 # Environment Variables
 python-dotenv==1.0.0
+
+# LLM Providers (optional; enable if using AI remediation endpoint)
+openai==0.28.1
+google-generativeai==0.7.2
