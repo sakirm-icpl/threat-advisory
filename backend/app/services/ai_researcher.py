@@ -65,7 +65,7 @@ Please analyze the following CVE and provide comprehensive patching and remediat
 
 Please provide a detailed analysis in the following JSON format:
 
-{{
+        {{
     "cve_id": "{cve_id}",
     "severity": "Critical/High/Medium/Low",
     "cvss_score": "X.X (if available)",
@@ -91,7 +91,30 @@ Please provide a detailed analysis in the following JSON format:
         "Additional resource link 2",
         "..."
     ],
-    "notes": "Any additional important notes or warnings"
+            "notes": "Any additional important notes or warnings",
+            "cli_commands": {{
+                "linux": [
+                    "sudo systemctl stop <SERVICE_NAME>",
+                    "jar tf <APP_PATH>/log4j-core-*.jar | grep JndiLookup",
+                    "sed -n '1p' /etc/*release 2>/dev/null"
+                ],
+                "windows": [
+                    "Get-ChildItem -Recurse -Filter log4j-core-*.jar",
+                    "Select-String -Path *.log -Pattern JndiLookup"
+                ],
+                "kubernetes": [
+                    "kubectl get pods -A | grep <APP>",
+                    "kubectl rollout restart deployment/<DEPLOYMENT> -n <NAMESPACE>"
+                ],
+                "verification": [
+                    "curl -s http://<HOST>:<PORT>/health || true",
+                    "grep -R 'jndi' /var/log -n || true"
+                ],
+                "rollback": [
+                    "sudo cp <BACKUP_PATH>/log4j-core-*.jar <APP_PATH>/",
+                    "kubectl rollout undo deployment/<DEPLOYMENT> -n <NAMESPACE>"
+                ]
+            }}
 }}
 
 Important guidelines:
@@ -102,6 +125,8 @@ Important guidelines:
 5. Include relevant security best practices
 6. Base your analysis on the CVE description and available references
 7. Ensure all steps are practical and can be implemented by system administrators
+
+        Also include the cli_commands section populated with practical, copy-paste ready commands using clear ALL-CAPS placeholders (e.g., <HOST>, <SERVICE_NAME>) where needed.
 
 Please provide only the JSON response without any additional text or formatting."""
         return prompt

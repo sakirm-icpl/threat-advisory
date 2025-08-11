@@ -412,6 +412,12 @@ const CVESearch = () => {
     }
   };
 
+  // Normalize list items like "Step 1: ..." or "1. ..." -> just the text
+  const normalizeStepText = (s) => {
+    if (!s || typeof s !== 'string') return s;
+    return s.replace(/^\s*(?:step\s*\d+\s*:|\d+\.\s*)\s*/i, '');
+  };
+
   const renderModernPagination = (currentPage, totalResults, resultsPerPage, onPageChange) => {
     const totalPages = Math.ceil(totalResults / resultsPerPage);
     
@@ -1035,7 +1041,7 @@ const CVESearch = () => {
                           <h4 className="text-sm font-semibold text-gray-800 mb-2">Patching Steps</h4>
                           <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
                             {aiResult.patching_steps.map((s, idx) => (
-                              <li key={idx}>{s}</li>
+                              <li key={idx}>{normalizeStepText(s)}</li>
                             ))}
                           </ol>
                         </div>
@@ -1056,7 +1062,7 @@ const CVESearch = () => {
                               <div className="text-xs font-semibold text-gray-600 mb-1">Steps</div>
                               <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
                                 {aiResult.remediation_guide.steps.map((s, idx) => (
-                                  <li key={idx}>{s}</li>
+                                  <li key={idx}>{normalizeStepText(s)}</li>
                                 ))}
                               </ol>
                             </div>
@@ -1095,6 +1101,34 @@ const CVESearch = () => {
                         <div className="card">
                           <h4 className="text-sm font-semibold text-gray-800 mb-2">Notes</h4>
                           <p className="text-sm text-gray-700">{aiResult.notes}</p>
+                        </div>
+                      )}
+
+                      {/* CLI Commands */}
+                      {aiResult.cli_commands && (
+                        <div className="card space-y-3">
+                          <h4 className="text-sm font-semibold text-gray-800">CLI Commands</h4>
+                          {Object.entries(aiResult.cli_commands).map(([section, list]) => (
+                            Array.isArray(list) && list.length > 0 ? (
+                              <div key={section}>
+                                <div className="text-xs font-semibold text-gray-600 mb-1 capitalize">{section}</div>
+                                <div className="space-y-2">
+                                  {list.map((cmd, i) => (
+                                    <div key={`${section}-${i}`} className="bg-gray-100 rounded border px-3 py-2 flex items-center justify-between gap-3">
+                                      <code className="text-xs text-gray-800 break-all">{cmd}</code>
+                                      <button
+                                        onClick={() => navigator.clipboard.writeText(cmd)}
+                                        className="btn btn-sm btn-outline"
+                                        title="Copy"
+                                      >
+                                        Copy
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : null
+                          ))}
                         </div>
                       )}
 
