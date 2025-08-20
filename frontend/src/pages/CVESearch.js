@@ -31,6 +31,9 @@ const CVESearch = () => {
   // Recent CVEs states
   const [recentCves, setRecentCves] = useState([]);
   const [recentDays, setRecentDays] = useState(7);
+  const [recentTotal, setRecentTotal] = useState(0);
+  const [recentPage, setRecentPage] = useState(1);
+  const [recentPerPage, setRecentPerPage] = useState(10);
   
   // Database search states
   const [vendors, setVendors] = useState([]);
@@ -114,14 +117,18 @@ const CVESearch = () => {
     }
   };
 
-  const loadRecentCves = async () => {
+  const loadRecentCves = async (daysParam = recentDays, pageParam = recentPage, perPageParam = recentPerPage) => {
     try {
       const token = localStorage.getItem('access_token');
+      const startIndex = ((pageParam || 1) - 1) * (perPageParam || 10);
       const response = await axios.get(`${API_BASE_URL}/api/cve/recent`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { days: recentDays, limit: 10 }
+        params: { days: daysParam, limit: perPageParam, start_index: startIndex }
       });
-      setRecentCves(response.data.results || []);
+      const items = response.data.results || [];
+      items.sort((a, b) => new Date(b.published_date || b.last_modified_date || 0) - new Date(a.published_date || a.last_modified_date || 0));
+      setRecentCves(items);
+      setRecentTotal(response.data.total_results || (response.data.results || []).length);
     } catch (error) {
       console.error('Error loading recent CVEs:', error);
     }
@@ -900,10 +907,26 @@ const CVESearch = () => {
                 <h3 className="text-lg font-medium text-gray-900">Recent CVEs</h3>
                 <div className="flex items-center space-x-2">
                   <select
+                    value={recentPerPage}
+                    onChange={(e) => {
+                      const newSize = parseInt(e.target.value);
+                      setRecentPerPage(newSize);
+                      setRecentPage(1);
+                      loadRecentCves(recentDays, 1, newSize);
+                    }}
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value={10}>10 / page</option>
+                    <option value={20}>20 / page</option>
+                    <option value={50}>50 / page</option>
+                  </select>
+                  <select
                     value={recentDays}
                     onChange={(e) => {
-                      setRecentDays(parseInt(e.target.value));
-                      loadRecentCves();
+                      const newDays = parseInt(e.target.value);
+                      setRecentDays(newDays);
+                      setRecentPage(1);
+                      loadRecentCves(newDays, 1);
                     }}
                     className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   >
@@ -912,7 +935,7 @@ const CVESearch = () => {
                     <option value={30}>Last 30 days</option>
                   </select>
                   <button
-                    onClick={loadRecentCves}
+                    onClick={() => loadRecentCves()}
                     className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                   >
                     <ArrowPathIcon className="h-4 w-4" />
@@ -920,7 +943,12 @@ const CVESearch = () => {
                 </div>
               </div>
 
-              {renderCVEList(recentCves, `Recent CVEs (Last ${recentDays} days)`)}
+              {renderCVEList(recentCves, `Recent CVEs (Last ${recentDays} days)`, recentTotal)}
+
+              {renderModernPagination(recentPage, recentTotal, recentPerPage, (newPage) => {
+                setRecentPage(newPage);
+                loadRecentCves(recentDays, newPage);
+              })}
             </div>
           )}
 
@@ -931,7 +959,7 @@ const CVESearch = () => {
               {stats ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-blue-800">Total Recent CVEs</h4>
+                    <h4 className="text-sm font-medium text-blue-800">Total Count of CVEs reported in last 30 days</h4>
                     <p className="text-2xl font-bold text-blue-900">{stats.total_recent_cves}</p>
                   </div>
                   

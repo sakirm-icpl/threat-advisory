@@ -25,6 +25,41 @@ if errorlevel 1 (
 
 echo SUCCESS: Docker and Docker Compose are installed
 
+REM Ensure Docker daemon is running (start Docker Desktop if necessary)
+echo Checking Docker daemon...
+docker info >nul 2>&1
+if not errorlevel 1 goto docker_ready
+
+echo Docker daemon is not running. Attempting to start Docker Desktop...
+if exist "C:\Program Files\Docker\Docker\Docker Desktop.exe" (
+    start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+) else (
+    echo ERROR: Docker Desktop not found at default path. Please start Docker Desktop manually, then re-run this script.
+    echo        Download: https://docs.docker.com/desktop/install/windows-install/
+    pause
+    exit /b 1
+)
+echo Waiting for Docker to start (timeout 120s)...
+set /a _retries=0
+
+:wait_docker
+docker info >nul 2>&1
+if not errorlevel 1 goto docker_ready
+set /a _retries+=1
+if %_retries% GEQ 24 goto docker_timeout
+timeout /t 5 /nobreak >nul
+goto wait_docker
+
+:docker_timeout
+echo ERROR: Docker daemon did not become ready in time.
+echo        Ensure WSL 2 is installed and Docker Desktop is configured and running.
+echo        Troubleshooting: https://docs.docker.com/desktop/troubleshoot/overview/
+pause
+exit /b 1
+
+:docker_ready
+echo SUCCESS: Docker daemon is running
+
 REM Set server IP to localhost
 set SERVER_IP=localhost
 echo Using localhost for local development
@@ -54,8 +89,20 @@ echo STEP 1: Building Docker images...
 echo Building backend image...
 docker-compose build backend
 
+if errorlevel 1 (
+    echo ERROR: Backend image build failed.
+    pause
+    exit /b 1
+)
+
 echo Building frontend image...
 docker-compose build frontend
+
+if errorlevel 1 (
+    echo ERROR: Frontend image build failed.
+    pause
+    exit /b 1
+)
 
 echo SUCCESS: All images built successfully!
 
@@ -67,6 +114,12 @@ REM STEP 2: Deploy using the built images
 echo.
 echo STEP 2: Deploying services using built images...
 docker-compose up -d
+
+if errorlevel 1 (
+    echo ERROR: Failed to start services with docker-compose.
+    pause
+    exit /b 1
+)
 
 REM Wait for services to be ready
 echo Waiting for services to be ready...
