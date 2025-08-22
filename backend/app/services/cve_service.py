@@ -475,8 +475,8 @@ class CVEService:
                 'total_results': 0
             }
     
-    def get_recent_cves(self, days: int = 30, limit: int = 20) -> Dict:
-        """Get recent CVEs from the last N days"""
+    def get_recent_cves(self, days: int = 30, limit: int = 20, start_index: int = 0) -> Dict:
+        """Get recent CVEs from the last N days with pagination support"""
         try:
             print(f"DEBUG: Getting recent CVEs for last {days} days")
             
@@ -488,7 +488,8 @@ class CVEService:
             params = {
                 'pubStartDate': start_date.strftime('%Y-%m-%dT%H:%M:%S.000-00:00'),
                 'pubEndDate': end_date.strftime('%Y-%m-%dT%H:%M:%S.000-00:00'),
-                'resultsPerPage': limit
+                'resultsPerPage': limit,
+                'startIndex': start_index
             }
             
             print(f"DEBUG: Date range: {params['pubStartDate']} to {params['pubEndDate']}")
@@ -523,6 +524,8 @@ class CVEService:
                 'total_results': total_results,
                 'search_params': {
                     'days': days,
+                    'limit': limit,
+                    'start_index': start_index,
                     'method': 'recent_cves'
                 }
             }

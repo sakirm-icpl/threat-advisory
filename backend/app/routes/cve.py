@@ -146,6 +146,7 @@ def get_recent_cves():
     try:
         days = request.args.get('days', 30, type=int)
         limit = request.args.get('limit', 20, type=int)
+        start_index = request.args.get('start_index', 0, type=int)
         
         if days < 1 or days > 365:
             return jsonify({'error': 'Days must be between 1 and 365'}), 400
@@ -153,8 +154,11 @@ def get_recent_cves():
         if limit < 1 or limit > 1000:
             return jsonify({'error': 'Limit must be between 1 and 1000'}), 400
         
-        print(f"DEBUG: Getting recent CVEs for last {days} days, limit={limit}")
-        results = cve_service.get_recent_cves(days=days, limit=limit)
+        if start_index < 0:
+            return jsonify({'error': 'start_index must be >= 0'}), 400
+        
+        print(f"DEBUG: Getting recent CVEs for last {days} days, limit={limit}, start_index={start_index}")
+        results = cve_service.get_recent_cves(days=days, limit=limit, start_index=start_index)
         
         return jsonify(results)
         
@@ -167,40 +171,55 @@ def get_recent_cves():
 def get_cve_stats():
     """Get CVE statistics and summary information"""
     try:
-        # Get recent CVEs for stats
-        recent_results = cve_service.get_recent_cves(days=30, limit=100)
-        
-        if 'error' in recent_results:
-            return jsonify(recent_results), 500
-        
-        # Calculate basic stats
-        total_recent = recent_results.get('total_results', 0)
-        cves = recent_results.get('results', [])
-        
-        # Count by severity
+        # Fetch first page to get total count
+        batch_size = 200
+        first_page = cve_service.get_recent_cves(days=30, limit=batch_size, start_index=0)
+
+        if 'error' in first_page:
+            return jsonify(first_page), 500
+
+        total_recent = first_page.get('total_results', 0)
+        # Determine how many to aggregate (cap to avoid excessive requests)
+        max_to_aggregate = min(total_recent, 5000)
+
+        aggregated = list(first_page.get('results', []))
+        start_index = len(aggregated)
+
+        while start_index < max_to_aggregate:
+            page_limit = min(batch_size, max_to_aggregate - start_index)
+            page = cve_service.get_recent_cves(days=30, limit=page_limit, start_index=start_index)
+            if 'error' in page:
+                break
+            page_results = page.get('results', [])
+            if not page_results:
+                break
+            aggregated.extend(page_results)
+            start_index += len(page_results)
+
+        # Calculate statistics from aggregated set
         severity_counts = {}
         vendor_counts = {}
-        
-        for cve in cves:
+
+        for cve in aggregated:
             severity = cve.get('severity', 'UNKNOWN')
             severity_counts[severity] = severity_counts.get(severity, 0) + 1
-            
-            # Count vendors
-            vendors_products = cve.get('vendors_products', [])
-            for vp in vendors_products:
+
+            for vp in cve.get('vendors_products', []):
                 vendor = vp.get('vendor', 'Unknown')
                 vendor_counts[vendor] = vendor_counts.get(vendor, 0) + 1
-        
-        # Get top vendors
+
         top_vendors = sorted(vendor_counts.items(), key=lambda x: x[1], reverse=True)[:10]
-        
+
         return jsonify({
             'total_recent_cves': total_recent,
+            'considered_results': len(aggregated),
             'severity_distribution': severity_counts,
             'top_vendors': top_vendors,
             'search_params': {
                 'days': 30,
-                'method': 'stats_calculation'
+                'method': 'stats_calculation',
+                'batch_size': batch_size,
+                'max_aggregated': max_to_aggregate
             }
         })
         
