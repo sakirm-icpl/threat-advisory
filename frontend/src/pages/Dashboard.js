@@ -305,54 +305,57 @@ export default function Dashboard() {
           </Link>
         ))}
       </div>
-      {/* Products per Vendor Chart */}
-      {widgetPrefs.productsPerVendor && (
-        <div className="my-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Products per Vendor</h2>
-          <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl border border-blue-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={productsPerVendor} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} />
-                <YAxis allowDecimals={false} />
-                <Tooltip contentStyle={{ backgroundColor: '#1e40af', color: 'white', borderRadius: '8px', border: 'none' }} />
-                <Bar dataKey="count" fill="url(#blueGradient)" radius={[4, 4, 0, 0]}>
-                  <LabelList dataKey="count" position="top" />
-                </Bar>
-                <defs>
-                  <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="#1e40af" />
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
-      {/* Detection Methods per Product Chart */}
-      {widgetPrefs.methodsPerProduct && (
-        <div className="my-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Detection Methods per Product</h2>
-          <div className="bg-gradient-to-br from-white to-orange-50 rounded-2xl border border-orange-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={methodsPerProduct} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} />
-                <YAxis allowDecimals={false} />
-                <Tooltip contentStyle={{ backgroundColor: '#ea580c', color: 'white', borderRadius: '8px', border: 'none' }} />
-                <Bar dataKey="count" fill="url(#orangeGradient)" radius={[4, 4, 0, 0]}>
-                  <LabelList dataKey="count" position="top" />
-                </Bar>
-                <defs>
-                  <linearGradient id="orangeGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f97316" />
-                    <stop offset="100%" stopColor="#ea580c" />
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+      {/* Products per Vendor & Detection Methods per Product - side by side */}
+      {(widgetPrefs.productsPerVendor || widgetPrefs.methodsPerProduct) && (
+        <div className="my-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {widgetPrefs.productsPerVendor && (
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Products per Vendor</h2>
+              <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl border border-blue-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={productsPerVendor} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10 }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e40af', color: 'white', borderRadius: '8px', border: 'none' }} />
+                    <Bar dataKey="count" fill="url(#blueGradient)" radius={[4, 4, 0, 0]}>
+                      <LabelList dataKey="count" position="top" />
+                    </Bar>
+                    <defs>
+                      <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" />
+                        <stop offset="100%" stopColor="#1e40af" />
+                      </linearGradient>
+                    </defs>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+          {widgetPrefs.methodsPerProduct && (
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Detection Methods per Product</h2>
+              <div className="bg-gradient-to-br from-white to-orange-50 rounded-2xl border border-orange-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={methodsPerProduct} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10 }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#ea580c', color: 'white', borderRadius: '8px', border: 'none' }} />
+                    <Bar dataKey="count" fill="url(#orangeGradient)" radius={[4, 4, 0, 0]}>
+                      <LabelList dataKey="count" position="top" />
+                    </Bar>
+                    <defs>
+                      <linearGradient id="orangeGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#f97316" />
+                        <stop offset="100%" stopColor="#ea580c" />
+                      </linearGradient>
+                    </defs>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
         </div>
       )}
       {/* Setup Guide Coverage Donut Chart */}
@@ -394,42 +397,45 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-      {/* Recent Trends Line Chart */}
-      {widgetPrefs.recentTrends && (
-        <div className="my-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Trends (Last 8 Weeks)</h2>
-          <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl border border-purple-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trendsData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="week" angle={-20} textAnchor="end" interval={0} height={60} />
-                <YAxis allowDecimals={false} />
-                <Tooltip contentStyle={{ backgroundColor: '#7c3aed', color: 'white', borderRadius: '8px', border: 'none' }} />
-                <Legend />
-                <Line type="monotone" dataKey="Products" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }} />
-                <Line type="monotone" dataKey="Methods" stroke="#f97316" strokeWidth={3} dot={{ fill: '#f97316', strokeWidth: 2, r: 4 }} />
-                <Line type="monotone" dataKey="Guides" stroke="#10b981" strokeWidth={3} dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
-      {/* User Registrations Line Chart */}
-      {widgetPrefs.userRegistrations && user && user.role === 'admin' && (
-        <div className="my-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">User Registrations (Last 8 Weeks)</h2>
-          <div className="bg-gradient-to-br from-white to-indigo-50 rounded-2xl border border-indigo-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={userTrendsData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="week" angle={-20} textAnchor="end" interval={0} height={60} />
-                <YAxis allowDecimals={false} />
-                <Tooltip contentStyle={{ backgroundColor: '#4f46e5', color: 'white', borderRadius: '8px', border: 'none' }} />
-                <Legend />
-                <Line type="monotone" dataKey="Users" stroke="#6366f1" strokeWidth={3} dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+      {/* Recent Trends & User Registrations - side by side */}
+      {(widgetPrefs.recentTrends || (widgetPrefs.userRegistrations && user && user.role === 'admin')) && (
+        <div className="my-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {widgetPrefs.recentTrends && (
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Trends (Last 8 Weeks)</h2>
+              <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl border border-purple-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={trendsData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="week" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10 }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#7c3aed', color: 'white', borderRadius: '8px', border: 'none' }} />
+                    <Legend wrapperStyle={{ fontSize: 10 }} />
+                    <Line type="monotone" dataKey="Products" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }} />
+                    <Line type="monotone" dataKey="Methods" stroke="#f97316" strokeWidth={3} dot={{ fill: '#f97316', strokeWidth: 2, r: 4 }} />
+                    <Line type="monotone" dataKey="Guides" stroke="#10b981" strokeWidth={3} dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+          {widgetPrefs.userRegistrations && user && user.role === 'admin' && (
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">User Registrations (Last 8 Weeks)</h2>
+              <div className="bg-gradient-to-br from-white to-indigo-50 rounded-2xl border border-indigo-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={userTrendsData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="week" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10 }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#4f46e5', color: 'white', borderRadius: '8px', border: 'none' }} />
+                    <Legend wrapperStyle={{ fontSize: 10 }} />
+                    <Line type="monotone" dataKey="Users" stroke="#6366f1" strokeWidth={3} dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
