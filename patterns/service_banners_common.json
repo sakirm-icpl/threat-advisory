@@ -1,0 +1,104 @@
+{
+  "patterns": [
+    {
+      "name": "ProFTPD Server",
+      "category": "service_banners",
+      "pattern": "ProFTPD ([\\d.]+)",
+      "vendor": "ProFTPD",
+      "product": "ProFTPD",
+      "version_group": 1,
+      "priority": 150,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects ProFTPD version from FTP banner",
+        "tags": ["ftp", "proftpd"],
+        "test_cases": [
+          {"input": "220 ProFTPD 1.3.6 Server (Debian) [::ffff:192.168.1.1]", "expected_version": "1.3.6"}
+        ]
+      }
+    },
+    {
+      "name": "vsftpd Server",
+      "category": "service_banners",
+      "pattern": "vsFTPd ([\\d.]+)",
+      "vendor": "vsftpd",
+      "product": "vsftpd",
+      "version_group": 1,
+      "priority": 140,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects vsftpd version from FTP banner",
+        "tags": ["ftp", "vsftpd"],
+        "test_cases": [
+          {"input": "220 (vsFTPd 3.0.3)", "expected_version": "3.0.3"}
+        ]
+      }
+    },
+    {
+      "name": "Microsoft IIS HTTP Server",
+      "category": "service_banners",
+      "pattern": "Server: Microsoft-IIS/([\\d.]+)",
+      "vendor": "Microsoft",
+      "product": "IIS",
+      "version_group": 1,
+      "priority": 130,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects Microsoft IIS version from HTTP server banner",
+        "tags": ["http", "iis", "microsoft"],
+        "test_cases": [
+          {"input": "Server: Microsoft-IIS/10.0", "expected_version": "10.0"}
+        ]
+      }
+    },
+    {
+      "name": "PostgreSQL Server",
+      "category": "service_banners",
+      "pattern": "PostgreSQL ([\\d.]+)",
+      "vendor": "PostgreSQL",
+      "product": "PostgreSQL",
+      "version_group": 1,
+      "priority": 120,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects PostgreSQL version from service banner",
+        "tags": ["postgresql", "database"],
+        "test_cases": [
+          {"input": "PostgreSQL 13.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 10.2.0, 64-bit", "expected_version": "13.3"}
+        ]
+      }
+    },
+    {
+      "name": "Exim SMTP Server",
+      "category": "service_banners",
+      "pattern": "220.*Exim ([\\d.]+)",
+      "vendor": "Exim",
+      "product": "Exim",
+      "version_group": 1,
+      "priority": 110,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects Exim version from SMTP banner",
+        "tags": ["smtp", "exim"],
+        "test_cases": [
+          {"input": "220 mail.example.com ESMTP Exim 4.94.2 #2 Fri, 01 Jan 2021 00:00:00 +0000", "expected_version": "4.94.2"}
+        ]
+      }
+    }
+  ]
+}

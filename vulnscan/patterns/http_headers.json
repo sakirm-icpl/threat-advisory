@@ -1,0 +1,186 @@
+{
+    "version": "1.0",
+    "category": "http_headers",
+    "description": "HTTP header patterns for web server and application detection",
+    "patterns": [
+        {
+            "name": "Apache HTTP Server",
+            "category": "http_headers",
+            "pattern": "Apache/([\\d\\.]+)",
+            "vendor": "Apache",
+            "product": "HTTP Server",
+            "version_group": 1,
+            "priority": 200,
+            "confidence": 0.95,
+            "metadata": {
+                "author": "Security Scanner Team",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "description": "Detects Apache HTTP Server version from Server header",
+                "tags": [
+                    "web-server",
+                    "apache"
+                ],
+                "test_cases": [
+                    {
+                        "input": "Apache/2.4.41 (Ubuntu)",
+                        "expected_version": "2.4.41"
+                    },
+                    {
+                        "input": "Apache/2.2.22 (Debian)",
+                        "expected_version": "2.2.22"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Nginx Web Server",
+            "category": "http_headers",
+            "pattern": "nginx/([\\d\\.]+)",
+            "vendor": "Nginx",
+            "product": "Web Server",
+            "version_group": 1,
+            "priority": 200,
+            "confidence": 0.95,
+            "metadata": {
+                "author": "Security Scanner Team",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "description": "Detects Nginx version from Server header",
+                "tags": [
+                    "web-server",
+                    "nginx"
+                ],
+                "test_cases": [
+                    {
+                        "input": "nginx/1.18.0 (Ubuntu)",
+                        "expected_version": "1.18.0"
+                    },
+                    {
+                        "input": "nginx/1.14.2",
+                        "expected_version": "1.14.2"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Microsoft IIS",
+            "category": "http_headers",
+            "pattern": "Microsoft-IIS/([\\d\\.]+)",
+            "vendor": "Microsoft",
+            "product": "IIS",
+            "version_group": 1,
+            "priority": 200,
+            "confidence": 0.95,
+            "metadata": {
+                "author": "Security Scanner Team",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "description": "Detects Microsoft IIS version from Server header",
+                "tags": [
+                    "web-server",
+                    "microsoft",
+                    "iis"
+                ],
+                "test_cases": [
+                    {
+                        "input": "Microsoft-IIS/10.0",
+                        "expected_version": "10.0"
+                    },
+                    {
+                        "input": "Microsoft-IIS/8.5",
+                        "expected_version": "8.5"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "PHP Version",
+            "category": "http_headers",
+            "pattern": "PHP/([\\d\\.]+)",
+            "vendor": "PHP",
+            "product": "PHP",
+            "version_group": 1,
+            "priority": 180,
+            "confidence": 0.90,
+            "metadata": {
+                "author": "Security Scanner Team",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "description": "Detects PHP version from X-Powered-By header",
+                "tags": [
+                    "programming-language",
+                    "php"
+                ],
+                "test_cases": [
+                    {
+                        "input": "PHP/7.4.3",
+                        "expected_version": "7.4.3"
+                    },
+                    {
+                        "input": "PHP/8.1.2-1ubuntu2.14",
+                        "expected_version": "8.1.2"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Express.js Framework",
+            "category": "http_headers",
+            "pattern": "Express",
+            "vendor": "Express",
+            "product": "Express.js",
+            "version_group": 0,
+            "priority": 150,
+            "confidence": 0.70,
+            "context_patterns": [
+                "X-Powered-By:\\s*Express"
+            ],
+            "required_context": true,
+            "metadata": {
+                "author": "Security Scanner Team",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "description": "Detects Express.js framework from X-Powered-By header",
+                "tags": [
+                    "framework",
+                    "nodejs",
+                    "express"
+                ],
+                "test_cases": [
+                    {
+                        "input": "X-Powered-By: Express",
+                        "expected_version": null
+                    }
+                ]
+            }
+        },
+        {
+            "name": "ASP.NET Framework",
+            "category": "http_headers",
+            "pattern": "ASP\\.NET",
+            "vendor": "Microsoft",
+            "product": "ASP.NET",
+            "version_group": 0,
+            "priority": 160,
+            "confidence": 0.80,
+            "metadata": {
+                "author": "Security Scanner Team",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "description": "Detects ASP.NET framework from X-Powered-By header",
+                "tags": [
+                    "framework",
+                    "microsoft",
+                    "aspnet"
+                ],
+                "test_cases": [
+                    {
+                        "input": "X-Powered-By: ASP.NET",
+                        "expected_version": null
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,27 @@
+{
+  "patterns": [
+    {
+      "name": "OpenSSH Server",
+      "category": "service_banners",
+      "pattern": "OpenSSH_([\\d\\.]+)",
+      "vendor": "OpenBSD",
+      "product": "OpenSSH",
+      "version_group": 1,
+      "priority": 200,
+      "confidence": 0.95,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects OpenSSH version from SSH banner",
+        "tags": ["ssh", "openssh", "remote-access"],
+        "test_cases": [
+          {
+            "input": "SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5",
+            "expected_version": "8.2p1"
+          }
+        ]
+      }
+    }
+  ]
+}
