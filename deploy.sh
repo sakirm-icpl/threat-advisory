@@ -174,9 +174,13 @@ deploy() {
     
     # Build and start
     log_info "Building and starting services..."
+    
+    # Load environment variables for docker-compose
     if [ "$ENVIRONMENT" = "production" ]; then
+        export $(cat .env.production | grep -v '^#' | xargs)
         docker-compose -f "$COMPOSE_FILE" build --no-cache
     else
+        export $(cat .env | grep -v '^#' | xargs)
         docker-compose -f "$COMPOSE_FILE" build
     fi
     
