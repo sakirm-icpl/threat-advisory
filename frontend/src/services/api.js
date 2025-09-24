@@ -18,6 +18,9 @@ const getApiUrl = () => {
 export const api = axios.create({
   baseURL: getApiUrl(),
   timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 // Request interceptor to add auth token

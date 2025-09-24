@@ -28,12 +28,14 @@ export default function GitHubCallback() {
         }
 
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+        
+        // Use fetch with explicit HTTP/1.1 configuration
         const response = await fetch(apiUrl + '/auth/github/callback', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
-          credentials: 'include',
           body: JSON.stringify({ 
             code,
             state: searchParams.get('state')
