@@ -24,9 +24,10 @@ RUN pip install --upgrade pip && \
 COPY . .
 
 # Create startup script with database initialization
-COPY <<EOF /app/start.sh
+RUN cat > /app/start.sh << 'EOF'
 #!/bin/bash
 set -e
+
 export PYTHONPATH=/app
 
 echo "Starting VersionIntel Backend..."
@@ -37,6 +38,7 @@ python3 -c "
 from app import create_app, db
 from sqlalchemy import text
 import time
+import os
 
 app = create_app()
 with app.app_context():
