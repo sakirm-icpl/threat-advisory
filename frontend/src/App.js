@@ -16,6 +16,9 @@ import Users from './pages/Users';
 import EditProduct from "./pages/EditProduct";
 import EditDetectionMethod from "./pages/EditDetectionMethod";
 import EditSetupGuide from "./pages/EditSetupGuide";
+import Community from './pages/Community';
+import Contributors from './pages/Contributors';
+import Guidelines from './pages/Guidelines';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -54,6 +57,13 @@ function AppContent() {
         <Route path="/products/:id/edit" element={<EditProduct />} />
         <Route path="/methods/:id/edit" element={<EditDetectionMethod />} />
         <Route path="/setup-guides/:id/edit" element={<EditSetupGuide />} />
+        <Route path="/community" element={<Community />} />
+        <Route path="/community/contributors" element={<Contributors />} />
+        <Route path="/community/guidelines" element={<Guidelines />} />
+        <Route path="/contributors" element={<Contributors />} />
+        <Route path="/guidelines" element={<Guidelines />} />
+        <Route path="/help" element={<Guidelines />} />
+        <Route path="/stats" element={<Community />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Layout>

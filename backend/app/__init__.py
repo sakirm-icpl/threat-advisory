@@ -20,8 +20,14 @@ def create_app():
     app.config.from_object(Config)
     
     # Configure CORS with production settings
-    # Allow all origins for office network access (development mode)
-    CORS(app, origins="*", supports_credentials=True)
+    # In production, restrict origins to your domain
+    allowed_origins = [
+        "http://172.17.14.65:3000",
+        "http://172.17.14.65:8000",
+        "http://localhost:3000",  # Keep for development
+        "http://localhost:8000"   # Keep for development
+    ]
+    CORS(app, origins=allowed_origins, supports_credentials=True)
     
     # Initialize extensions
     db.init_app(app)
@@ -47,6 +53,8 @@ def create_app():
     from .routes.search import bp as search_bp
     from .routes.bulk import bp as bulk_bp
     from .routes.cve import bp as cve_bp
+    from .routes.oauth import oauth_bp
+    from .routes.community import community_bp
     from .routes import bp as dashboard_bp
 
     app.register_blueprint(vendors_bp)
@@ -58,6 +66,8 @@ def create_app():
     app.register_blueprint(search_bp)
     app.register_blueprint(bulk_bp)
     app.register_blueprint(cve_bp)
+    app.register_blueprint(oauth_bp)
+    app.register_blueprint(community_bp)
     app.register_blueprint(dashboard_bp)
 
     # Monitoring

@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:13
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: versionintel
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-versionintel}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -26,17 +26,21 @@ services:
       db:
         condition: service_healthy
     environment:
-      - FLASK_ENV=production
-      - FLASK_DEBUG=0
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - FLASK_DEBUG=${FLASK_DEBUG:-0}
       - PYTHONPATH=/app
-      - SECRET_KEY=edd504d675db4fc15b1d4fd41be1d3845499b8ee220af6ceba475fd401f14380
-      - JWT_SECRET_KEY=eec005cbfd76222973f0aa58c1d7fe357745d8c87354a0517ea54a444a87f60c
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/versionintel
-      - NVD_API_KEY=523ff249-3119-49fa-a1d6-31ba53131052
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-versionintel}
+      - NVD_API_KEY=${NVD_API_KEY}
+      # GitHub OAuth
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GITHUB_REDIRECT_URI=${GITHUB_REDIRECT_URI}
       # AI Remediation (Gemini / Google)
-      - AI_PROVIDER=gemini
-      - GOOGLE_API_KEY=AIzaSyBwD6qJ2jA9HJ-nOpjAMygnLF4RYhzGEUA
-      - GOOGLE_MODEL=gemini-1.5-flash
+      - AI_PROVIDER=${AI_PROVIDER:-gemini}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GOOGLE_MODEL=${GOOGLE_MODEL:-gemini-1.5-flash}
     ports:
       - "8000:5000"
     restart: unless-stopped
@@ -55,7 +59,7 @@ services:
     depends_on:
       - backend
     environment:
-      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
     ports:
       - "3000:3000"
     restart: unless-stopped

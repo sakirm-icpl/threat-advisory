@@ -10,6 +10,11 @@ class Config:
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "jwtsecretkey")
     JWT_ACCESS_TOKEN_EXPIRES = False  # Tokens don't expire for simplicity
     
+    # GitHub OAuth configuration
+    GITHUB_CLIENT_ID = os.environ.get("GITHUB_CLIENT_ID")
+    GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET")
+    GITHUB_REDIRECT_URI = os.environ.get("GITHUB_REDIRECT_URI", "http://localhost:3000/auth/github/callback")
+    
     # CORS configuration - Allow common development and production origins
     CORS_ORIGINS = [
         "http://localhost:3000",
@@ -17,7 +22,9 @@ class Config:
         "http://127.0.0.1:3000",
         "http://127.0.0.1:8000",
         "http://0.0.0.0:3000",
-        "http://0.0.0.0:8000"
+        "http://0.0.0.0:8000",
+        "http://172.17.14.65:3000",
+        "http://172.17.14.65:8000"
     ]
     
     # Swagger configuration

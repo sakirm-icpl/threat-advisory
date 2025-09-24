@@ -1,9 +1,9 @@
 @echo off
-REM VersionIntel Build and Deploy Script for Windows
-REM This script will first build the images and then deploy using those built images
+REM VersionIntel Build and Deploy Script for Windows - Production Ready
+REM This script will securely build and deploy using environment variables
 
-echo VersionIntel Build and Deploy Script
-echo ========================================
+echo VersionIntel Secure Build and Deploy Script
+echo ================================================
 
 REM Check if Docker is installed
 docker --version >nul 2>&1
@@ -24,6 +24,43 @@ if errorlevel 1 (
 )
 
 echo SUCCESS: Docker and Docker Compose are installed
+
+REM Check if .env file exists
+if not exist ".env" (
+    echo WARNING: .env file not found. Creating from template...
+    if exist ".env.production" (
+        copy ".env.production" ".env" >nul
+        echo SUCCESS: Copied .env.production to .env
+        echo.
+        echo IMPORTANT: Edit .env file and replace all CHANGE_THIS_* placeholders with secure values!
+        echo    Use these commands to generate secure keys:
+        echo    python -c "import secrets; print('SECRET_KEY=' + secrets.token_hex(32))"
+        echo    python -c "import secrets; print('JWT_SECRET_KEY=' + secrets.token_hex(32))"
+        echo.
+        echo ERROR: Please update .env file with secure values and run this script again.
+        pause
+        exit /b 1
+    ) else (
+        echo ERROR: Neither .env nor .env.production found. Please create .env file first.
+        pause
+        exit /b 1
+    )
+)
+
+REM Validate required environment variables
+echo Validating environment configuration...
+findstr /C:"CHANGE_THIS_" ".env" >nul 2>&1
+if not errorlevel 1 (
+    echo ERROR: Found CHANGE_THIS_ placeholders in .env file.
+    echo    Please replace all placeholders with actual secure values.
+    echo    Use these commands to generate secure keys:
+    echo    python -c "import secrets; print('SECRET_KEY=' + secrets.token_hex(32))"
+    echo    python -c "import secrets; print('JWT_SECRET_KEY=' + secrets.token_hex(32))"
+    pause
+    exit /b 1
+)
+
+echo SUCCESS: Environment configuration validated
 
 REM Ensure Docker daemon is running (start Docker Desktop if necessary)
 echo Checking Docker daemon...
@@ -60,21 +97,20 @@ exit /b 1
 :docker_ready
 echo SUCCESS: Docker daemon is running
 
-REM Set server IP to localhost
-set SERVER_IP=localhost
-echo Using localhost for local development
-
-REM Create frontend .env file if it doesn't exist
-if not exist "frontend\.env" (
-    echo Creating frontend environment file...
-    echo REACT_APP_API_URL=http://%SERVER_IP%:8000 > frontend\.env
-    echo SUCCESS: Frontend environment file created with IP: %SERVER_IP%
-) else (
-    echo SUCCESS: Frontend environment file already exists
-    REM Update the API URL to use the correct IP
-    powershell -Command "(Get-Content frontend\.env) -replace 'REACT_APP_API_URL=.*', 'REACT_APP_API_URL=http://%SERVER_IP%:8000' | Set-Content frontend\.env"
-    echo SUCCESS: Updated frontend environment file with IP: %SERVER_IP%
+REM Load environment variables from .env file
+echo Loading environment variables from .env file...
+for /f "usebackq delims=" %%x in (".env") do (
+    set "%%x"
 )
+
+REM Get SERVER_IP from environment or default to localhost
+if not defined SERVER_IP set SERVER_IP=localhost
+echo Using server IP: %SERVER_IP%
+
+REM Create frontend .env file with correct API URL
+echo Creating frontend environment file...
+echo REACT_APP_API_URL=http://%SERVER_IP%:8000 > frontend\.env
+echo SUCCESS: Frontend environment file created with API URL: http://%SERVER_IP%:8000
 
 REM Stop any existing containers
 echo Stopping any existing containers...
@@ -110,10 +146,10 @@ REM List the built images
 echo Built images:
 docker images | findstr versionintel
 
-REM STEP 2: Deploy using the built images
+REM STEP 2: Deploy using the built images with environment file
 echo.
-echo STEP 2: Deploying services using built images...
-docker-compose up -d
+echo STEP 2: Deploying services using built images with secure environment...
+docker-compose --env-file .env up -d
 
 if errorlevel 1 (
     echo ERROR: Failed to start services with docker-compose.
@@ -158,14 +194,15 @@ if errorlevel 1 (
 
 REM Display access information
 echo.
-echo SUCCESS: VersionIntel is now running!
-echo ==================================
+echo SUCCESS: VersionIntel is now running securely!
+echo ==========================================
 echo.
 echo FRONTEND URL: http://%SERVER_IP%:3000
 echo.
-echo LOGIN CREDENTIALS:
+echo DEFAULT LOGIN CREDENTIALS (CHANGE IMMEDIATELY):
 echo    Username: admin
 echo    Password: Admin@1234
+echo    WARNING: Change this password immediately after first login!
 echo.
 echo Additional URLs:
 echo    Backend API: http://%SERVER_IP%:8000
@@ -173,7 +210,17 @@ echo    API Documentation: http://%SERVER_IP%:8000/docs
 echo    Health Check: http://%SERVER_IP%:8000/health
 echo    Metrics: http://%SERVER_IP%:8000/metrics
 echo.
-echo IMPORTANT: Change the default admin password after first login!
+echo GitHub OAuth Configuration:
+echo    Client ID: %GITHUB_CLIENT_ID%
+echo    Redirect URI: %GITHUB_REDIRECT_URI%
+echo.
+echo Production Security Checklist:
+echo    [X] Environment variables loaded securely
+echo    [X] CORS restricted to specific domains
+echo    [ ] Change admin password (CRITICAL)
+echo    [ ] Set up SSL/TLS certificates
+echo    [ ] Configure firewall rules
+echo    [ ] Set up monitoring and backups
 echo.
 echo Useful Commands:
 echo    View logs: docker-compose logs -f
@@ -181,15 +228,9 @@ echo    Stop services: docker-compose down
 echo    Restart services: docker-compose restart
 echo    Rebuild and deploy: build-and-deploy.bat
 echo    Check status: docker-compose ps
-echo    List images: docker images ^| findstr versionintel
+echo    Database backup: docker-compose exec db pg_dump -U %%POSTGRES_USER%% %%POSTGRES_DB%% ^> backup.sql
 echo.
-echo Production Notes:
-echo    - Change default passwords in docker-compose.yml
-echo    - Update JWT_SECRET_KEY and SECRET_KEY
-echo    - Configure SSL/TLS for production use
-echo    - Set up proper firewall rules
-echo.
-echo SUCCESS: Build and deployment completed successfully!
+echo SUCCESS: Secure build and deployment completed successfully!
 echo.
 echo Press any key to exit...
 pause >nul

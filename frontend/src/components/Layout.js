@@ -13,6 +13,9 @@ import {
   Bars3Icon,
   XMarkIcon,
   ShieldExclamationIcon,
+  ChatBubbleLeftRightIcon,
+  TrophyIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
 const navigation = [
@@ -24,6 +27,12 @@ const navigation = [
   { name: 'Search', href: '/search', icon: MagnifyingGlassIcon },
   { name: 'CVE Search', href: '/cve-search', icon: ShieldExclamationIcon },
   { name: 'Bulk Operations', href: '/bulk', icon: CogIcon },
+];
+
+const communityNavigation = [
+  { name: 'Community', href: '/community', icon: ChatBubbleLeftRightIcon },
+  { name: 'Contributors', href: '/contributors', icon: TrophyIcon },
+  { name: 'Guidelines', href: '/guidelines', icon: InformationCircleIcon },
 ];
 
 const adminNavigation = [
@@ -93,20 +102,49 @@ export default function Layout({ children }) {
                 </Link>
               );
             })}
-            {user?.role === 'admin' && adminNavigation.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`sidebar-item ${isActive ? 'active' : ''}`}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              );
-            })}
+            
+            {/* Community Section */}
+            <div className="pt-4 mt-4 border-t border-gray-200">
+              <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                Community
+              </p>
+              {communityNavigation.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`sidebar-item ${isActive ? 'active' : ''}`}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <item.icon className="mr-3 h-5 w-5" />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+            
+            {user?.role === 'admin' && (
+              <div className="pt-4 mt-4 border-t border-gray-200">
+                <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                  Admin
+                </p>
+                {adminNavigation.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`sidebar-item ${isActive ? 'active' : ''}`}
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      <item.icon className="mr-3 h-5 w-5" />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </nav>
         </div>
       </div>
@@ -138,19 +176,47 @@ export default function Layout({ children }) {
                 </Link>
               );
             })}
-            {user?.role === 'admin' && adminNavigation.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`sidebar-item${isActive ? ' active' : ''}`}
-                >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              );
-            })}
+            
+            {/* Community Section */}
+            <div className="pt-4 mt-4 border-t border-white/20">
+              <p className="px-3 text-xs font-semibold text-white/70 uppercase tracking-wider mb-3">
+                Community
+              </p>
+              {communityNavigation.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`sidebar-item${isActive ? ' active' : ''}`}
+                  >
+                    <item.icon className="mr-3 h-5 w-5" />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+            
+            {user?.role === 'admin' && (
+              <div className="pt-4 mt-4 border-t border-white/20">
+                <p className="px-3 text-xs font-semibold text-white/70 uppercase tracking-wider mb-3">
+                  Admin
+                </p>
+                {adminNavigation.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`sidebar-item${isActive ? ' active' : ''}`}
+                    >
+                      <item.icon className="mr-3 h-5 w-5" />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </nav>
         </div>
       </div>

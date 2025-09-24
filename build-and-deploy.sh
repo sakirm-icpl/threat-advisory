@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# VersionIntel Build and Deploy Script
-# This script will first build the images and then deploy using those built images
+# VersionIntel Build and Deploy Script - Production Ready
+# This script will securely build and deploy using environment variables
 
 set -e  # Exit on any error
 
-echo "🚀 VersionIntel Build and Deploy Script"
-echo "========================================"
+echo "🚀 VersionIntel Secure Build and Deploy Script"
+echo "================================================"
 
 # Check if Docker is installed
 if ! command -v docker &> /dev/null; then
@@ -24,21 +24,50 @@ fi
 
 echo "✅ Docker and Docker Compose are installed"
 
-# Set server IP to localhost
-SERVER_IP=localhost
-echo "🌐 Using localhost for local development"
-
-# Create frontend .env file if it doesn't exist
-if [ ! -f "frontend/.env" ]; then
-    echo "📝 Creating frontend environment file..."
-    echo "REACT_APP_API_URL=http://$SERVER_IP:8000" > frontend/.env
-    echo "✅ Frontend environment file created with IP: $SERVER_IP"
-else
-    echo "✅ Frontend environment file already exists"
-    # Update the API URL to use the correct IP
-    sed -i "s|REACT_APP_API_URL=.*|REACT_APP_API_URL=http://$SERVER_IP:8000|" frontend/.env
-    echo "✅ Updated frontend environment file with IP: $SERVER_IP"
+# Check if .env file exists
+if [ ! -f ".env" ]; then
+    echo "⚠️  .env file not found. Creating from template..."
+    if [ -f ".env.production" ]; then
+        cp .env.production .env
+        echo "📝 Copied .env.production to .env"
+        echo "⚠️  IMPORTANT: Edit .env file and replace all CHANGE_THIS_* placeholders with secure values!"
+        echo "   Use these commands to generate secure keys:"
+        echo "   python3 -c \"import secrets; print('SECRET_KEY=' + secrets.token_hex(32))\""
+        echo "   python3 -c \"import secrets; print('JWT_SECRET_KEY=' + secrets.token_hex(32))\""
+        echo ""
+        echo "❌ Please update .env file with secure values and run this script again."
+        exit 1
+    else
+        echo "❌ Neither .env nor .env.production found. Please create .env file first."
+        exit 1
+    fi
 fi
+
+# Validate required environment variables
+echo "🔍 Validating environment configuration..."
+if grep -q "CHANGE_THIS_" .env; then
+    echo "❌ Found CHANGE_THIS_ placeholders in .env file."
+    echo "   Please replace all placeholders with actual secure values."
+    echo "   Use these commands to generate secure keys:"
+    echo "   python3 -c \"import secrets; print('SECRET_KEY=' + secrets.token_hex(32))\""
+    echo "   python3 -c \"import secrets; print('JWT_SECRET_KEY=' + secrets.token_hex(32))\""
+    exit 1
+fi
+
+echo "✅ Environment configuration validated"
+
+# Load environment variables
+echo "📋 Loading environment variables from .env file..."
+export $(cat .env | grep -v '^#' | xargs)
+
+# Get SERVER_IP from environment or default to localhost
+SERVER_IP=${SERVER_IP:-localhost}
+echo "🌐 Using server IP: $SERVER_IP"
+
+# Create frontend .env file with correct API URL
+echo "📝 Creating frontend environment file..."
+echo "REACT_APP_API_URL=http://$SERVER_IP:8000" > frontend/.env
+echo "✅ Frontend environment file created with API URL: http://$SERVER_IP:8000"
 
 # Stop any existing containers
 echo "🛑 Stopping any existing containers..."
@@ -62,10 +91,10 @@ echo "✅ All images built successfully!"
 echo "📋 Built images:"
 docker images | grep versionintel
 
-# STEP 2: Deploy using the built images
+# STEP 2: Deploy using the built images with environment file
 echo ""
-echo "🚀 STEP 2: Deploying services using built images..."
-docker-compose up -d
+echo "🚀 STEP 2: Deploying services using built images with secure environment..."
+docker-compose --env-file .env up -d
 
 # Wait for services to be ready
 echo "⏳ Waiting for services to be ready..."
@@ -100,14 +129,15 @@ fi
 
 # Display access information
 echo ""
-echo "🎉 VersionIntel is now running!"
-echo "=================================="
+echo "🎉 VersionIntel is now running securely!"
+echo "=========================================="
 echo ""
 echo "🌐 FRONTEND URL: http://$SERVER_IP:3000"
 echo ""
-echo "🔐 LOGIN CREDENTIALS:"
+echo "🔐 DEFAULT LOGIN CREDENTIALS (CHANGE IMMEDIATELY):"
 echo "   Username: admin"
 echo "   Password: Admin@1234"
+echo "   ⚠️  CRITICAL: Change this password immediately after first login!"
 echo ""
 echo "📚 Additional URLs:"
 echo "   Backend API: http://$SERVER_IP:8000"
@@ -115,7 +145,17 @@ echo "   API Documentation: http://$SERVER_IP:8000/docs"
 echo "   Health Check: http://$SERVER_IP:8000/health"
 echo "   Metrics: http://$SERVER_IP:8000/metrics"
 echo ""
-echo "⚠️  IMPORTANT: Change the default admin password after first login!"
+echo "✅ GitHub OAuth Configuration:"
+echo "   Client ID: ${GITHUB_CLIENT_ID:-Not Set}"
+echo "   Redirect URI: ${GITHUB_REDIRECT_URI:-Not Set}"
+echo ""
+echo "🔧 Production Security Checklist:"
+echo "   ✅ Environment variables loaded securely"
+echo "   ✅ CORS restricted to specific domains"
+echo "   ⚠️  Change admin password (CRITICAL)"
+echo "   ⚠️  Set up SSL/TLS certificates"
+echo "   ⚠️  Configure firewall rules"
+echo "   ⚠️  Set up monitoring and backups"
 echo ""
 echo "📋 Useful Commands:"
 echo "   View logs: docker-compose logs -f"
@@ -123,12 +163,6 @@ echo "   Stop services: docker-compose down"
 echo "   Restart services: docker-compose restart"
 echo "   Rebuild and deploy: ./build-and-deploy.sh"
 echo "   Check status: docker-compose ps"
-echo "   List images: docker images | grep versionintel"
+echo "   Database backup: docker-compose exec db pg_dump -U \$POSTGRES_USER \$POSTGRES_DB > backup.sql"
 echo ""
-echo "🔧 Production Notes:"
-echo "   - Change default passwords in docker-compose.yml"
-echo "   - Update JWT_SECRET_KEY and SECRET_KEY"
-echo "   - Configure SSL/TLS for production use"
-echo "   - Set up proper firewall rules"
-echo ""
-echo "🚀 Build and deployment completed successfully!" 
+echo "🚀 Secure build and deployment completed successfully!" 
