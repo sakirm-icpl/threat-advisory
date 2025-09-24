@@ -190,7 +190,9 @@ main() {
     
     # Load environment variables
     if [ -f "$ENV_FILE" ]; then
-        export $(cat "$ENV_FILE" | grep -v '^#' | xargs)
+        set -a
+        source "$ENV_FILE"
+        set +a
     fi
     
     check_prerequisites
