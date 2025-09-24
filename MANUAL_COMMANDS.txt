@@ -1,0 +1,32 @@
+# MANUAL COMMANDS TO FIX VERSIONINTEL OAUTH
+
+# 1. STOP EVERYTHING
+docker-compose down -v --remove-orphans
+
+# 2. CLEAN DOCKER
+docker system prune -af --volumes
+
+# 3. REMOVE OLD IMAGES
+docker rmi versionintel-backend:latest versionintel-frontend:latest 2>nul
+
+# 4. CHECK ENVIRONMENT
+cat .env | findstr POSTGRES
+
+# 5. BUILD FRESH (NO CACHE)
+docker-compose build --no-cache
+
+# 6. START STEP BY STEP
+docker-compose up -d db
+# Wait 20 seconds
+docker-compose up -d backend  
+# Wait 30 seconds
+docker-compose up -d frontend
+
+# 7. TEST
+curl http://172.17.14.65:8000/health
+curl http://172.17.14.65:8000/auth/github/login
+
+# 8. CHECK LOGS IF ISSUES
+docker logs versionintel_backend_1
+docker logs versionintel_frontend_1
+docker logs versionintel_db_1

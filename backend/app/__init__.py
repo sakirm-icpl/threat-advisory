@@ -119,7 +119,17 @@ def create_app():
     # Create tables if not exist
     with app.app_context():
         try:
+            # Test database connection first
+            app.logger.info(f"Testing database connection: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
+            
+            # Test basic connection
+            db.session.execute(text('SELECT 1'))
+            app.logger.info("Database connection successful")
+            
+            # Create tables
             db.create_all()
+            app.logger.info("Database tables created successfully")
+            
             # --- Ensure default admin user exists ---
             from app.models.user import User
             if not User.query.filter_by(username="admin").first():
@@ -132,5 +142,6 @@ def create_app():
                 app.logger.info("Admin user already exists")
         except Exception as e:
             app.logger.error(f'Error during database initialization: {e}')
+            # Don't fail the app start, just log the error
 
     return app

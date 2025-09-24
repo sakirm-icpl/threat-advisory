@@ -11,10 +11,18 @@ class Config:
     POSTGRES_HOST = os.environ.get("POSTGRES_HOST", "db")
     POSTGRES_PORT = os.environ.get("POSTGRES_PORT", "5432")
     
+    # Debug logging for database configuration
+    print(f"[CONFIG] POSTGRES_USER: {POSTGRES_USER}")
+    print(f"[CONFIG] POSTGRES_PASSWORD: {'*' * len(POSTGRES_PASSWORD) if POSTGRES_PASSWORD else 'None'}")
+    print(f"[CONFIG] POSTGRES_DB: {POSTGRES_DB}")
+    print(f"[CONFIG] POSTGRES_HOST: {POSTGRES_HOST}")
+    
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL", 
         f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
     )
+    
+    print(f"[CONFIG] Final DATABASE_URI: {SQLALCHEMY_DATABASE_URI[:50]}...")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT configuration
