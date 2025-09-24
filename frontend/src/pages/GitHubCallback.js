@@ -33,7 +33,11 @@ export default function GitHubCallback() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ code }),
+          credentials: 'include',
+          body: JSON.stringify({ 
+            code,
+            state: searchParams.get('state')
+          }),
         });
 
         const data = await response.json();
@@ -50,7 +54,8 @@ export default function GitHubCallback() {
             setLoading(false);
           }
         } else {
-          setError(data.error || 'Authentication failed');
+          console.error('Auth response error:', data);
+          setError(data.error || data.message || 'OAuth callback failed');
           setLoading(false);
         }
       } catch (error) {

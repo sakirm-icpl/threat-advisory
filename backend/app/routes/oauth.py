@@ -42,15 +42,26 @@ def github_login():
         current_app.logger.error(f"GitHub OAuth initiation error: {e}")
         return jsonify({'error': 'OAuth initialization failed'}), 500
 
-@oauth_bp.route('/callback', methods=['POST'])
+@oauth_bp.route('/callback', methods=['POST', 'OPTIONS'])
 def github_callback():
     """Handle GitHub OAuth callback"""
+    # Handle CORS preflight
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST,OPTIONS')
+        return response
+        
     try:
         data = request.json
         code = data.get('code')
         state = data.get('state')
         
+        current_app.logger.info(f'GitHub callback received - code present: {bool(code)}, state: {state}')
+        
         if not code:
+            current_app.logger.error('No authorization code received')
             return jsonify({'error': 'Authorization code is required'}), 400
         
         # Exchange code for access token
@@ -65,8 +76,11 @@ def github_callback():
         token_headers = {'Accept': 'application/json'}
         token_response = requests.post(token_url, data=token_data, headers=token_headers)
         
+        current_app.logger.info(f'GitHub token response status: {token_response.status_code}')
+        
         if token_response.status_code != 200:
-            return jsonify({'error': 'Failed to get access token'}), 400
+            current_app.logger.error(f'GitHub token error: {token_response.text}')
+            return jsonify({'error': 'Failed to get access token from GitHub'}), 400
         
         token_info = token_response.json()
         access_token = token_info.get('access_token')
