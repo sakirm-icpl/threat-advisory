@@ -49,6 +49,27 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const githubLogin = async (accessToken, refreshToken) => {
+    try {
+      localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('refresh_token', refreshToken);
+      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      
+      // Fetch user data
+      const response = await api.get('/auth/me');
+      setUser(response.data);
+      toast.success('GitHub login successful!');
+      return true;
+    } catch (error) {
+      console.error('GitHub login error:', error);
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      delete api.defaults.headers.common['Authorization'];
+      toast.error('GitHub authentication failed');
+      return false;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -81,6 +102,7 @@ export function AuthProvider({ children }) {
     user,
     loading,
     login,
+    githubLogin,
     logout,
     refreshToken
   };

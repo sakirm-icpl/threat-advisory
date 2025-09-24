@@ -1,8 +1,10 @@
 import React from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import GitHubCallback from './pages/GitHubCallback';
 import Dashboard from './pages/Dashboard';
 import Vendors from './pages/Vendors';
 import Products from './pages/Products';
@@ -35,6 +37,7 @@ function AppContent() {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/auth/github/callback" element={<GitHubCallback />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
