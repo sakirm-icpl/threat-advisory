@@ -682,7 +682,8 @@ const CVESearch = () => {
           <h4 className="text-sm font-medium text-blue-800 mb-2">Search Examples</h4>
           <div className="text-sm text-blue-700 space-y-1">
             <p><strong>Vendor Only:</strong> "apache" - Returns all CVEs affecting any Apache products (httpd, tomcat, struts, etc.)</p>
-            <p><strong>Vendor + Product:</strong> "apache tomcat" - Returns CVEs specifically affecting Apache Tomcat</p>
+            <p><strong>Vendor + Product (Explicit):</strong> "Ethereum@Go Ethereum" - Returns CVEs specifically for Go Ethereum by Ethereum</p>
+            <p><strong>Vendor + Product (Legacy):</strong> "apache tomcat" - Returns CVEs specifically affecting Apache Tomcat</p>
             <p><strong>CVE ID:</strong> "CVE-2021-44228" - Returns specific CVE details</p>
             <p><strong>Keyword:</strong> "log4j" - Returns CVEs containing the keyword</p>
           </div>
@@ -768,7 +769,7 @@ const CVESearch = () => {
                     type="text"
                     value={unifiedQuery}
                     onChange={(e) => setUnifiedQuery(e.target.value)}
-                    placeholder="Enter vendor, product, CVE ID, or keyword..."
+                    placeholder="Enter vendor, Vendor@Product, CVE ID, or keyword..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     onKeyPress={(e) => e.key === 'Enter' && handleUnifiedSearch()}
                   />

@@ -147,7 +147,8 @@ class CVEService:
                                     limit: int = 20, start_index: int = 0) -> Dict:
         """
         Search for CVEs by vendor and product using dynamic keyword search.
-        This method provides comprehensive coverage by searching for vendor + product combinations.
+        This method provides comprehensive coverage by searching for vendor + product combinations
+        with intelligent fallback terms for known products.
         """
         try:
             print(f"DEBUG: Starting vendor/product search for '{vendor}' / '{product}'")
@@ -163,101 +164,65 @@ class CVEService:
                     'total_results': 0
                 }
             
-            # Use keyword search for vendor + product combination
-            search_query = f"{vendor_clean} {product_clean}"
+            # Generate search queries with intelligent fallbacks
+            search_queries = self._generate_search_queries(vendor_clean, product_clean)
             
-            # First, get the total count from NVD for this search
-            print(f"DEBUG: Getting total count for '{search_query}'")
-            count_params = {
-                'keywordSearch': search_query,
-                'resultsPerPage': 1,  # Just get count, not actual results
-                'startIndex': 0
+            # Try each search query and combine results
+            best_result = {'results': [], 'total_results': 0}
+            used_query = search_queries[0] if search_queries else f"{vendor_clean} {product_clean}"
+            
+            for query in search_queries:
+                print(f"DEBUG: Trying search query: '{query}'")
+                
+                # Get results for this query
+                params = {
+                    'keywordSearch': query,
+                    'resultsPerPage': limit,
+                    'startIndex': start_index
+                }
+                
+                response = self._make_api_request(self.nvd_base_url, params)
+                if not response:
+                    continue
+                
+                data = response.json()
+                if 'vulnerabilities' not in data:
+                    continue
+                
+                # Process results
+                cves = []
+                for vuln in data['vulnerabilities']:
+                    cve_data = vuln['cve']
+                    formatted_cve = self._format_cve_summary(cve_data)
+                    cves.append(formatted_cve)
+                
+                total_results = data.get('totalResults', len(cves))
+                
+                # If this query gives better results, use it
+                if len(cves) > len(best_result['results']):
+                    best_result = {
+                        'results': cves,
+                        'total_results': total_results
+                    }
+                    used_query = query
+                    print(f"DEBUG: Better results with '{query}': {len(cves)} CVEs")
+                
+                # If we found good results, stop searching
+                if len(cves) >= 5:
+                    break
+                
+                # Rate limiting between searches
+                time.sleep(0.5)
+            
+            best_result['search_params'] = {
+                'vendor': vendor,
+                'product': product,
+                'method': 'vendor_product_intelligent_search',
+                'used_query': used_query,
+                'tried_queries': search_queries
             }
             
-            count_response = self._make_api_request(self.nvd_base_url, count_params)
-            if not count_response:
-                return {
-                    'error': 'Failed to connect to NVD API',
-                    'results': [],
-                    'total_results': 0
-                }
-            
-            count_data = count_response.json()
-            total_available = count_data.get('totalResults', 0)
-            print(f"DEBUG: NVD reports {total_available} total results for '{search_query}'")
-            
-            # Check if start_index is beyond available data
-            if start_index >= total_available:
-                print(f"DEBUG: start_index {start_index} is beyond total available {total_available}")
-                return {
-                    'results': [],
-                    'total_results': total_available,
-                    'search_params': {
-                        'vendor': vendor,
-                        'product': product,
-                        'method': 'vendor_product_keyword_search',
-                        'nvd_total': total_available
-                    }
-                }
-            
-            # Now get the actual results we need
-            search_limit = min(200, total_available - start_index)
-            if search_limit <= 0:
-                search_limit = 1  # At least get 1 result to check
-            
-            print(f"DEBUG: Using keyword search for '{search_query}' with limit {search_limit} starting from {start_index}")
-            keyword_result = self.search_cves_by_keyword(search_query, search_limit, start_index)
-            
-            if keyword_result.get('results'):
-                # Filter results to ensure they're actually related to the vendor + product
-                filtered_results = []
-                for cve in keyword_result['results']:
-                    vendors_products = cve.get('vendors_products', [])
-                    for vp in vendors_products:
-                        vendor_name = vp.get('vendor', '').lower()
-                        product_name = vp.get('product', '').lower()
-                        
-                        # Check if vendor matches and product matches
-                        vendor_match = vendor_clean in vendor_name or vendor_name in vendor_clean
-                        product_match = product_clean in product_name or product_name in product_clean
-                        
-                        if vendor_match and product_match:
-                            filtered_results.append(cve)
-                            break
-                
-                # Calculate the actual total based on the ratio of filtered results
-                if len(keyword_result['results']) > 0:
-                    filter_ratio = len(filtered_results) / len(keyword_result['results'])
-                    estimated_total = int(total_available * filter_ratio)
-                else:
-                    estimated_total = 0
-                
-                # Apply pagination to filtered results
-                paginated_cves = filtered_results[:limit]  # Take only the requested limit
-                
-                print(f"DEBUG: Vendor/product search completed. Found {len(filtered_results)} filtered CVEs out of {len(keyword_result['results'])} searched, estimated total: {estimated_total}")
-                
-                return {
-                    'results': paginated_cves,
-                    'total_results': estimated_total,
-                    'search_params': {
-                        'vendor': vendor,
-                        'product': product,
-                        'method': 'vendor_product_keyword_search',
-                        'nvd_total': total_available
-                    }
-                }
-            
-            return {
-                'results': [],
-                'total_results': 0,
-                'search_params': {
-                    'vendor': vendor,
-                    'product': product,
-                    'method': 'vendor_product_keyword_search',
-                    'nvd_total': total_available
-                }
-            }
+            return best_result
             
         except Exception as e:
             print(f"DEBUG: Error in vendor/product search: {str(e)}")
@@ -310,6 +275,57 @@ class CVEService:
             variations.append(re.sub(r'\d+.*', '', product))
         
         return list(set(variations))
+    
+    def _generate_search_queries(self, vendor: str, product: str) -> List[str]:
+        """
+        Generate intelligent search queries for vendor/product combinations.
+        Includes specific fallbacks for known products.
+        """
+        queries = []
+        
+        # Product-specific intelligent mappings
+        product_mappings = {
+            'go ethereum': ['go-ethereum', 'geth', 'ethereum client'],
+            'visual studio code': ['vscode', 'vs code', 'visual studio code'],
+            'internet explorer': ['ie', 'msie', 'internet explorer'],
+            'sql server': ['mssql', 'sqlserver', 'sql server'],
+            'apache http server': ['httpd', 'apache', 'apache http server'],
+            'mysql': ['mysql', 'mariadb'],  # Related products
+            'postgresql': ['postgres', 'postgresql'],
+            'node.js': ['nodejs', 'node', 'node.js'],
+            'react': ['reactjs', 'react.js', 'react'],
+        }
+        
+        # Check if we have specific mappings for this product
+        product_lower = product.lower()
+        if product_lower in product_mappings:
+            # Use specific mappings
+            for alt_product in product_mappings[product_lower]:
+                queries.append(f"{vendor} {alt_product}")
+                # Also try hyphenated versions
+                if ' ' in alt_product:
+                    queries.append(f"{vendor} {alt_product.replace(' ', '-')}")
+        else:
+            # Standard approach
+            queries.append(f"{vendor} {product}")
+            
+            # Try hyphenated version
+            if ' ' in product:
+                queries.append(f"{vendor} {product.replace(' ', '-')}")
+            
+            # Try without vendor (product-only search)
+            queries.append(product)
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_queries = []
+        for query in queries:
+            if query not in seen:
+                seen.add(query)
+                unique_queries.append(query)
+        
+        print(f"DEBUG: Generated search queries: {unique_queries}")
+        return unique_queries
     
     def _clean_for_cpe(self, name: str) -> str:
         """Clean name for CPE format"""
@@ -365,8 +381,8 @@ class CVEService:
                 result['search_type'] = 'vendor_only'
                 return result
             
-            # Strategy 3: Try vendor/product search (for queries with spaces, slashes, or hyphens)
-            if ' ' in query_clean or '/' in query_clean or '-' in query_clean:
+            # Strategy 3: Try vendor/product search (for queries with @, spaces, slashes, or hyphens)
+            if '@' in query_clean or ' ' in query_clean or '/' in query_clean or '-' in query_clean:
                 vendor, product = self._parse_vendor_product(query_clean)
                 if vendor and product:
                     print(f"DEBUG: Attempting vendor/product search: vendor='{vendor}', product='{product}'")
@@ -410,13 +426,39 @@ class CVEService:
         return False
     
     def _parse_vendor_product(self, query: str) -> tuple:
-        """Parse query into vendor and product parts"""
-        # Split by common separators
+        """
+        Parse query into vendor and product parts.
+        
+        Supports two formats:
+        1. Explicit format: "Vendor@Product" (e.g., "Ethereum@Go Ethereum")
+        2. Legacy format: "vendor product" (e.g., "apache tomcat")
+        
+        The explicit format is preferred for complex product names that contain
+        multiple words or could be confused with vendor names.
+        
+        Args:
+            query (str): The search query to parse
+            
+        Returns:
+            tuple: (vendor, product) or (None, None) if parsing fails
+        """
+        # Strategy 1: Check for explicit Vendor@Product format
+        if '@' in query:
+            parts = query.split('@', 1)  # Split only on first @ to handle products with @ in name
+            if len(parts) == 2:
+                vendor = parts[0].strip()
+                product = parts[1].strip()
+                if vendor and product:  # Both parts must be non-empty
+                    print(f"DEBUG: Parsed explicit format - vendor: '{vendor}', product: '{product}'")
+                    return vendor, product
+        
+        # Strategy 2: Split by common separators (legacy behavior)
         parts = re.split(r'[\s/-]+', query)
         
         if len(parts) >= 2:
             vendor = parts[0]
             product = ' '.join(parts[1:])  # Join remaining parts as product
+            print(f"DEBUG: Parsed legacy format - vendor: '{vendor}', product: '{product}'")
             return vendor, product
         
         return None, None

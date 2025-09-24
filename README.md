@@ -36,7 +36,7 @@ build-and-deploy.bat     # Windows
 - **Vendor Management**: Add, update, delete, and list vendors
 - **Product Management**: Manage products with vendor associations and categories
 - **Detection Methods**: Store and manage version detection logic with regex patterns
-- **CVE Integration**: Search and analyze CVE data for security research
+- **CVE Integration**: Search and analyze CVE data with intelligent query parsing (supports Vendor@Product format)
 - **Setup Guides**: Document setup instructions with Docker images and VM requirements
 - **Regex Testing**: Test Python and Ruby regex patterns against sample outputs
 - **Authentication & Authorization**: JWT-based authentication with role-based access control

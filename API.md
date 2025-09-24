@@ -421,7 +421,10 @@ GET /api/cve/search/unified?query=CVE-2023-1234
 # Search by vendor
 GET /api/cve/search/unified?query=apache
 
-# Search by vendor and product
+# Search by vendor and product (explicit format)
+GET /api/cve/search/unified?query=Ethereum@Go Ethereum
+
+# Search by vendor and product (legacy format)
 GET /api/cve/search/unified?query=apache tomcat
 
 # Search by keyword
