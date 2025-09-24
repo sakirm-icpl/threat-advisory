@@ -1,8 +1,11 @@
 #!/bin/bash
-# VersionIntel Perfect Deployment Script (Linux/macOS)
-# ===================================================
-# Automatically deploys for local development or production
-# All secrets and configuration included
+# VersionIntel Simple Deployment Script (Linux/macOS) - REPLACED
+# Use deploy-perfect.sh instead for the ultimate experience
+
+echo "⚠️  This script has been replaced!"
+echo "Use: ./deploy-perfect.sh [production|development]"
+echo "The new script fixes all issues automatically!"
+exit 1
 
 set -e
 
