@@ -1,8 +1,13 @@
 -- VersionIntel Database Initialization Script
 -- This script sets up the database for production use
 
--- Create versionintel user with secure password
-CREATE USER versionintel WITH PASSWORD 'versionintel_secure_password_change_in_production';
+-- Create versionintel user with secure password (if not exists)
+DO $$ 
+BEGIN
+   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'versionintel') THEN
+      CREATE USER versionintel WITH PASSWORD 'versionintel_secure_password_change_in_production';
+   END IF;
+END $$;
 
 -- Grant privileges to versionintel user
 GRANT ALL PRIVILEGES ON DATABASE versionintel TO versionintel;

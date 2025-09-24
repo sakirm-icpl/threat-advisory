@@ -1,1 +1,0 @@
-"""Command-line interface for the security scanner platform."""

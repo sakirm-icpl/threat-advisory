@@ -1,30 +1,38 @@
-# Environment variables - NEVER commit these files
+# Production-ready .gitignore for VersionIntel
+
+# Environment files (keep templates)
 .env
 .env.local
-.env.development
-.env.test
-.env.production.local
+.env.production
+!.env.production.template
 
-# Docker volumes and data
-postgres_data/
-docker-compose.override.yml
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
 
-# Logs
-*.log
-logs/
+# Build outputs
+/frontend/build/
+/frontend/dist/
+*.egg-info/
+build/
+dist/
 
-# Temporary files
-*.tmp
-*.temp
-
-# IDE and editor files
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS generated files
+# OS files
 .DS_Store
 .DS_Store?
 ._*
@@ -33,66 +41,47 @@ logs/
 ehthumbs.db
 Thumbs.db
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Node.js
-node_modules/
+# Logs
+*.log
+logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
-.npm
-.eslintcache
 
-# React build
-frontend/build/
-frontend/.env
+# Docker
+.dockerignore
 
-# Database backups
-*.sql
-backup_*.sql
-database_backup_*
-
-# SSL certificates
-*.pem
-*.key
-*.crt
-*.csr
-
-# Sensitive configuration files
-config.local.py
-secrets.json
-credentials.json
-
-# Docker secrets
-docker-secrets/
-secrets/
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
 # Backup files
-*.bak
-*.backup
-backup/
 backups/
+*.sql.backup
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Testing
+.pytest_cache/
+.tox/
+
+# SSL certificates (for production)
+ssl/
+*.crt
+*.key
+*.pem
+
+# Monitoring and metrics
+prometheus/
+grafana/

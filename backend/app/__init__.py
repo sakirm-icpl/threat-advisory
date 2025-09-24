@@ -61,6 +61,11 @@ def create_app():
     from .routes.oauth import oauth_bp
     from .routes.community import community_bp
     from .routes import bp as dashboard_bp
+    from .routes.submission import submission_bp
+    from .routes.help import help_bp
+    from .routes.analytics import analytics_bp
+    from .routes.settings import settings_bp
+    from .routes.user_management import user_management_bp
 
     app.register_blueprint(vendors_bp)
     app.register_blueprint(products_bp)
@@ -74,6 +79,11 @@ def create_app():
     app.register_blueprint(oauth_bp)
     app.register_blueprint(community_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(submission_bp)
+    app.register_blueprint(help_bp)
+    app.register_blueprint(analytics_bp)
+    app.register_blueprint(settings_bp)
+    app.register_blueprint(user_management_bp)
 
     # Monitoring
     from .services.monitoring import monitoring_bp

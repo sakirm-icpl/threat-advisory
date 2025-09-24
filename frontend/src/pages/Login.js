@@ -154,7 +154,7 @@ export default function Login() {
           </div>
         )}
         
-        {/* GitHub OAuth Login - Primary Action */}
+        {/* GitHub OAuth Login */}
         <div className="space-y-4">
           <button
             onClick={handleGitHubLogin}
@@ -179,8 +179,8 @@ export default function Login() {
           {/* Additional Info */}
           <div className="text-center">
             <p className="text-xs text-gray-400 leading-relaxed">
-              By signing in, you agree to access VersionIntel's research platform.<br/>
-              Your GitHub account will be used for authentication only.
+              Sign in with your GitHub account to access VersionIntel.<br/>
+              Your GitHub account will be used for secure authentication.
             </p>
           </div>
         </div>

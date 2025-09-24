@@ -1,282 +1,167 @@
 # VersionIntel - Version Detection Research Platform
 
-A comprehensive platform for managing internal version detection research for various service/web/OS applications. This platform allows you to record detection logic like banner grabbing techniques, version regex patterns (Python and Ruby), authentication requirements, and setup instructions per product/vendor.
+![VersionIntel Logo](https://via.placeholder.com/600x200/1e40af/ffffff?text=VersionIntel)
 
-## 🚀 Quick Start
+A comprehensive platform for detecting software versions, managing vulnerability assessments, and facilitating security research collaboration.
 
-### Prerequisites
-- **Docker**: 20.10 or higher
-- **Docker Compose**: 2.0 or higher
-- **Git**: Latest version
-- **Operating System**: Linux, macOS, or Windows
-- **RAM**: Minimum 2GB available
-- **Storage**: 1GB free space
+## 🚀 Features
 
-### One-Command Deployment
-```bash
-git clone <repository-url>
-cd versionintel
-./build-and-deploy.sh    # Linux/Mac
-# OR
-build-and-deploy.bat     # Windows
-```
+### Core Platform
+- **Version Detection**: Advanced regex patterns for software version identification
+- **Vendor & Product Management**: Comprehensive database of software vendors and products
+- **Detection Methods**: Scalable detection techniques and methodologies
+- **Setup Guides**: Step-by-step configuration guides for security tools
 
-### Access the Application
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
+### Community & Collaboration
+- **GitHub OAuth Authentication**: Secure login with GitHub accounts
+- **Pattern Submission**: Community-driven pattern contributions
+- **Documentation Sharing**: Collaborative documentation platform
+- **Bug Reporting**: Integrated issue tracking and reporting
+- **Contributor Recognition**: Community stats and contributor profiles
 
-### Default Login
-- **Username**: `admin`
-- **Password**: `Admin@1234`
-- **⚠️ Important**: Change the default password after first login!
+### Search & Analytics
+- **Advanced Search**: Multi-criteria search across patterns and data
+- **CVE Integration**: Security vulnerability cross-referencing
+- **Bulk Operations**: Efficient batch processing capabilities
+- **Analytics Dashboard**: Usage insights and trend analysis
+- **Real-time Notifications**: Stay updated with platform activities
 
-## 🎯 Features
-
-- **Vendor Management**: Add, update, delete, and list vendors
-- **Product Management**: Manage products with vendor associations and categories
-- **Detection Methods**: Store and manage version detection logic with regex patterns
-- **CVE Integration**: Search and analyze CVE data for security research
-- **Setup Guides**: Document setup instructions with Docker images and VM requirements
-- **Regex Testing**: Test Python and Ruby regex patterns against sample outputs
-- **Authentication & Authorization**: JWT-based authentication with role-based access control
-- **Bulk Operations**: Import/export data in JSON/CSV/DOCX/PDF formats
-- **API Documentation**: Interactive Swagger/OpenAPI documentation
-- **Modern Frontend**: React-based web interface with responsive design
+### API & Integration
+- **RESTful API**: Complete programmatic access
+- **API Documentation**: Interactive API explorer
+- **Integration Support**: Third-party tool integration guides
+- **Export Capabilities**: Data export in multiple formats
 
 ## 🏗️ Architecture
 
-```
-versionintel/
-├── backend/                 # Flask API Server (port 8000)
-│   ├── app/
-│   │   ├── models/         # Database models
-│   │   ├── routes/         # API endpoints
-│   │   ├── services/       # Business logic
-│   │   └── config.py       # Configuration
-│   ├── requirements.txt    # Python dependencies
-│   └── Dockerfile
-├── frontend/               # React Web Application (port 3000)
-│   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API services
-│   │   └── contexts/       # React contexts
-│   ├── package.json        # Node.js dependencies
-│   └── Dockerfile
-├── db/                     # Database initialization
-├── docker-compose.yml      # Service orchestration
-└── build-and-deploy.sh     # Deployment script
-```
+- **Frontend**: React 18 with Tailwind CSS
+- **Backend**: Flask with SQLAlchemy ORM
+- **Database**: PostgreSQL 13
+- **Authentication**: GitHub OAuth 2.0 + JWT
+- **Deployment**: Docker & Docker Compose
+- **Search**: Advanced filtering and pagination
+- **API**: RESTful with OpenAPI documentation
 
-## 🔧 Development Setup
+## 📋 Prerequisites
 
-### Local Development (Without Docker)
-```bash
-# Backend Setup
-cd backend
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-pip install -r requirements.txt
+- **Docker Desktop** (Windows/Mac) or **Docker Engine** (Linux)
+- **Git** for version control
+- **GitHub Account** for OAuth authentication (optional)
 
-# Set environment variables
-export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/versionintel
-python wsgi.py
+## 🚀 Quick Start
 
-# Frontend Setup (in another terminal)
-cd frontend
-npm install
-echo "REACT_APP_API_URL=http://localhost:8000" > .env
-npm start
-```
+### Local Development
 
-### Database Setup for Development
-```bash
-# Start database only
-docker-compose up db -d
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd versionintel
+   ```
 
-# Initialize database
-cd backend && python init_database.py
-```
+2. **Deploy locally**
+   ```bash
+   # Linux/Mac
+   chmod +x deploy-local.sh
+   ./deploy-local.sh
+   
+   # Windows
+   deploy-local.bat
+   ```
 
-## 🚀 Production Deployment
-
-### Pre-Deployment Checklist
-
-**Critical Security Updates Required:**
-
-```yaml
-# Update docker-compose.yml environment variables
-environment:
-  - SECRET_KEY=generate-new-secure-key-here
-  - JWT_SECRET_KEY=generate-new-jwt-secret-here
-  - POSTGRES_PASSWORD=your-secure-database-password
-```
-
-**Default Credentials to Change:**
-- Admin User: `admin` / `Admin@1234`
-- Database: `postgres` / `postgres`
-
-⚠️ **CRITICAL**: Change ALL default passwords before production deployment!
-
-### Server Setup
-
-#### Install Docker
-```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-```
-
-#### Network Security
-```bash
-# Configure firewall
-sudo ufw allow 22    # SSH
-sudo ufw allow 80    # HTTP
-sudo ufw allow 443   # HTTPS
-sudo ufw enable
-```
-
-### SSL/TLS Setup (Recommended)
-
-#### Nginx Reverse Proxy
-```nginx
-server {
-    listen 443 ssl;
-    server_name your-domain.com;
-    
-    ssl_certificate /path/to/cert.pem;
-    ssl_certificate_key /path/to/key.pem;
-    
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-    
-    location /api/ {
-        proxy_pass http://localhost:8000/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
+3. **Access the application**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:8000
+   - Database: localhost:5432
 
 ### Production Deployment
-```bash
-# Clone and configure
-git clone <repository-url>
-cd versionintel
 
-# Update production settings in docker-compose.yml
-# - Change SECRET_KEY and JWT_SECRET_KEY
-# - Update POSTGRES_PASSWORD
-# - Set REACT_APP_API_URL to your domain
+1. **Deploy to production server**
+   ```bash
+   # Linux/Mac (replace with your server IP)
+   chmod +x deploy-production.sh
+   ./deploy-production.sh 172.17.14.65
+   
+   # Windows (replace with your server IP)
+   deploy-production.bat 172.17.14.65
+   ```
 
-# Deploy
-./build-and-deploy.sh
+2. **Configure environment**
+   - Update `.env` with production credentials
+   - Set strong passwords and secret keys
+   - Configure GitHub OAuth application
+
+## ⚙️ Configuration
+
+### Environment Setup
+
+The platform uses environment-specific configuration:
+
+- **`.env.local`**: Local development settings
+- **`.env.production`**: Production deployment settings
+- **`.env`**: Active configuration (auto-created from templates)
+
+### GitHub OAuth Setup
+
+1. **Create GitHub OAuth App**
+   - Go to https://github.com/settings/developers
+   - Click "New OAuth App"
+   - Fill in application details:
+     - **Application name**: `VersionIntel`
+     - **Homepage URL**: `http://localhost:3000` (local) or `http://YOUR_SERVER_IP:3000` (production)
+     - **Authorization callback URL**: `http://localhost:3000/auth/github/callback` (local) or `http://YOUR_SERVER_IP:3000/auth/github/callback` (production)
+
+2. **Update Configuration**
+   - Copy Client ID and Client Secret
+   - Update `.env` file with your credentials:
+     ```
+     GITHUB_CLIENT_ID=your-client-id
+     GITHUB_CLIENT_SECRET=your-client-secret
+     ```
+
+3. **Restart Services**
+   ```bash
+   docker-compose restart backend
+   ```
+
+### API Keys (Optional)
+
+- **NVD API**: For CVE data integration
+- **Google AI API**: For AI-powered features
+
+Update `.env` with your API keys:
+```
+NVD_API_KEY=your-nvd-api-key
+GOOGLE_API_KEY=your-google-api-key
 ```
 
-### Production Optimizations
-```yaml
-# Add to docker-compose.yml
-services:
-  backend:
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: '0.5'
-```
+## 🔧 Usage
 
-### Backup Strategy
+### Authentication
+
+- **GitHub OAuth**: Full platform access with GitHub account
+- **Demo Account**: Immediate access for testing and evaluation
+
+### Core Features
+
+1. **Dashboard**: Platform overview and quick actions
+2. **Vendors & Products**: Browse and manage software inventory
+3. **Detection Methods**: Access detection patterns and techniques
+4. **Search**: Find patterns, products, and documentation
+5. **Community**: Engage with contributors and submit content
+6. **Analytics**: View usage statistics and trends
+
+### API Access
+
+- **API Documentation**: Available at `/api`
+- **Authentication**: JWT tokens via GitHub OAuth
+- **Rate Limiting**: Implemented for API stability
+
+## 🛠️ Management Commands
+
+### Service Management
 ```bash
-#!/bin/bash
-# Create automated backup script
-DATE=$(date +%Y%m%d_%H%M%S)
-docker-compose exec -T db pg_dump -U postgres versionintel > backup_$DATE.sql
-```
-
-## 🔍 Monitoring & Maintenance
-
-### Health Checks
-- Backend: `http://your-domain:8000/health`
-- Frontend: `http://your-domain:3000`
-- Metrics: `http://your-domain:8000/metrics`
-
-### Regular Maintenance
-- [ ] Weekly security updates
-- [ ] Monthly database backups
-- [ ] Quarterly performance reviews
-
-## ⚠️ Troubleshooting
-
-### Common Issues
-
-**Services won't start?**
-```bash
-# Check Docker is running
-docker --version
-docker-compose --version
-
-# Check logs
-docker-compose logs -f
-```
-
-**Frontend can't reach backend?**
-- Verify `frontend/.env` has correct `REACT_APP_API_URL=http://localhost:8000`
-- Check backend is running: `docker-compose ps`
-
-**Port conflicts?**
-- Modify ports in `docker-compose.yml`
-- Check port usage: `netstat -tulpn | grep :8000`
-
-**Permission errors?**
-```bash
-chmod +x build-and-deploy.sh
-```
-
-**Database connection issues?**
-```bash
-# Check database status
-docker-compose ps db
-
-# View database logs
-docker-compose logs db
-
-# Restart database
-docker-compose restart db
-```
-
-**Memory issues?**
-```bash
-# Check resource usage
-docker stats
-
-# Clean up Docker
-docker system prune -f
-```
-
-### Useful Commands
-```bash
-# View service status
-docker-compose ps
-
 # View logs
-docker-compose logs -f [service_name]
+docker-compose logs -f
 
 # Restart services
 docker-compose restart
@@ -284,78 +169,64 @@ docker-compose restart
 # Stop services
 docker-compose down
 
-# Access backend shell
-docker-compose exec backend bash
+# Update application
+git pull
+./deploy-local.sh  # or deploy-production.sh
+```
 
+### Database Management
+```bash
 # Access database
-docker-compose exec db psql -U postgres -d versionintel
+docker-compose exec db psql -U versionintel -d versionintel
 
-# Rebuild and deploy
-./build-and-deploy.sh
+# Backup database
+docker-compose exec db pg_dump -U versionintel versionintel > backup.sql
+
+# Restore database
+docker-compose exec -T db psql -U versionintel versionintel < backup.sql
 ```
 
-## 🔐 Security Notes
+## 📚 Documentation
 
-- **Change default credentials** after first login
-- **Update JWT secrets** in production
-- **Enable HTTPS** for production deployments
-- **Regular security updates** recommended
-- **Set up proper firewall rules**
-- **Use strong passwords** for all services
-
-## 📚 API Documentation
-
-Once the application is running, you can access:
-- **Interactive API Docs**: http://localhost:8000/docs
-- **OpenAPI Schema**: http://localhost:8000/openapi.json
-
-### Authentication
-```http
-POST /auth/login
-Content-Type: application/json
-
-{
-  "username": "admin",
-  "password": "Admin@1234"
-}
-```
-
-### Using Authentication
-Include the JWT token in the Authorization header:
-```http
-Authorization: Bearer <your-jwt-token>
-```
+- **API Documentation**: Available at `/api` endpoint
+- **User Guide**: Available at `/help` endpoint
+- **Contributing Guidelines**: See `CONTRIBUTING.md`
+- **Architecture Details**: See `ARCHITECTURE_FLOWCHARTS.md`
 
 ## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Workflow
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Test locally with `./deploy-local.sh`
 5. Submit a pull request
+
+## 🔒 Security
+
+- **Authentication**: GitHub OAuth 2.0
+- **Authorization**: Role-based access control
+- **Data Protection**: Encrypted secrets and secure headers
+- **Input Validation**: Comprehensive sanitization
+- **API Security**: Rate limiting and CORS protection
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-For issues:
-1. Check service logs: `docker-compose logs -f`
-2. Verify prerequisites are installed
-3. Ensure ports are available
-4. Review troubleshooting section above
-5. Check the health endpoints
+- **Documentation**: `/help` endpoint in the application
+- **Issues**: GitHub Issues for bug reports and feature requests
+- **Community**: Engage through the platform's community features
 
-## 🎯 Production Checklist
+## 👥 Team
 
-- [ ] Update all default passwords
-- [ ] Configure SSL/TLS certificates
-- [ ] Set up firewall rules
-- [ ] Create backup procedures
-- [ ] Test all functionality
-- [ ] Monitor resource usage
-- [ ] Document access procedures
-- [ ] Set up monitoring and alerting
-- [ ] Configure log rotation
-- [ ] Test disaster recovery procedures 
+Developed by **Infopercept** - Leading cybersecurity research and solutions.
+
+---
+
+**VersionIntel** - Empowering security researchers with comprehensive version detection capabilities.
