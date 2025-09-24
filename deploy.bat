@@ -1,35 +1,34 @@
 @echo off
-REM VersionIntel Perfect Deployment Script (Windows)
-REM ===============================================
-REM Automatically deploys for local development or production
-REM All secrets and configuration included
+REM VersionIntel Universal Deployment Script for Windows
+REM ===================================================
+REM Works for both development and production environments
+REM Usage: deploy.bat [dev|prod]
 
 setlocal enabledelayedexpansion
 
-REM Detect environment
-set ENVIRONMENT=production
-if "%1"=="local" set ENVIRONMENT=development
-if "%1"=="dev" set ENVIRONMENT=development
-if "%1"=="development" set ENVIRONMENT=development
-
 REM Configuration
-if "%ENVIRONMENT%"=="production" (
-    set COMPOSE_FILE=docker-compose.production.yml
-    set FRONTEND_PORT=3000
-    set BACKEND_PORT=8000
-    echo [INFO] 🚀 Production Deployment Mode
-) else (
+set ENVIRONMENT=%1
+if "%ENVIRONMENT%"=="" set ENVIRONMENT=prod
+
+REM Environment-specific configuration
+if "%ENVIRONMENT%"=="dev" (
+    set ENV_FILE=.env
     set COMPOSE_FILE=docker-compose.yml
-    set FRONTEND_PORT=3000
-    set BACKEND_PORT=5000
-    echo [INFO] 🔧 Local Development Mode
+    set FRONTEND_URL=http://localhost:3000
+    set BACKEND_URL=http://localhost:5000
+    echo [INFO] 🔧 Development Environment
+) else (
+    set ENV_FILE=.env.production
+    set COMPOSE_FILE=docker-compose.production.yml
+    set FRONTEND_URL=http://172.17.14.65:3000
+    set BACKEND_URL=http://172.17.14.65:8000
+    echo [INFO] 🚀 Production Environment
 )
 
 echo.
-echo 🚀 VersionIntel Deployment Script
-echo =================================
-echo Usage: %0 [local^|production]
-echo Default: production
+echo ═══════════════════════════════════
+echo     VersionIntel Deployment
+echo ═══════════════════════════════════
 echo.
 
 REM Check prerequisites
@@ -37,150 +36,64 @@ echo [INFO] Checking prerequisites...
 
 docker --version >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Docker not installed. Please install Docker Desktop first.
+    echo [ERROR] Docker is not installed. Please install Docker Desktop first.
     pause
     exit /b 1
 )
 
 docker info >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Docker not running. Please start Docker Desktop first.
+    echo [ERROR] Docker is not running. Please start Docker Desktop first.
     pause
     exit /b 1
 )
 
 docker-compose --version >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Docker Compose not available.
+    echo [ERROR] Docker Compose is not available.
     pause
     exit /b 1
 )
 
 echo [SUCCESS] Prerequisites OK
 
-REM Create environment file with all secrets
-echo [INFO] Creating environment configuration...
+REM Environment setup
+echo [INFO] Setting up environment...
 
-if "%ENVIRONMENT%"=="production" (
-    echo # VersionIntel Production Configuration > .env.production
-    echo ENVIRONMENT=production >> .env.production
-    echo SERVER_HOST=172.17.14.65 >> .env.production
-    echo PRODUCTION_DOMAIN=172.17.14.65 >> .env.production
-    echo. >> .env.production
-    echo # Database >> .env.production
-    echo POSTGRES_USER=versionintel_prod >> .env.production
-    echo POSTGRES_PASSWORD=Hmynw4MukmG5Xhw_EMnBwinZLOUmdtwt >> .env.production
-    echo POSTGRES_DB=versionintel_production >> .env.production
-    echo POSTGRES_HOST=db >> .env.production
-    echo POSTGRES_PORT=5432 >> .env.production
-    echo. >> .env.production
-    echo # Flask >> .env.production
-    echo FLASK_ENV=production >> .env.production
-    echo FLASK_DEBUG=0 >> .env.production
-    echo SECRET_KEY=f2396f2c6c33c2bbd04bfdab89e05ab7ef7ca3087ea1107bfce9986d933c81d9 >> .env.production
-    echo JWT_SECRET_KEY=219f5a91b1c116abeeca9a54a8420c50fd29bec2f1d58c24251e9f28661602a2 >> .env.production
-    echo. >> .env.production
-    echo # GitHub OAuth >> .env.production
-    echo GITHUB_CLIENT_ID=Iv23liGLM3AMR1Tl3af5 >> .env.production
-    echo GITHUB_CLIENT_SECRET=c003b41d966a2888c40ebc309f28f19f8abceabd >> .env.production
-    echo. >> .env.production
-    echo # Google AI >> .env.production
-    echo AI_PROVIDER=gemini >> .env.production
-    echo GOOGLE_API_KEY=AIzaSyBwD6qJ2jA9HJ-nOpjAMygnLF4RYhzGEUA >> .env.production
-    echo GOOGLE_MODEL=gemini-2.0-flash >> .env.production
-    echo. >> .env.production
-    echo # CORS >> .env.production
-    echo CORS_ORIGINS=http://172.17.14.65:3000,http://localhost:3000 >> .env.production
-    echo. >> .env.production
-    echo # Security >> .env.production
-    echo SECURITY_HEADERS=True >> .env.production
-    echo HTTPS_ONLY=False >> .env.production
-    echo SECURE_COOKIES=False >> .env.production
-    echo LOG_LEVEL=INFO >> .env.production
-    
-    echo [SUCCESS] Created .env.production with all secrets
-) else (
-    echo # VersionIntel Development Configuration > .env
-    echo ENVIRONMENT=development >> .env
-    echo SERVER_HOST=localhost >> .env
-    echo PRODUCTION_DOMAIN=localhost >> .env
-    echo. >> .env
-    echo # Database >> .env
-    echo POSTGRES_USER=versionintel >> .env
-    echo POSTGRES_PASSWORD=versionintel123 >> .env
-    echo POSTGRES_DB=versionintel >> .env
-    echo POSTGRES_HOST=db >> .env
-    echo POSTGRES_PORT=5432 >> .env
-    echo. >> .env
-    echo # Flask >> .env
-    echo FLASK_ENV=development >> .env
-    echo FLASK_DEBUG=1 >> .env
-    echo SECRET_KEY=dev-secret-key-for-development-only >> .env
-    echo JWT_SECRET_KEY=dev-jwt-secret-key-for-development-only >> .env
-    echo. >> .env
-    echo # GitHub OAuth (use your dev app) >> .env
-    echo GITHUB_CLIENT_ID=Iv23liGLM3AMR1Tl3af5 >> .env
-    echo GITHUB_CLIENT_SECRET=c003b41d966a2888c40ebc309f28f19f8abceabd >> .env
-    echo. >> .env
-    echo # Google AI >> .env
-    echo AI_PROVIDER=gemini >> .env
-    echo GOOGLE_API_KEY=AIzaSyBwD6qJ2jA9HJ-nOpjAMygnLF4RYhzGEUA >> .env
-    echo GOOGLE_MODEL=gemini-2.0-flash >> .env
-    echo. >> .env
-    echo # CORS >> .env
-    echo CORS_ORIGINS=http://localhost:3000 >> .env
-    echo. >> .env
-    echo # Security >> .env
-    echo SECURITY_HEADERS=False >> .env
-    echo HTTPS_ONLY=False >> .env
-    echo SECURE_COOKIES=False >> .env
-    echo LOG_LEVEL=DEBUG >> .env
-    
-    echo [SUCCESS] Created .env for development
+if not exist "%ENV_FILE%" (
+    echo [ERROR] Environment file %ENV_FILE% not found!
+    echo [INFO] Please ensure the environment file exists with proper configuration.
+    pause
+    exit /b 1
 )
 
-REM Ask for confirmation
+echo [SUCCESS] Environment loaded from %ENV_FILE%
+
+REM Confirmation
+echo.
 echo [WARNING] Deploy VersionIntel in %ENVIRONMENT% mode?
+echo This will rebuild and restart all services.
 set /p CONTINUE="Continue? (y/N): "
 if /i not "%CONTINUE%"=="y" (
-    echo [INFO] Cancelled.
+    echo [INFO] Deployment cancelled.
     pause
     exit /b 0
 )
 
+REM Deployment process
 echo [INFO] Starting deployment...
-
-REM Create backup directory
-if not exist "backups" mkdir backups
-
-REM Backup existing database if it exists
-docker-compose -f "%COMPOSE_FILE%" ps db 2>nul | find "Up" >nul
-if not errorlevel 1 (
-    echo [INFO] Backing up existing database...
-    for /f "tokens=1-3 delims=/ " %%a in ('date /t') do set BACKUP_DATE=%%c%%a%%b
-    for /f "tokens=1-2 delims=: " %%a in ('time /t') do set BACKUP_TIME=%%a%%b
-    set BACKUP_FILE=backups\backup-!BACKUP_DATE!-!BACKUP_TIME!.sql
-    
-    if "%ENVIRONMENT%"=="production" (
-        docker-compose -f "%COMPOSE_FILE%" exec -T db pg_dump -U versionintel_prod versionintel_production > "!BACKUP_FILE!" 2>nul
-    ) else (
-        docker-compose -f "%COMPOSE_FILE%" exec -T db pg_dump -U versionintel versionintel > "!BACKUP_FILE!" 2>nul
-    )
-    
-    if not errorlevel 1 (
-        echo [SUCCESS] Database backed up to !BACKUP_FILE!
-    ) else (
-        echo [WARNING] Backup skipped (database may not exist yet)
-    )
-)
 
 REM Stop existing services
 echo [INFO] Stopping existing services...
 docker-compose -f "%COMPOSE_FILE%" down 2>nul
 
-REM Build and start
+REM Clean up unused images
+echo [INFO] Cleaning up unused Docker images...
+docker image prune -f 2>nul
+
+REM Build and start services
 echo [INFO] Building and starting services...
-if "%ENVIRONMENT%"=="production" (
+if "%ENVIRONMENT%"=="prod" (
     docker-compose -f "%COMPOSE_FILE%" build --no-cache
 ) else (
     docker-compose -f "%COMPOSE_FILE%" build
@@ -194,40 +107,85 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Wait for services
-echo [INFO] Waiting for services to start...
-timeout /t 10 /nobreak >nul
+echo [SUCCESS] Services deployed
 
-REM Show status
+REM Wait for services
+echo [INFO] Waiting for services to be ready...
+timeout /t 30 /nobreak >nul
+
+REM Test backend health
+set BACKEND_HEALTHY=false
+for /L %%i in (1,1,10) do (
+    curl -s -f "%BACKEND_URL%/health" >nul 2>&1
+    if not errorlevel 1 (
+        set BACKEND_HEALTHY=true
+        goto :backend_ready
+    )
+    echo Waiting for backend... (%%i/10)
+    timeout /t 3 /nobreak >nul
+)
+:backend_ready
+
+if "%BACKEND_HEALTHY%"=="true" (
+    echo [SUCCESS] Backend is healthy
+) else (
+    echo [WARNING] Backend health check timeout, but continuing...
+)
+
+REM Test frontend
+set FRONTEND_HEALTHY=false
+for /L %%i in (1,1,5) do (
+    curl -s -f "%FRONTEND_URL%" >nul 2>&1
+    if not errorlevel 1 (
+        set FRONTEND_HEALTHY=true
+        goto :frontend_ready
+    )
+    echo Waiting for frontend... (%%i/5)
+    timeout /t 2 /nobreak >nul
+)
+:frontend_ready
+
+if "%FRONTEND_HEALTHY%"=="true" (
+    echo [SUCCESS] Frontend is healthy
+) else (
+    echo [WARNING] Frontend health check timeout, but continuing...
+)
+
+REM Show results
 echo.
-echo [INFO] Service Status:
+echo [INFO] Deployment Results:
+echo ══════════════════════════════════
 docker-compose -f "%COMPOSE_FILE%" ps
 
-REM Show URLs
 echo.
-echo [SUCCESS] 🎉 Deployment Complete!
-echo ==========================
-if "%ENVIRONMENT%"=="production" (
-    echo 🌐 Frontend: http://172.17.14.65:%FRONTEND_PORT%
-    echo 🔧 Backend:  http://172.17.14.65:%BACKEND_PORT%
-) else (
-    echo 🌐 Frontend: http://localhost:%FRONTEND_PORT%
-    echo 🔧 Backend:  http://localhost:%BACKEND_PORT%
+echo 🌐 Access URLs:
+echo    Frontend: %FRONTEND_URL%
+echo    Backend:  %BACKEND_URL%
+echo    Health:   %BACKEND_URL%/health
+
+if "%ENVIRONMENT%"=="prod" (
+    echo.
+    echo 🔐 IMPORTANT - GitHub OAuth Setup:
+    echo    1. Go to: https://github.com/settings/developers
+    echo    2. Find OAuth App: Iv23liGLM3AMR1Tl3af5
+    echo    3. Update URLs:
+    echo       - Homepage URL: %FRONTEND_URL%
+    echo       - Callback URL: %FRONTEND_URL%/auth/github/callback
+    echo.
+    echo 📋 Default Admin Account:
+    echo    Username: admin
+    echo    Password: Admin@123
+    echo    (Change password after first login)
 )
-echo ==========================
+
 echo.
 echo 📋 Management Commands:
-echo   Status:   docker-compose -f %COMPOSE_FILE% ps
-echo   Logs:     docker-compose -f %COMPOSE_FILE% logs -f
-echo   Stop:     docker-compose -f %COMPOSE_FILE% down
-echo   Restart:  docker-compose -f %COMPOSE_FILE% restart
-echo.
+echo    Status:   docker-compose -f %COMPOSE_FILE% ps
+echo    Logs:     docker-compose -f %COMPOSE_FILE% logs -f
+echo    Restart:  docker-compose -f %COMPOSE_FILE% restart
+echo    Stop:     docker-compose -f %COMPOSE_FILE% down
 
-if "%ENVIRONMENT%"=="production" (
-    echo 🔐 IMPORTANT: Update GitHub OAuth URLs to:
-    echo    Homepage: http://172.17.14.65:3000
-    echo    Callback: http://172.17.14.65:3000/auth/github/callback
-    echo.
-)
+echo.
+echo [SUCCESS] 🎉 Deployment Complete!
 
 pause

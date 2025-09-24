@@ -1,4 +1,4 @@
-# Production Dockerfile for Frontend (Simple Node.js Server)
+# VersionIntel Frontend Production Dockerfile
 FROM node:18-alpine
 
 WORKDIR /app
@@ -7,10 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
-
-# Install serve for production
-RUN npm install -g serve
+RUN npm ci --only=production && npm install -g serve
 
 # Copy source code
 COPY . .
@@ -30,9 +27,9 @@ RUN npm run build
 
 # Create non-root user
 RUN addgroup -g 1001 -S appuser && \
-    adduser -S -D -H -u 1001 -h /var/cache -s /sbin/nologin -G appuser -g appuser appuser
+    adduser -S -D -H -u 1001 -h /app -s /sbin/nologin -G appuser appuser
 
-# Set proper permissions
+# Set permissions
 RUN chown -R appuser:appuser /app
 
 # Switch to non-root user
@@ -44,5 +41,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
 
 EXPOSE 3000
 
-# Serve the built application
 CMD ["serve", "-s", "build", "-l", "3000"]

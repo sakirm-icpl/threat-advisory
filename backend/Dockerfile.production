@@ -1,7 +1,7 @@
-# Production Dockerfile for Backend - FIXED
+# VersionIntel Backend Production Dockerfile
 FROM python:3.11-slim
 
-# Security: Create non-root user
+# Create non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 WORKDIR /app
@@ -9,67 +9,57 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Copy requirements first for better layer caching
+# Copy requirements and install Python dependencies
 COPY requirements.txt .
-
-# Install Python dependencies (including gunicorn)
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip cache purge
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
 
-# Create startup script with database initialization
-COPY <<EOF /app/start.sh
-#!/bin/bash
-set -e
-export PYTHONPATH=/app
+# Create startup script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+export PYTHONPATH=/app\n\
+echo "=== VersionIntel Backend Starting ==="\n\
+echo "Environment: ${FLASK_ENV:-production}"\n\
+echo "Database: $POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB"\n\
+echo "Waiting for database..."\n\
+until pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER; do\n\
+    echo "Database not ready, waiting..."\n\
+    sleep 2\n\
+done\n\
+echo "Database is ready!"\n\
+echo "Initializing database..."\n\
+python3 -c "\
+from app import create_app, db;\
+from sqlalchemy import text;\
+import sys;\
+try:\
+    app = create_app();\
+    with app.app_context():\
+        db.session.execute(text('\''SELECT 1'\''));\
+        print('\''Database connection verified'\'');\
+        db.create_all();\
+        print('\''Database tables created/verified'\'');\
+        from app.models.user import User;\
+        if not User.query.filter_by(username='\''admin'\'').first():\
+            admin = User(username='\''admin'\'', email='\''admin@versionintel.com'\'', role='\''admin'\'');\
+            admin.set_password('\''Admin@123'\'');\
+            db.session.add(admin);\
+            db.session.commit();\
+            print('\''Default admin user created: admin / Admin@123'\'');\
+        print('\''Database initialization complete'\'');\
+except Exception as e:\
+    print(f'\''Database initialization failed: {e}'\'');\
+    sys.exit(1)"\n\
+echo "Starting Gunicorn server..."\n\
+exec gunicorn --bind 0.0.0.0:5000 --workers 4 --worker-class sync --timeout 120 --keepalive 5 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile - --log-level info wsgi:app' > /app/start.sh
 
-echo "Starting VersionIntel Backend..."
-echo "Waiting for database connection..."
-
-# Initialize database
-python3 -c "
-from app import create_app, db
-from sqlalchemy import text
-import time
-
-app = create_app()
-with app.app_context():
-    # Wait for database connection
-    max_retries = 30
-    for i in range(max_retries):
-        try:
-            db.session.execute(text('SELECT 1'))
-            print('Database connection successful')
-            break
-        except Exception as e:
-            print(f'Waiting for database... {i+1}/{max_retries}: {e}')
-            time.sleep(2)
-            if i == max_retries - 1:
-                print('Database connection failed')
-                exit(1)
-    
-    # Create tables
-    try:
-        db.create_all()
-        print('Database tables created/verified')
-    except Exception as e:
-        print(f'Table creation error: {e}')
-"
-
-echo "Starting Gunicorn server..."
-exec gunicorn --bind 0.0.0.0:5000 --workers 4 --worker-class sync --timeout 120 --keepalive 5 --max-requests 1000 --max-requests-jitter 100 --preload wsgi:app
-EOF
-
-RUN chmod +x /app/start.sh
-
-# Set proper permissions
-RUN chown -R appuser:appuser /app
+RUN chmod +x /app/start.sh && chown -R appuser:appuser /app
 
 # Create log directory
 RUN mkdir -p /var/log/versionintel && chown appuser:appuser /var/log/versionintel
