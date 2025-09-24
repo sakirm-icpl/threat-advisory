@@ -3,7 +3,18 @@ import os
 class Config:
     # Basic Flask configuration
     SECRET_KEY = os.environ.get("SECRET_KEY", "supersecretkey")
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@db:5432/versionintel")  # Supports both Docker and local
+    
+    # Build DATABASE_URL from components
+    POSTGRES_USER = os.environ.get("POSTGRES_USER", "postgres")
+    POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "postgres")
+    POSTGRES_DB = os.environ.get("POSTGRES_DB", "versionintel")
+    POSTGRES_HOST = os.environ.get("POSTGRES_HOST", "db")
+    POSTGRES_PORT = os.environ.get("POSTGRES_PORT", "5432")
+    
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URL", 
+        f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT configuration
@@ -46,6 +57,3 @@ class Config:
         'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
     }
 
-# Enable debug mode for troubleshooting
-Config.FLASK_ENV = 'development'
-Config.FLASK_DEBUG = 1

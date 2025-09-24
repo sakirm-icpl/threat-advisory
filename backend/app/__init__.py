@@ -20,14 +20,19 @@ def create_app():
     app.config.from_object(Config)
     
     # Configure CORS with production settings
-    # In production, restrict origins to your domain
     allowed_origins = [
         "http://172.17.14.65:3000",
         "http://172.17.14.65:8000",
-        "http://localhost:3000",  # Keep for development
-        "http://localhost:8000"   # Keep for development
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000"
     ]
-    CORS(app, origins=allowed_origins, supports_credentials=True)
+    CORS(app, 
+         origins=allowed_origins, 
+         supports_credentials=True,
+         allow_headers=['Content-Type', 'Authorization'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
     
     # Initialize extensions
     db.init_app(app)
