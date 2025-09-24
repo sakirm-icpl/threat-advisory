@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
@@ -20,13 +21,31 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const success = await login(username, password);
+      if (success) {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGitHubLogin = async () => {
     try {
       setLoading(true);
       setError('');
       
-      // Get GitHub OAuth URL
-      const response = await fetch('/auth/github/login');
+      // Get GitHub OAuth URL from backend
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/auth/github/login`);
       const data = await response.json();
       
       if (data.auth_url) {

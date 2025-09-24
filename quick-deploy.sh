@@ -59,7 +59,15 @@ echo "REACT_APP_API_URL=http://$SERVER_IP:8000" > frontend/.env
 # Deploy
 echo "🚀 Deploying..."
 docker-compose down --remove-orphans 2>/dev/null || true
-docker-compose --env-file .env up -d --build
+
+echo "🔨 Building images..."
+if docker-compose --env-file .env build; then
+    echo "✅ Build successful, starting services..."
+    docker-compose --env-file .env up -d
+else
+    echo "❌ Build failed, please check the error messages above"
+    exit 1
+fi
 
 echo "⏳ Waiting for services..."
 sleep 30
