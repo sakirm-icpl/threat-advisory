@@ -89,11 +89,18 @@ backup_database() {
     # Generate backup filename with timestamp
     BACKUP_FILE="$BACKUP_DIR/versionintel-backup-$(date +%Y%m%d-%H%M%S).sql"
     
-    # Check if database container is running
+    # Check if database container is running and database exists
     if docker-compose -f "$COMPOSE_FILE" ps db | grep -q "Up"; then
-        log_info "Creating database backup: $BACKUP_FILE"
-        docker-compose -f "$COMPOSE_FILE" exec -T db pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > "$BACKUP_FILE"
-        log_success "Database backup created: $BACKUP_FILE"
+        log_info "Database container is running, checking if database exists..."
+        
+        # Check if database exists
+        if docker-compose -f "$COMPOSE_FILE" exec -T db psql -U "$POSTGRES_USER" -lqt | cut -d \| -f 1 | grep -qw "$POSTGRES_DB"; then
+            log_info "Creating database backup: $BACKUP_FILE"
+            docker-compose -f "$COMPOSE_FILE" exec -T db pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > "$BACKUP_FILE"
+            log_success "Database backup created: $BACKUP_FILE"
+        else
+            log_warning "Database '$POSTGRES_DB' doesn't exist yet, skipping backup (first deployment)"
+        fi
     else
         log_warning "Database container not running, skipping backup"
     fi
