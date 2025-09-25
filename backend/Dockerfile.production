@@ -37,7 +37,7 @@ echo "Database is ready!"
 echo "Initializing database..."
 python3 init_db.py
 echo "Starting Gunicorn server..."
-exec gunicorn --bind 0.0.0.0:5000 --workers 4 --worker-class sync --timeout 120 --keepalive 5 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile - --log-level info wsgi:app
+exec gunicorn --bind 0.0.0.0:5000 --workers 4 --worker-class sync --timeout 120 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile - --log-level info wsgi:app
 EOF
 
 RUN chmod +x /app/start.sh && chown -R appuser:appuser /app
