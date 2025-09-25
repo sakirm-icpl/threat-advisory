@@ -49,6 +49,51 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const loginWithGitHub = () => {
+    // Generate state parameter for CSRF protection
+    const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('oauth_state', state);
+    
+    // Redirect to GitHub OAuth
+    const clientId = process.env.REACT_APP_GITHUB_CLIENT_ID;
+    const redirectUri = `${window.location.origin}/auth/callback`;
+    const scope = 'user:email';
+    
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+    
+    window.location.href = githubAuthUrl;
+  };
+
+  const handleGitHubCallback = async (code, state) => {
+    try {
+      // Verify state parameter for CSRF protection
+      const storedState = localStorage.getItem('oauth_state');
+      if (!storedState || storedState !== state) {
+        throw new Error('Invalid state parameter - possible CSRF attack');
+      }
+      
+      // Clear stored state
+      localStorage.removeItem('oauth_state');
+      
+      const response = await api.get(`/auth/github/callback?code=${code}`);
+      const { access_token, refresh_token, user } = response.data;
+      
+      localStorage.setItem('access_token', access_token);
+      localStorage.setItem('refresh_token', refresh_token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      
+      setUser(user);
+      toast.success('GitHub authentication successful!');
+      
+      return { success: true, user };
+    } catch (error) {
+      console.error('GitHub auth callback error:', error);
+      const errorMessage = error.response?.data?.error || error.message || 'Authentication failed';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -81,8 +126,11 @@ export function AuthProvider({ children }) {
     user,
     loading,
     login,
+    loginWithGitHub,
+    handleGitHubCallback,
     logout,
-    refreshToken
+    refreshToken,
+    isAuthenticated: !!user
   };
 
   return (

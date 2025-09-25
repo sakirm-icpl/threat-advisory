@@ -28,6 +28,10 @@ def create_app():
     jwt.init_app(app)
     bcrypt.init_app(app)
     swagger.init_app(app)
+    
+    # Initialize GitHub OAuth
+    from .services.github_oauth import github_oauth
+    github_oauth.init_app(app)
 
     # Configure logging for production
     if app.config.get('FLASK_ENV') == 'production':

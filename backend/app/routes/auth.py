@@ -1,8 +1,10 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect, url_for, current_app
 from app.models.user import User
 from app.services.auth import login_user, require_admin, get_current_user
+from app.services.github_oauth import github_oauth
 from app import db
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
+from datetime import datetime
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -22,6 +24,95 @@ def login():
     except Exception as e:
         print(f"Error in login: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+@bp.route('/github/login', methods=['GET'])
+def github_login():
+    """Initiate GitHub OAuth login"""
+    try:
+        redirect_uri = request.args.get('redirect_uri', 'http://localhost:3000/auth/callback')
+        return github_oauth.get_authorization_url(redirect_uri)
+    except Exception as e:
+        current_app.logger.error(f"Error initiating GitHub OAuth: {str(e)}")
+        return jsonify({'error': 'Failed to initiate GitHub authentication'}), 500
+
+@bp.route('/github/callback', methods=['GET'])
+def github_callback():
+    """Handle GitHub OAuth callback"""
+    code = request.args.get('code')
+    error = request.args.get('error')
+    
+    if error:
+        current_app.logger.warning(f"GitHub OAuth error: {error}")
+        return jsonify({'error': 'GitHub OAuth error', 'details': error}), 400
+    
+    if not code:
+        return jsonify({'error': 'Authorization code not provided'}), 400
+    
+    try:
+        # Exchange code for access token
+        token_data = github_oauth.get_access_token(code)
+        if not token_data or 'access_token' not in token_data:
+            return jsonify({'error': 'Failed to get access token'}), 400
+        
+        # Get user info from GitHub
+        user_info = github_oauth.get_user_info(token_data['access_token'])
+        if not user_info:
+            return jsonify({'error': 'Failed to get user information'}), 400
+        
+        if not user_info.get('email'):
+            return jsonify({'error': 'GitHub account must have a public email address'}), 400
+        
+        # Find or create user
+        user = User.query.filter_by(github_id=user_info['github_id']).first()
+        
+        if not user:
+            # Check if user exists with same email
+            existing_user = User.query.filter_by(email=user_info['email']).first()
+            if existing_user:
+                # Link GitHub account to existing user
+                existing_user.github_id = user_info['github_id']
+                existing_user.avatar_url = user_info['avatar_url']
+                existing_user.github_username = user_info['github_username']
+                existing_user.updated_at = datetime.utcnow()
+                user = existing_user
+                current_app.logger.info(f"Linked GitHub account to existing user: {user.email}")
+            else:
+                # Create new user
+                user = User(
+                    username=user_info['username'],
+                    email=user_info['email'],
+                    github_id=user_info['github_id'],
+                    avatar_url=user_info['avatar_url'],
+                    github_username=user_info['github_username'],
+                    role='user'  # Default role
+                )
+                db.session.add(user)
+                current_app.logger.info(f"Created new user from GitHub: {user.email}")
+        else:
+            # Update existing GitHub user info
+            user.avatar_url = user_info['avatar_url']
+            user.email = user_info['email']
+            user.updated_at = datetime.utcnow()
+            current_app.logger.info(f"Updated existing GitHub user: {user.email}")
+        
+        # Update last login
+        user.last_login = datetime.utcnow()
+        db.session.commit()
+        
+        # Generate JWT tokens
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
+        
+        return jsonify({
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'user': user.to_dict()
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"GitHub OAuth error: {str(e)}")
+        return jsonify({'error': 'Authentication failed'}), 500
 
 @bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)

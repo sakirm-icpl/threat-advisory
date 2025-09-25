@@ -10,7 +10,13 @@ class User(db.Model):
     id = db.Column(db.String, primary_key=True, default=lambda: str(uuid.uuid4()))
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=True)  # Made nullable for OAuth users
+    
+    # GitHub OAuth fields
+    github_id = db.Column(db.String(50), unique=True, nullable=True)
+    avatar_url = db.Column(db.String(255), nullable=True)
+    github_username = db.Column(db.String(80), nullable=True)
+    
     role = db.Column(db.String(20), default='user')  # admin, user, readonly
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -29,6 +35,8 @@ class User(db.Model):
                 'id': self.id,
                 'username': self.username,
                 'email': self.email,
+                'github_username': self.github_username,
+                'avatar_url': self.avatar_url,
                 'role': self.role,
                 'is_active': self.is_active,
                 'created_at': self.created_at.isoformat() if self.created_at else None,
@@ -41,6 +49,8 @@ class User(db.Model):
                 'id': self.id,
                 'username': self.username,
                 'email': self.email,
+                'github_username': self.github_username,
+                'avatar_url': self.avatar_url,
                 'role': self.role,
                 'is_active': self.is_active,
                 'created_at': None,
