@@ -27,7 +27,7 @@ export default function GitHubCallback() {
           return;
         }
 
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://172.17.14.65:8000';
         
         // Use fetch with explicit HTTP/1.1 configuration
         const response = await fetch(apiUrl + '/auth/github/callback', {

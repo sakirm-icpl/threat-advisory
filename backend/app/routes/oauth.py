@@ -181,8 +181,8 @@ def github_callback():
     
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"GitHub OAuth callback error: {e}")
-        return jsonify({'error': 'OAuth callback failed'}), 500
+        current_app.logger.error(f"GitHub OAuth callback error: {type(e).__name__}: {str(e)}")
+        return jsonify({'error': 'OAuth callback failed', 'message': str(e)}), 500
 
 @oauth_bp.route('/status', methods=['GET'])
 @jwt_required()
