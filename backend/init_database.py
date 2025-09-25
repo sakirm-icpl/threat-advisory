@@ -12,20 +12,7 @@ with app.app_context():
     db.create_all()
     print("Database tables created successfully!")
     
-    # Check if admin user exists
-    admin_user = User.query.filter_by(username='admin').first()
-    if not admin_user:
-        print("Creating admin user...")
-        admin_user = User(
-            username='admin',
-            email='admin@example.com',
-            role='admin'
-        )
-        admin_user.set_password('Admin@1234')
-        db.session.add(admin_user)
-        db.session.commit()
-        print("Admin user created successfully!")
-    else:
-        print("Admin user already exists!")
-    
-    print("Database initialization complete!") 
+    # No default admin user creation - GitHub OAuth only
+    print("Database initialization complete!")
+    print("Note: All users must authenticate via GitHub OAuth.")
+    print("To grant admin access, manually update the user role in the database after first login.") 

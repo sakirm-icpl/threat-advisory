@@ -31,24 +31,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const login = async (username, password) => {
-    try {
-      const response = await api.post('/auth/login', { username, password });
-      const { access_token, refresh_token, user: userData } = response.data;
-      
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('refresh_token', refresh_token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-      
-      setUser(userData);
-      toast.success('Login successful!');
-      return true;
-    } catch (error) {
-      toast.error(error.response?.data?.error || 'Login failed');
-      return false;
-    }
-  };
-
   const githubLogin = async (accessToken, refreshToken) => {
     try {
       localStorage.setItem('access_token', accessToken);
@@ -101,7 +83,6 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     loading,
-    login,
     githubLogin,
     logout,
     refreshToken

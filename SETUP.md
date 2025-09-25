@@ -96,7 +96,7 @@ openssl rand -hex 32
 openssl rand -base64 32
 ```
 
-### **GitHub OAuth Setup** (Optional)
+### **GitHub OAuth Setup** (Required)
 1. Go to: https://github.com/settings/developers
 2. Click "New OAuth App"
 3. Fill details:
@@ -104,6 +104,8 @@ openssl rand -base64 32
    - **Homepage URL**: `http://YOUR_SERVER_IP:3000`
    - **Callback URL**: `http://YOUR_SERVER_IP:3000/auth/github/callback`
 4. Copy Client ID and Secret to `.env`
+
+**Note**: GitHub OAuth is required for authentication. The application will not work without it.
 
 ### **Google AI Setup** (Optional)
 1. Go to: https://console.cloud.google.com/
@@ -139,9 +141,15 @@ CORS_ORIGINS=https://versionintel.yourdomain.com
 - **Backend API**: http://YOUR_SERVER_IP:8000
 - **Health Check**: http://YOUR_SERVER_IP:8000/health
 
-### **Default Login**
-- **Username**: admin
-- **Password**: Admin@123
+### **Authentication**
+**GitHub OAuth Only** - All users must authenticate through GitHub OAuth.
+
+**Note**: To grant admin privileges to a user:
+1. User must first login with GitHub OAuth
+2. Manually update the user role in the database:
+   ```sql
+   docker-compose exec db psql -U versionintel -c "UPDATE users SET role='admin' WHERE github_username='your-username';"
+   ```
 
 ### **Management Commands**
 ```bash
@@ -167,10 +175,9 @@ git pull
 - [ ] Changed default database password
 - [ ] Generated strong SECRET_KEY (32+ chars)
 - [ ] Generated strong JWT_SECRET_KEY (32+ chars)
-- [ ] Updated CORS_ORIGINS for your domain
-- [ ] Changed default admin password after first login
-- [ ] Configured GitHub OAuth with correct URLs
+- [ ] Configured GitHub OAuth with correct URLs (Required)
 - [ ] Secured .env file permissions (`chmod 600 .env`)
+- [ ] Granted admin access to GitHub users as needed
 
 ## 🆘 **Troubleshooting**
 
@@ -225,7 +232,7 @@ docker-compose exec db pg_dump -U versionintel versionintel > backup.sql
 ✅ All containers healthy: `docker-compose ps`  
 ✅ Frontend loads: http://YOUR_SERVER_IP:3000  
 ✅ Backend responds: http://YOUR_SERVER_IP:8000/health  
-✅ Can login with admin/Admin@123  
-✅ GitHub OAuth works (if configured)  
+✅ GitHub OAuth authentication works
+✅ No traditional login available  
 
 **🎉 VersionIntel is now ready for production use!**

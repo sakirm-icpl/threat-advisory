@@ -65,7 +65,7 @@ def create_app():
     from .routes.help import help_bp
     from .routes.analytics import analytics_bp
     from .routes.settings import settings_bp
-    from .routes.user_management import user_management_bp
+    # user_management removed - GitHub OAuth only
 
     app.register_blueprint(vendors_bp)
     app.register_blueprint(products_bp)
@@ -83,7 +83,7 @@ def create_app():
     app.register_blueprint(help_bp)
     app.register_blueprint(analytics_bp)
     app.register_blueprint(settings_bp)
-    app.register_blueprint(user_management_bp)
+    # user_management_bp removed - GitHub OAuth only
 
     # Monitoring
     from .services.monitoring import monitoring_bp

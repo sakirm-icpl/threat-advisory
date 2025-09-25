@@ -22,7 +22,7 @@ services:
   backend:
     build: 
       context: ./backend
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile
     container_name: versionintel-backend
     environment:
       - POSTGRES_HOST=db
@@ -57,7 +57,7 @@ services:
   frontend:
     build:
       context: ./frontend  
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile
       args:
         - REACT_APP_API_URL=http://${SERVER_HOST}:8000
         - REACT_APP_ENVIRONMENT=production

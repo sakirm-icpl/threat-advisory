@@ -97,8 +97,7 @@ api.interceptors.response.use(
 
 // API endpoints
 export const endpoints = {
-  // Auth
-  login: (credentials) => api.post('/auth/login', credentials),
+  // Auth (GitHub OAuth only)
   refresh: () => api.post('/auth/refresh'),
   me: () => api.get('/auth/me'),
   
@@ -142,12 +141,8 @@ export const endpoints = {
   exportProduct: (productId) => api.get(`/bulk/export-product/${productId}`),
   exportAllComplete: () => api.get('/bulk/export-all-complete'),
   
-  // Users (Admin only)
-  getUsers: () => api.get('/auth/users'),
-  createUser: (data) => api.post('/auth/users', data),
-  updateUser: (id, data) => api.put(`/auth/users/${id}`, data),
-  deleteUser: (id) => api.delete(`/auth/users/${id}`),
-  resetUserPassword: (data) => api.post('/auth/reset-password', data),
+  // Users removed - GitHub OAuth only authentication
+  // Admin user management not available
   
   // Health & Metrics
   health: () => api.get('/health'),

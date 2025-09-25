@@ -8,27 +8,6 @@ from app.models.user import User
 from app import db
 from datetime import datetime, timedelta
 
-def login_user(username, password):
-    """Authenticate user and return tokens"""
-    user = User.query.filter_by(username=username).first()
-    
-    if user and user.check_password(password) and user.is_active:
-        # Update last login
-        user.last_login = datetime.utcnow()
-        db.session.commit()
-        
-        # Create tokens
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
-        
-        return {
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-            'user': user.to_dict()
-        }
-    
-    return None
-
 def require_permission(permission):
     """Decorator to require specific permission"""
     def decorator(fn):

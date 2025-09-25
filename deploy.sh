@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# VersionIntel Standard Deployment Script
-# =======================================
+# VersionIntel GitHub OAuth Deployment Script
+# ==========================================
 # Universal deployment for any server
 
 set -e
 
-echo "🚀 VersionIntel Standard Deployment"
-echo "==================================="
+echo "🚀 VersionIntel GitHub OAuth Deployment"
+echo "======================================"
 echo ""
 
 # Check if .env exists
@@ -36,12 +36,18 @@ required_vars=(
     "POSTGRES_DB"
     "SECRET_KEY"
     "JWT_SECRET_KEY"
+    "GITHUB_CLIENT_ID"
+    "GITHUB_CLIENT_SECRET"
 )
 
 echo "🔍 Validating configuration..."
 for var in "${required_vars[@]}"; do
     if [ -z "${!var}" ]; then
         echo "❌ Required variable $var is not set in .env"
+        if [[ "$var" == "GITHUB_CLIENT_ID" || "$var" == "GITHUB_CLIENT_SECRET" ]]; then
+            echo "   GitHub OAuth is required for authentication!"
+            echo "   Set up at: https://github.com/settings/developers"
+        fi
         exit 1
     fi
 done
@@ -62,7 +68,7 @@ docker-compose up -d --build
 
 # Wait for services
 echo "⏳ Waiting for services to start..."
-sleep 20
+sleep 30
 
 # Show status
 echo ""
@@ -73,13 +79,13 @@ echo ""
 echo "✅ VersionIntel Deployed Successfully!"
 echo ""
 echo "🌐 Access URLs:"
-echo "   Frontend: http://localhost:3000"
-echo "   Backend:  http://localhost:8000"
-echo "   Health:   http://localhost:8000/health"
+echo "   Frontend: http://${SERVER_HOST:-localhost}:3000"
+echo "   Backend:  http://${SERVER_HOST:-localhost}:8000"
+echo "   Health:   http://${SERVER_HOST:-localhost}:8000/health"
 echo ""
-echo "🔑 Default Admin Login:"
-echo "   Username: admin"
-echo "   Password: Admin@123"
+echo "🔑 Authentication:"
+echo "   GitHub OAuth Only - No traditional login"
+echo "   First user to login will need admin privileges granted manually"
 echo ""
 echo "📋 Management Commands:"
 echo "   Status:   docker-compose ps"

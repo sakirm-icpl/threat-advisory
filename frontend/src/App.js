@@ -1,4 +1,5 @@
 import React from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import Layout from './components/Layout';
@@ -13,8 +14,6 @@ import Search from './pages/Search';
 import BulkOperations from './pages/BulkOperations';
 import CVESearch from './pages/CVESearch';
 import Profile from './pages/Profile';
-import Users from './pages/Users';
-import UserManagement from './pages/UserManagement';
 import EditProduct from "./pages/EditProduct";
 import EditDetectionMethod from "./pages/EditDetectionMethod";
 import EditSetupGuide from "./pages/EditSetupGuide";
@@ -105,9 +104,7 @@ function AppContent() {
         <Route path="/methods/:id/edit" element={<EditDetectionMethod />} />
         <Route path="/setup-guides/:id/edit" element={<EditSetupGuide />} />
         
-        {/* Admin only */}
-        {user.role === 'admin' && <Route path="/users" element={<Users />} />}
-        {user.role === 'admin' && <Route path="/user-management" element={<UserManagement />} />}
+        {/* Admin only - User management removed, GitHub OAuth only */}
         
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

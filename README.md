@@ -1,45 +1,43 @@
 # VersionIntel - Version Detection Research Platform
 
-## 🚀 **Quick Start (Any Server)**
+## 🚀 **Quick Deploy (1 Command)**
 
 ```bash
 git clone <repository-url>
 cd versionintel
-cp .env.template .env
-nano .env  # Add your secrets
-chmod +x deploy.sh
-./deploy.sh
+chmod +x quick-deploy.sh
+./quick-deploy.sh
 ```
 
-**Access**: http://localhost:3000 | **Login**: admin/Admin@123
+**Access**: http://localhost:3000 | **Login**: GitHub OAuth only
 
 ---
 
 ## 📋 **Complete Setup Guide**
 
-See [SETUP.md](SETUP.md) for detailed instructions including:
-- Server prerequisites
-- Secrets configuration
-- GitHub OAuth setup
-- Google AI integration
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed instructions including:
+- GitHub OAuth setup (Required)
+- Server configuration
+- Google AI integration (Optional)
 - Production deployment
 - Troubleshooting
 
-## 🔐 **Quick Secrets Generation**
+## 🔐 **Quick GitHub OAuth Setup**
 
-```bash
-chmod +x generate-secrets.sh
-./generate-secrets.sh > .env
-# Edit .env to update SERVER_HOST with your IP
-```
+1. Go to: https://github.com/settings/developers
+2. Create "New OAuth App":
+   - **Name**: VersionIntel
+   - **Homepage**: `http://YOUR_SERVER_IP:3000`
+   - **Callback**: `http://YOUR_SERVER_IP:3000/auth/github/callback`
+3. Copy Client ID and Secret to `.env` file
 
 ## 🎯 **What You Get**
 
 - **Frontend**: Modern React application (Port 3000)
 - **Backend**: Flask API with JWT auth (Port 8000)
 - **Database**: PostgreSQL with auto-initialization
-- **OAuth**: GitHub authentication ready
-- **AI**: Google Gemini integration
+- **Authentication**: GitHub OAuth 2.0 (Required)
+- **AI**: Google Gemini integration (Optional)
 - **Docker**: Fully containerized deployment
 
 ## 🛠️ **Management**
@@ -63,7 +61,7 @@ git pull && ./deploy.sh
 
 ## 🌐 **Features**
 
-- ✅ User authentication with GitHub OAuth
+- ✅ Secure GitHub OAuth 2.0 authentication
 - ✅ Repository scanning and analysis
 - ✅ Vulnerability detection with AI
 - ✅ Dashboard with analytics

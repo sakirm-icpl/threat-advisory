@@ -6,6 +6,7 @@ from app import db
 import requests
 import urllib.parse
 import secrets
+from datetime import datetime
 
 oauth_bp = Blueprint('oauth', __name__, url_prefix='/auth/github')
 
@@ -117,24 +118,29 @@ def github_callback():
         user = User.query.filter_by(github_id=github_user['id']).first()
         
         if not user:
-            # Create new user
+            # Create new user with GitHub data
             user = User(
                 username=github_user['login'],
-                email=primary_email or f"{github_user['login']}@github.local",
+                email=primary_email or f"{github_user['login']}@users.noreply.github.com",
                 github_id=github_user['id'],
                 github_username=github_user['login'],
                 github_avatar_url=github_user.get('avatar_url'),
-                display_name=github_user.get('name', github_user['login']),
-                role='user'
+                display_name=github_user.get('name') or github_user['login'],
+                role='user'  # Default role for new users
             )
             db.session.add(user)
+            current_app.logger.info(f'Created new user: {user.username} (GitHub ID: {github_user["id"]})')
         else:
-            # Update existing user
+            # Update existing user with latest GitHub info
             user.github_username = github_user['login']
             user.github_avatar_url = github_user.get('avatar_url')
-            user.display_name = github_user.get('name', github_user['login'])
+            user.display_name = github_user.get('name') or github_user['login']
             if primary_email:
                 user.email = primary_email
+            current_app.logger.info(f'Updated existing user: {user.username} (GitHub ID: {github_user["id"]})')
+        
+        # Update last login
+        user.last_login = datetime.utcnow()
         
         # Create or update contributor profile
         contributor = ContributorProfile.query.filter_by(github_user_id=github_user['id']).first()

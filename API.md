@@ -44,16 +44,29 @@ All responses follow this structure:
 
 ## 🔐 Authentication
 
-VersionIntel uses JWT (JSON Web Token) authentication.
+VersionIntel uses GitHub OAuth 2.0 for authentication with JWT tokens.
 
-### Login
+### GitHub OAuth Login
 ```http
-POST /auth/login
+GET /auth/github/login
+```
+
+**Response:**
+```json
+{
+  "auth_url": "https://github.com/login/oauth/authorize?client_id=...",
+  "state": "random-state-string"
+}
+```
+
+### GitHub OAuth Callback
+```http
+POST /auth/github/callback
 Content-Type: application/json
 
 {
-  "username": "admin",
-  "password": "Admin@1234"
+  "code": "github-auth-code",
+  "state": "random-state-string"
 }
 ```
 
@@ -61,11 +74,15 @@ Content-Type: application/json
 ```json
 {
   "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
   "user": {
-    "id": 1,
-    "username": "admin",
-    "email": "admin@example.com",
-    "role": "admin"
+    "id": "user-uuid",
+    "username": "github-username",
+    "email": "user@example.com",
+    "role": "user",
+    "github_username": "github-username",
+    "github_avatar_url": "https://avatars.githubusercontent.com/...",
+    "display_name": "User Display Name"
   }
 }
 ```
@@ -82,10 +99,22 @@ POST /auth/refresh
 Authorization: Bearer <your-jwt-token>
 ```
 
-### Logout
+### Get Current User Profile
 ```http
-POST /auth/logout
+GET /auth/me
 Authorization: Bearer <your-jwt-token>
+```
+
+### Update Profile
+```http
+PUT /auth/me
+Authorization: Bearer <your-jwt-token>
+Content-Type: application/json
+
+{
+  "email": "newemail@example.com",
+  "display_name": "New Display Name"
+}
 ```
 
 ## 🏥 Health & Monitoring
@@ -588,93 +617,27 @@ DELETE /api/setup-guides/{id}
 Authorization: Bearer <your-jwt-token>
 ```
 
-## 👥 User Management
+## 🔐 User Profile Management
 
-### List Users
+### Get Current User
 ```http
-GET /api/users
+GET /auth/me
 Authorization: Bearer <your-jwt-token>
 ```
 
-**Query Parameters:**
-- `page` (optional): Page number (default: 1)
-- `per_page` (optional): Items per page (default: 20)
-- `search` (optional): Search term for username or email
-- `role` (optional): Filter by role (admin, user)
-- `sort_by` (optional): Sort field (username, email, created_at)
-- `sort_order` (optional): Sort order (asc, desc)
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "username": "admin",
-      "email": "admin@example.com",
-      "role": "admin",
-      "is_active": true,
-      "created_at": "2024-01-01T00:00:00Z",
-      "last_login": "2024-01-15T10:30:00Z"
-    }
-  ],
-  "total_results": 25,
-  "page": 1,
-  "per_page": 20
-}
-```
-
-### Create User
+### Update Profile
 ```http
-POST /api/users
+PUT /auth/me
 Authorization: Bearer <your-jwt-token>
 Content-Type: application/json
 
 {
-  "username": "newuser",
-  "email": "user@example.com",
-  "password": "securepassword123",
-  "role": "user"
+  "email": "newemail@example.com",
+  "display_name": "New Display Name"
 }
 ```
 
-### Get User
-```http
-GET /api/users/{id}
-Authorization: Bearer <your-jwt-token>
-```
-
-### Update User
-```http
-PUT /api/users/{id}
-Authorization: Bearer <your-jwt-token>
-Content-Type: application/json
-
-{
-  "email": "updated@example.com",
-  "role": "admin",
-  "is_active": true
-}
-```
-
-### Delete User
-```http
-DELETE /api/users/{id}
-Authorization: Bearer <your-jwt-token>
-```
-
-### Change Password
-```http
-POST /api/users/{id}/change-password
-Authorization: Bearer <your-jwt-token>
-Content-Type: application/json
-
-{
-  "current_password": "oldpassword",
-  "new_password": "newsecurepassword123"
-}
-```
+**Note**: Traditional user management has been removed. All users authenticate via GitHub OAuth only.
 
 ## 📦 Bulk Operations
 
