@@ -62,7 +62,7 @@ export default function UserManagement() {
   };
 
   const deleteUser = async (userId) => {
-    if (!confirm('Are you sure you want to deactivate this user?')) return;
+    if (!window.confirm('Are you sure you want to deactivate this user?')) return;
     
     try {
       await endpoints.deleteUser(userId);
