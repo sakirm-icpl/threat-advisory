@@ -1,10 +1,13 @@
 from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify
 from app.models.vendor import Vendor
+from app.services.auth import require_permission, require_admin
 from app import db
 
 bp = Blueprint('vendors', __name__, url_prefix='/vendors')
 
 @bp.route('', methods=['POST'])
+@require_permission('write')
 def add_vendor():
     try:
         data = request.json
@@ -26,6 +29,7 @@ def add_vendor():
         return jsonify({'error': str(e)}), 500
 
 @bp.route('', methods=['GET'])
+@require_permission('read')
 def list_vendors():
     try:
         vendors = Vendor.query.all()
@@ -54,6 +58,7 @@ def get_vendor(vendor_id):
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/<vendor_id>', methods=['PUT'])
+@require_permission('write')
 def update_vendor(vendor_id):
     try:
         vendor = Vendor.query.get(vendor_id)

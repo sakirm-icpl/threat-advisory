@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   HomeIcon,
   BuildingOfficeIcon,
@@ -57,8 +58,7 @@ const helpNavigation = [
 ];
 
 const adminNavigation = [
-  { name: 'Users', href: '/users', icon: UserGroupIcon },
-  { name: 'User Management', href: '/user-management', icon: ShieldCheckIcon },
+  { name: 'User Management', href: '/admin/users', icon: UserGroupIcon },
 ];
 
 export default function Layout({ children }) {

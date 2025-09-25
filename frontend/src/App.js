@@ -31,6 +31,7 @@ import Help from './pages/Help';
 import ApiDocs from './pages/ApiDocs';
 import Analytics from './pages/Analytics';
 import Notifications from './pages/Notifications';
+import UserManagement from './pages/UserManagement';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -103,7 +104,8 @@ function AppContent() {
         <Route path="/methods/:id/edit" element={<EditDetectionMethod />} />
         <Route path="/setup-guides/:id/edit" element={<EditSetupGuide />} />
         
-        {/* Admin only - User management removed, GitHub OAuth only */}
+        {/* Admin only - User management */}
+        <Route path="/admin/users" element={<UserManagement />} />
         
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

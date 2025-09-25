@@ -103,6 +103,15 @@ export const endpoints = {
   refresh: () => api.post('/auth/refresh'),
   me: () => api.get('/auth/me'),
   
+  // User Management (Admin only)
+  getUsers: () => api.get('/admin/users'),
+  getUser: (id) => api.get(`/admin/users/${id}`),
+  updateUserRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }),
+  updateUserStatus: (id, is_active) => api.put(`/admin/users/${id}/status`, { is_active }),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`),
+  promoteGitHubUser: (github_username, role = 'admin') => api.post(`/admin/users/promote/${github_username}`, { role }),
+  getUserStats: () => api.get('/admin/users/stats'),
+  
   // Vendors
   getVendors: () => api.get('/vendors'),
   createVendor: (data) => api.post('/vendors', data),

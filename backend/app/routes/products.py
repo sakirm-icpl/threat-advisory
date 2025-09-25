@@ -1,11 +1,14 @@
 from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify
 from app.models.product import Product
 from app.models.vendor import Vendor
+from app.services.auth import require_permission, require_admin
 from app import db
 
 bp = Blueprint('products', __name__, url_prefix='/products')
 
 @bp.route('', methods=['POST'])
+@require_permission('write')
 def add_product():
     try:
         data = request.json
