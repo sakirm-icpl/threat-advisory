@@ -4,7 +4,7 @@ import axios from 'axios';
 const getApiUrl = () => {
   // In development, use the environment variable
   if (process.env.NODE_ENV === 'development') {
-    return process.env.REACT_APP_API_URL || 'http://localhost:8000';
+    return process.env.REACT_APP_API_URL || 'http://172.17.14.65:8000';
   }
   
   // In production, construct the API URL based on current host
@@ -63,7 +63,7 @@ api.interceptors.response.use(
         }
 
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/auth/refresh`,
+          `${getApiUrl()}/auth/refresh`,
           {},
           {
             headers: { Authorization: `Bearer ${refreshToken}` }

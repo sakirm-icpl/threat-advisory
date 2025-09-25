@@ -24,7 +24,7 @@ export default function Login() {
       setError('');
       
       // Get GitHub OAuth URL from backend
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://172.17.14.65:8000';
       const response = await fetch(`${apiUrl}/auth/github/login`);
       const data = await response.json();
       
