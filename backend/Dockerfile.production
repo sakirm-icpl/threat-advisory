@@ -21,43 +21,24 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create startup script
-RUN echo '#!/bin/bash\n\
-set -e\n\
-export PYTHONPATH=/app\n\
-echo "=== VersionIntel Backend Starting ==="\n\
-echo "Environment: ${FLASK_ENV:-production}"\n\
-echo "Database: $POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB"\n\
-echo "Waiting for database..."\n\
-until pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER; do\n\
-    echo "Database not ready, waiting..."\n\
-    sleep 2\n\
-done\n\
-echo "Database is ready!"\n\
-echo "Initializing database..."\n\
-python3 -c "\
-from app import create_app, db;\
-from sqlalchemy import text;\
-import sys;\
-try:\
-    app = create_app();\
-    with app.app_context():\
-        db.session.execute(text('\''SELECT 1'\''));\
-        print('\''Database connection verified'\'');\
-        db.create_all();\
-        print('\''Database tables created/verified'\'');\
-        from app.models.user import User;\
-        if not User.query.filter_by(username='\''admin'\'').first():\
-            admin = User(username='\''admin'\'', email='\''admin@versionintel.com'\'', role='\''admin'\'');\
-            admin.set_password('\''Admin@123'\'');\
-            db.session.add(admin);\
-            db.session.commit();\
-            print('\''Default admin user created: admin / Admin@123'\'');\
-        print('\''Database initialization complete'\'');\
-except Exception as e:\
-    print(f'\''Database initialization failed: {e}'\'');\
-    sys.exit(1)"\n\
-echo "Starting Gunicorn server..."\n\
-exec gunicorn --bind 0.0.0.0:5000 --workers 4 --worker-class sync --timeout 120 --keepalive 5 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile - --log-level info wsgi:app' > /app/start.sh
+COPY <<EOF /app/start.sh
+#!/bin/bash
+set -e
+export PYTHONPATH=/app
+echo "=== VersionIntel Backend Starting ==="
+echo "Environment: \${FLASK_ENV:-production}"
+echo "Database: \$POSTGRES_HOST:\${POSTGRES_PORT:-5432}/\$POSTGRES_DB"
+echo "Waiting for database..."
+while ! pg_isready -h \$POSTGRES_HOST -p \${POSTGRES_PORT:-5432} -U \$POSTGRES_USER; do
+  echo "Waiting for database..."
+  sleep 2
+done
+echo "Database is ready!"
+echo "Initializing database..."
+python3 init_db.py
+echo "Starting Gunicorn server..."
+exec gunicorn --bind 0.0.0.0:5000 --workers 4 --worker-class sync --timeout 120 --keepalive 5 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile - --log-level info wsgi:app
+EOF
 
 RUN chmod +x /app/start.sh && chown -R appuser:appuser /app
 
