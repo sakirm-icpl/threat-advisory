@@ -21,6 +21,8 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // Force HTTP/1.1 to avoid HTTP/2 issues
+  httpVersion: '1.1'
 });
 
 // Request interceptor to add auth token

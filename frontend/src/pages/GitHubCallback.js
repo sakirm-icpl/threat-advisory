@@ -40,6 +40,8 @@ export default function GitHubCallback() {
             code,
             state: searchParams.get('state')
           }),
+          // Force HTTP/1.1 and disable caching
+          cache: 'no-cache'
         });
 
         const data = await response.json();

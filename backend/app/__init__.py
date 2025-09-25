@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
@@ -88,6 +89,20 @@ def create_app():
     # Monitoring
     from .services.monitoring import monitoring_bp
     app.register_blueprint(monitoring_bp)
+
+    # Handle HTTP/2 protocol issues
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            response = jsonify({})
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.headers.add('Access-Control-Allow-Headers', "*")
+            response.headers.add('Access-Control-Allow-Methods', "*")
+            return response
+        
+        # Handle HTTP/2 PRI requests
+        if request.method == "PRI":
+            return "HTTP/2 not supported", 400
 
     # Security headers middleware
     @app.after_request
