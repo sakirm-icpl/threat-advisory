@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { endpoints } from '../services/api';
 import {
@@ -114,24 +114,36 @@ function removeTimestamps(obj) {
         "detection_methods": [
           {
             "name": "Sample Method",
-            "technique": "HTTP Response Analysis",
-            "regex_python": "pattern",
-            "regex_ruby": "pattern",
-            "curl_command": "curl ...",
-            "expected_response": "Sample",
+            "protocol": "HTTP Response Analysis",
+            "code_snippets": [
+              {
+                "code_language": "python",
+                "code_content": "import re\npattern = r'version: (\\d+\\.\\d+)'\nmatch = re.search(pattern, response)\nif match:\n    version = match.group(1)"
+              },
+              {
+                "code_language": "bash",
+                "code_content": "curl -s http://example.com/version"
+              }
+            ],
+            "expected_response": "version: 1.2.3",
             "requires_auth": false
           }
         ],
         "setup_guides": [
           {
-            "title": "Sample Guide",
-            "content": "Guide content goes here."
-            }
-          ]
-        }
-      ]
-    }
-  };
+            "instructions": "# Development Environment Setup\n\n## Prerequisites\n- Node.js 18+\n- Docker\n- Git\n\n## Installation Steps\n1. Clone the repository\n```bash\ngit clone <repository-url>\ncd project-directory\n```\n\n2. Install dependencies\n```bash\nnpm install\n```\n\n3. Start development server\n```bash\nnpm run dev\n```"
+          },
+          {
+            "instructions": "# Production Deployment Guide\n\n## Docker Deployment\n1. Build the Docker image\n```bash\ndocker build -t app-name .\n```\n\n2. Run the container\n```bash\ndocker run -p 3000:3000 app-name\n```\n\n## Environment Variables\n- `NODE_ENV=production`\n- `DATABASE_URL=<your-db-url>`\n- `API_KEY=<your-api-key>`\n\n## Health Check\nVerify deployment at: `http://localhost:3000/health`"
+          },
+          {
+            "instructions": "# Configuration Guide\n\n## Database Setup\n1. Create database\n```sql\nCREATE DATABASE app_db;\n```\n\n2. Run migrations\n```bash\nnpm run migrate\n```\n\n## SSL Configuration\n1. Generate certificates\n2. Update nginx.conf\n3. Restart services\n\n## Monitoring Setup\n- Configure logging\n- Set up alerts\n- Enable metrics collection"
+          }
+        ]
+      }
+    ]
+  }
+};
 
 export default function BulkOperations() {
   // State management
@@ -418,6 +430,20 @@ export default function BulkOperations() {
               </div>
             </div>
             <div className="space-y-4">
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700">
+                      Note: The sample JSON has been updated to use the new detection method format with <strong>code_snippets</strong> array instead of single code fields. Setup guides now use <strong>instructions</strong> field directly.
+                    </p>
+                  </div>
+                </div>
+              </div>
               {/* File input */}
               <div className="flex items-center gap-4">
                 <input
@@ -472,6 +498,34 @@ export default function BulkOperations() {
                 <div className="card bg-red-50 p-4 mb-4">
                   <h3 className="font-semibold text-red-800 mb-2">Import Error</h3>
                   <div className="text-sm text-red-700">{importError}</div>
+                </div>
+              )}
+              
+              {/* Show guidance when no buttons available */}
+              {importCompareResult && !importCompareResult.can_add && !importCompareResult.can_replace && !importError && (
+                <div className="card bg-blue-50 p-4 mb-4">
+                  <h3 className="font-semibold text-blue-800 mb-2">All Data Already Exists</h3>
+                  <div className="text-sm text-blue-700 mb-2">
+                    This data already exists in the database and matches exactly.
+                  </div>
+                  <div className="text-xs text-blue-600">
+                    <strong>To see Replace button:</strong> The vendor and product must exist in the database with different content.
+                  </div>
+                </div>
+              )}
+              
+              {/* Show mode explanations when buttons are available */}
+              {importCompareResult && (importCompareResult.can_add || importCompareResult.can_replace) && (
+                <div className="card bg-green-50 p-4 mb-4">
+                  <h3 className="font-semibold text-green-800 mb-2">Import Options Available</h3>
+                  <div className="text-sm text-green-700 space-y-1">
+                    {importCompareResult.can_add && (
+                      <div>✅ <strong>Add Mode:</strong> Will add new methods/guides without replacing existing ones</div>
+                    )}
+                    {importCompareResult.can_replace && (
+                      <div>⚠️ <strong>Replace Mode:</strong> Will completely replace ALL existing methods/guides for this product</div>
+                    )}
+                  </div>
                 </div>
               )}
               
@@ -580,4 +634,4 @@ export default function BulkOperations() {
       )}
     </div>
   );
-} 
+}

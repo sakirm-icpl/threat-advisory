@@ -15,6 +15,7 @@ export default function SetupGuides() {
   const [filterProduct, setFilterProduct] = useState("");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState({});
+  const [expandedProducts, setExpandedProducts] = useState(new Set());
   const [modalContent, setModalContent] = useState({ isOpen: false, title: '', content: '' });
   const [showAddForm, setShowAddForm] = useState(false);
   const { user } = useAuth();
@@ -61,11 +62,19 @@ export default function SetupGuides() {
     try {
       await api.post("/setup-guides", form);
       setForm({ product_id: "", instructions: "" });
+      setShowAddForm(false);
       setSuccess("Setup guide added!");
       fetchGuides();
     } catch (e) {
       setError("Failed to add setup guide");
     }
+  };
+
+  const resetForm = () => {
+    setForm({ product_id: "", instructions: "" });
+    setShowAddForm(false);
+    setError("");
+    setSuccess("");
   };
 
   const deleteGuide = async (id) => {
@@ -86,6 +95,21 @@ export default function SetupGuides() {
     const searchMatch = !search || g.instructions.toLowerCase().includes(search.toLowerCase());
     return productMatch && searchMatch;
   });
+  
+  // Group guides by product
+  const groupedGuides = filteredGuides.reduce((acc, guide) => {
+    const productId = guide.product_id;
+    if (!acc[productId]) {
+      acc[productId] = {
+        product_id: productId,
+        product_name: products.find(p => p.id === productId)?.name || "Unknown Product",
+        product_info: products.find(p => p.id === productId) || {},
+        guides: []
+      };
+    }
+    acc[productId].guides.push(guide);
+    return acc;
+  }, {});
 
   const getProduct = (id) => products.find(p => p.id === id) || {};
 
@@ -109,7 +133,16 @@ export default function SetupGuides() {
         <form onSubmit={addGuide} className="bg-white p-8 rounded-2xl mb-8 w-full shadow-xl border border-blue-100">
           <div className="flex justify-between items-start mb-6">
             <div className="font-semibold text-lg">Add Setup Guide</div>
-            <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" type="submit">Add Setup Guide</button>
+            <div className="flex gap-2">
+              <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" type="submit">Add Setup Guide</button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
+                onClick={resetForm}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="flex flex-col gap-4">
@@ -131,7 +164,7 @@ export default function SetupGuides() {
               <div>
                 <label className="block text-sm font-medium mb-1">Instructions * (Markdown supported)</label>
                 <textarea
-                  className="w-full border px-3 py-2 rounded h-40 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border px-3 py-2 rounded h-60 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   name="instructions"
                   value={form.instructions}
                   onChange={handleFormChange}
@@ -157,131 +190,189 @@ Example:
           </div>
         </form>
       )}
-      <div className="flex flex-col md:flex-row gap-2 mb-6">
-        <select
-          className="border px-3 py-2 rounded"
-          value={filterProduct}
-          onChange={e => setFilterProduct(e.target.value)}
-        >
-          <option value="">All Products</option>
-          {products.map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
-        <input
-          className="border px-3 py-2 rounded flex-1"
-          placeholder="Search instructions..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-      </div>
-      {error && <div className="text-red-600 mb-2 p-2 bg-red-50 rounded border">{error}</div>}
-      {success && <div className="text-green-700 mb-2 p-2 bg-green-50 rounded border">{success}</div>}
-      {loading ? (
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading setup guides...</p>
-        </div>
-      ) : filteredGuides.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
+      {!showAddForm && (
+        <>
+          <div className="flex flex-col md:flex-row gap-2 mb-6">
+            <select
+              className="border px-3 py-2 rounded"
+              value={filterProduct}
+              onChange={e => setFilterProduct(e.target.value)}
+            >
+              <option value="">All Products</option>
+              {products.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+            <input
+              className="border px-3 py-2 rounded flex-1"
+              placeholder="Search instructions..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
           </div>
-          <p className="text-gray-500 font-medium text-lg">No setup guides found</p>
-          <p className="text-gray-400 text-sm mt-2">Add your first setup guide using the button above</p>
-        </div>
-      ) : (
+          {error && <div className="text-red-600 mb-2 p-2 bg-red-50 rounded border">{error}</div>}
+          {success && <div className="text-green-700 mb-2 p-2 bg-green-50 rounded border">{success}</div>}
+          {loading ? (
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 font-medium">Loading setup guides...</p>
+            </div>
+          ) : Object.keys(groupedGuides).length === 0 ? (
+            <div className="text-center py-16">
+              <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <p className="text-gray-500 font-medium text-lg">No setup guides found</p>
+              <p className="text-gray-400 text-sm mt-2">Add your first setup guide using the button above</p>
+            </div>
+          ) : (
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-lg">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Product</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Category</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Description</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Instructions</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Created By</th>
-                  <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Setup Guides</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredGuides.map(g => {
-                  const product = getProduct(g.product_id);
-                  const isExpanded = expanded[g.id];
+                {Object.values(groupedGuides).map(productGroup => {
+                  const isExpanded = expandedProducts.has(productGroup.product_id);
+                  const displayGuides = isExpanded ? productGroup.guides : productGroup.guides.slice(0, 2);
+                  const hiddenGuidesCount = productGroup.guides.length - displayGuides.length;
+                  
                   return (
-                    <tr key={g.id} className="border-t align-top">
-                      <td className="p-4 font-medium">{product.name || "-"}</td>
-                      <td className="p-4">{product.category || <span className="text-gray-400">-</span>}</td>
-                      <td className="p-4 max-w-xs">
-                        {product.description ? (
-                          <span className="text-xs text-gray-700">{product.description.length > 60 ? product.description.slice(0, 60) + "..." : product.description}</span>
-                        ) : <span className="text-gray-400 text-xs">-</span>}
-                      </td>
-                      <td className="p-4 max-w-md">
-                        <div>
-                          <MarkdownRenderer 
-                            content={g.instructions.length < 200 && !isExpanded
-                              ? g.instructions
-                              : g.instructions.slice(0, 200) + '...'}
-                          />
-                        </div>
-                        {g.instructions.length > 200 && (
-                          <button
-                            className="text-blue-600 text-xs mt-1 underline"
-                            onClick={() => setModalContent({
-                              isOpen: true,
-                              title: `${product.name || ''} - Full Instructions`,
-                              content: g.instructions
-                            })}
-                          >
-                            Show More
-                          </button>
-                        )}
-                      </td>
-                      <td className="p-4 text-sm text-gray-600">
-                        {g.creator ? (
-                          <div className="flex items-center">
-                            {g.creator.avatar_url ? (
-                              <img 
-                                src={g.creator.avatar_url} 
-                                alt={g.creator.github_username || g.creator.username}
-                                className="h-6 w-6 rounded-full mr-2"
-                              />
-                            ) : (
-                              <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center mr-2 text-xs font-semibold">
-                                {(g.creator.github_username || g.creator.username || '?').charAt(0).toUpperCase()}
-                              </div>
-                            )}
-                            {g.creator.github_username || g.creator.username}
-                          </div>
-                        ) : (
-                          'Unknown'
-                        )}
-                      </td>
-                      <td className="p-4 text-center">
-                        <div className="flex gap-2 justify-center">
-                          {/* Allow edit/delete if user is admin OR owns the record */}
-                          {(user?.role === 'admin' || g.created_by === user?.id) && (
-                            <>
-                              <button 
-                                className="btn btn-warning btn-sm" 
-                                onClick={() => navigate(`/setup-guides/${g.id}/edit`)}
-                              >
-                                Edit
-                              </button>
-                              <button 
-                                className="btn btn-danger btn-sm" 
-                                onClick={() => deleteGuide(g.id)}
-                              >
-                                Delete
-                              </button>
-                            </>
+                    <tr key={productGroup.product_id} className="border-b hover:bg-gray-50">
+                      <td className="p-4 font-medium align-top">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold">{productGroup.product_name}</span>
+                          <span className="text-xs text-gray-500">
+                            {productGroup.guides.length} guide{productGroup.guides.length !== 1 ? 's' : ''}
+                          </span>
+                          {productGroup.product_info.category && (
+                            <span className="text-xs text-gray-400 mt-1">
+                              {productGroup.product_info.category}
+                            </span>
                           )}
-                          {/* Show view-only indicator for records user doesn't own */}
-                          {user?.role === 'contributor' && g.created_by !== user?.id && (
-                            <span className="text-xs text-gray-500 italic">View Only</span>
+                        </div>
+                      </td>
+                      <td className="p-4 align-top">
+                        <div className="space-y-3">
+                          {displayGuides.map((guide, idx) => (
+                            <div key={guide.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1">
+                                  <div className="text-sm font-medium text-gray-900 mb-2">Setup Guide #{idx + 1}</div>
+                                  <div className="prose prose-sm max-w-none">
+                                    <MarkdownRenderer 
+                                      content={guide.instructions.length > 150 
+                                        ? guide.instructions.slice(0, 150) + '...' 
+                                        : guide.instructions
+                                      }
+                                    />
+                                  </div>
+                                  {guide.instructions.length > 150 && (
+                                    <button
+                                      className="text-blue-600 text-xs mt-2 underline hover:text-blue-800"
+                                      onClick={() => setModalContent({
+                                        isOpen: true,
+                                        title: `${productGroup.product_name} - Setup Guide #${idx + 1}`,
+                                        content: guide.instructions
+                                      })}
+                                    >
+                                      Show Full Instructions
+                                    </button>
+                                  )}
+                                </div>
+                                <div className="flex gap-1 ml-3">
+                                  {/* Allow edit/delete if user is admin OR owns the record */}
+                                  {(user?.role === 'admin' || guide.created_by === user?.id) && (
+                                    <>
+                                      <button 
+                                        className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200 transition-colors" 
+                                        onClick={() => navigate(`/setup-guides/${guide.id}/edit`)}
+                                      >
+                                        Edit
+                                      </button>
+                                      <button 
+                                        className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 transition-colors" 
+                                        onClick={() => deleteGuide(guide.id)}
+                                      >
+                                        Delete
+                                      </button>
+                                    </>
+                                  )}
+                                  {/* Show view-only indicator for records user doesn't own */}
+                                  {user?.role === 'contributor' && guide.created_by !== user?.id && (
+                                    <span className="text-xs text-gray-500 italic">View Only</span>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {/* Created By Information */}
+                              <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 flex items-center">
+                                <span>Created by: </span>
+                                {guide.creator ? (
+                                  <div className="flex items-center ml-1">
+                                    {guide.creator.avatar_url ? (
+                                      <img 
+                                        src={guide.creator.avatar_url} 
+                                        alt={guide.creator.github_username || guide.creator.username}
+                                        className="h-4 w-4 rounded-full mr-1"
+                                      />
+                                    ) : (
+                                      <div className="h-4 w-4 rounded-full bg-gray-300 flex items-center justify-center mr-1 text-[8px] font-semibold">
+                                        {(guide.creator.github_username || guide.creator.username || '?').charAt(0).toUpperCase()}
+                                      </div>
+                                    )}
+                                    <span className="font-medium">
+                                      {guide.creator.github_username || guide.creator.username}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <span className="font-medium">Unknown</span>
+                                )}
+                              </div>
+                              
+                              <div className="text-xs text-gray-500 mt-2">
+                                Created: {new Date(guide.created_at).toLocaleDateString()}
+                                {guide.updated_at && guide.updated_at !== guide.created_at && (
+                                  <span className="ml-2">• Updated: {new Date(guide.updated_at).toLocaleDateString()}</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                          
+                          {hiddenGuidesCount > 0 && (
+                            <div className="text-center">
+                              <button 
+                                className="text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition-colors"
+                                onClick={() => {
+                                  const newExpanded = new Set(expandedProducts);
+                                  newExpanded.add(productGroup.product_id);
+                                  setExpandedProducts(newExpanded);
+                                }}
+                              >
+                                Show {hiddenGuidesCount} more guide{hiddenGuidesCount !== 1 ? 's' : ''}
+                              </button>
+                            </div>
+                          )}
+                          
+                          {isExpanded && productGroup.guides.length > 2 && (
+                            <div className="text-center">
+                              <button 
+                                className="text-xs text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded transition-colors"
+                                onClick={() => {
+                                  const newExpanded = new Set(expandedProducts);
+                                  newExpanded.delete(productGroup.product_id);
+                                  setExpandedProducts(newExpanded);
+                                }}
+                              >
+                                Show less
+                              </button>
+                            </div>
                           )}
                         </div>
                       </td>
@@ -293,13 +384,15 @@ Example:
           </div>
         </div>
       )}
-      <Modal
-        isOpen={modalContent.isOpen}
-        onClose={() => setModalContent({ isOpen: false, title: '', content: '' })}
-        title={modalContent.title}
-      >
-        <MarkdownRenderer content={modalContent.content} />
-      </Modal>
-    </div>
-  );
-} 
+    </>
+  )}
+  <Modal
+    isOpen={modalContent.isOpen}
+    onClose={() => setModalContent({ isOpen: false, title: '', content: '' })}
+    title={modalContent.title}
+  >
+    <MarkdownRenderer content={modalContent.content} />
+  </Modal>
+</div>
+);
+}

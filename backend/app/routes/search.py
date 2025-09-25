@@ -78,9 +78,8 @@ def search_all():
             methods = DetectionMethod.query.filter(
                 or_(
                     DetectionMethod.name.ilike(f'%{query}%'),
-                    DetectionMethod.technique.ilike(f'%{query}%'),
-                    DetectionMethod.regex_python.ilike(f'%{query}%'),
-                    DetectionMethod.regex_ruby.ilike(f'%{query}%'),
+                    DetectionMethod.protocol.ilike(f'%{query}%'),
+                    DetectionMethod.code_content.ilike(f'%{query}%'),
                     DetectionMethod.curl_command.ilike(f'%{query}%'),
                     DetectionMethod.expected_response.ilike(f'%{query}%')
                 )
@@ -147,14 +146,12 @@ def advanced_search():
             method_filters = data['methods']
             query = DetectionMethod.query
             
-            if 'method_type' in method_filters:
-                query = query.filter(DetectionMethod.method_type == method_filters['method_type'])
+            if 'protocol' in method_filters:
+                query = query.filter(DetectionMethod.protocol.ilike(f"%{method_filters['protocol']}%"))
+            if 'code_language' in method_filters:
+                query = query.filter(DetectionMethod.code_language == method_filters['code_language'])
             if 'requires_auth' in method_filters:
                 query = query.filter(DetectionMethod.requires_auth == method_filters['requires_auth'])
-            if 'confidence_min' in method_filters:
-                query = query.filter(DetectionMethod.confidence_level >= method_filters['confidence_min'])
-            if 'confidence_max' in method_filters:
-                query = query.filter(DetectionMethod.confidence_level <= method_filters['confidence_max'])
             if 'product_id' in method_filters:
                 query = query.filter(DetectionMethod.product_id == method_filters['product_id'])
             

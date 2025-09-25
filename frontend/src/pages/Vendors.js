@@ -74,7 +74,7 @@ export default function Vendors() {
         {/* Allow both admin and contributor to add vendors */}
         <button
           onClick={() => setEditingId(editingId === 'add' ? null : 'add')}
-          className="btn btn-primary"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
         >
           {editingId === 'add' ? 'Cancel' : '+ Add Vendor'}
         </button>
@@ -159,23 +159,33 @@ export default function Vendors() {
                     <td className="p-4 flex gap-2 justify-center">
                       {editingId === v.id ? (
                         <>
-                          <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onClick={() => saveEdit(v.id)}>Save</button>
-                          <button className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500" onClick={() => setEditingId(null)}>Cancel</button>
+                          <button className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700" onClick={() => saveEdit(v.id)}>Save</button>
+                          <button className="text-xs bg-gray-400 text-white px-2 py-1 rounded hover:bg-gray-500" onClick={() => setEditingId(null)}>Cancel</button>
                         </>
                       ) : (
-                        <>
+                        <div className="flex gap-1">
                           {/* Allow edit/delete if user is admin OR owns the record */}
                           {(user?.role === 'admin' || v.created_by === user?.id) && (
                             <>
-                              <button className="btn btn-warning btn-sm" onClick={() => startEdit(v)}>Edit</button>
-                              <button className="btn btn-danger btn-sm" onClick={() => deleteVendor(v.id)}>Delete</button>
+                              <button 
+                                className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200 transition-colors" 
+                                onClick={() => startEdit(v)}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 transition-colors" 
+                                onClick={() => deleteVendor(v.id)}
+                              >
+                                Delete
+                              </button>
                             </>
                           )}
                           {/* Show view-only indicator for records user doesn't own */}
                           {user?.role === 'contributor' && v.created_by !== user?.id && (
                             <span className="text-xs text-gray-500 italic">View Only</span>
                           )}
-                        </>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -187,4 +197,4 @@ export default function Vendors() {
       )}
     </div>
   );
-} 
+}

@@ -29,18 +29,20 @@ SAMPLE_JSON = {
                 'detection_methods': [
                     {
                         'name': '',
-                        'technique': '',
-                        'regex_python': '',
-                        'regex_ruby': '',
-                        'curl_command': '',
+                        'protocol': '',
+                        'code_snippets': [
+                            {
+                                'code_language': '',
+                                'code_content': ''
+                            }
+                        ],
                         'expected_response': '',
                         'requires_auth': False
                     }
                 ],
                 'setup_guides': [
                     {
-                        'title': '',
-                        'content': ''
+                        'instructions': ''
                     }
                 ]
             }
@@ -113,9 +115,9 @@ def flatten_import_json(nested_json):
                 methods.append({
                     'name': m.get('name', ''),
                     'product': p_name,
-                    'technique': m.get('technique', ''),
-                    'regex_python': m.get('regex_python', ''),
-                    'regex_ruby': m.get('regex_ruby', ''),
+                    'protocol': m.get('protocol', ''),
+                    'code_language': m.get('code_language', ''),
+                    'code_content': m.get('code_content', ''),
                     'curl_command': m.get('curl_command', ''),
                     'expected_response': m.get('expected_response', ''),
                     'requires_auth': m.get('requires_auth', False)
@@ -123,9 +125,8 @@ def flatten_import_json(nested_json):
             
             for g in p.get('setup_guides', []):
                 guides.append({
-                    'title': g.get('title', ''),
-                    'product': p_name,
-                    'content': g.get('content', '')
+                    'instructions': g.get('instructions', ''),  # Updated to use 'instructions' field
+                    'product': p_name
                 })
     
     return {
@@ -148,12 +149,27 @@ def isoformat_z(dt):
 
 def clean_method(method):
     """Clean method data for export"""
+    # Get code snippets for this method
+    code_snippets = []
+    if hasattr(method, 'code_snippets') and method.code_snippets:
+        code_snippets = [
+            {
+                'code_language': snippet.code_language or '',
+                'code_content': snippet.code_content or ''
+            }
+            for snippet in method.code_snippets
+        ]
+    elif method.code_language or method.code_content:
+        # Fallback to legacy fields if no snippets
+        code_snippets = [{
+            'code_language': str(method.code_language) if method.code_language else '',
+            'code_content': str(method.code_content) if method.code_content else ''
+        }]
+    
     return OrderedDict([
         ('name', str(method.name) if method.name else ""),
-        ('technique', str(method.technique) if method.technique else ""),
-        ('regex_python', str(method.regex_python) if method.regex_python else ""),
-        ('regex_ruby', str(method.regex_ruby) if method.regex_ruby else ""),
-        ('curl_command', str(method.curl_command) if method.curl_command else ""),
+        ('protocol', str(method.protocol) if method.protocol else ""),
+        ('code_snippets', code_snippets),
         ('expected_response', str(method.expected_response) if method.expected_response else ""),
         ('requires_auth', bool(method.requires_auth)),
         ('created_at', isoformat_z(getattr(method, 'created_at', None))),
@@ -162,13 +178,9 @@ def clean_method(method):
 
 def clean_guide(guide, product_name=None):
     """Clean guide data for export"""
-    title = getattr(guide, 'title', None)
-    if not title or str(title).strip() == "" or title == 'null':
-        title = product_name or "Untitled"
-    content = getattr(guide, 'instructions', None) or getattr(guide, 'content', None) or ""
+    instructions = getattr(guide, 'instructions', None) or ""
     return OrderedDict([
-        ('title', str(title)),
-        ('content', str(content)),
+        ('instructions', str(instructions)),
         ('created_at', isoformat_z(getattr(guide, 'created_at', None))),
         ('updated_at', isoformat_z(getattr(guide, 'updated_at', None)))
     ])
@@ -292,11 +304,42 @@ def import_preview():
                         continue
                     found_equivalent = False
                     for db_m in db_methods:
-                        db_m_dict = {k: getattr(db_m, k) for k in ['technique','regex_python','regex_ruby','curl_command','expected_response','requires_auth']}
-                        m_compare = {k: m.get(k) for k in ['technique','regex_python','regex_ruby','curl_command','expected_response','requires_auth']}
-                        if deep_equal(m_compare, db_m_dict):
-                            found_equivalent = True
-                            break
+                        # Compare code snippets if available
+                        if 'code_snippets' in m and m['code_snippets']:
+                            # Compare new format with code snippets
+                            db_snippets = getattr(db_m, 'code_snippets', [])
+                            if db_snippets:
+                                # Compare snippet arrays
+                                m_snippets = sorted(m['code_snippets'], key=lambda x: (x.get('code_language', ''), x.get('code_content', '')))
+                                db_snippets_dict = sorted([
+                                    {'code_language': s.code_language or '', 'code_content': s.code_content or ''} 
+                                    for s in db_snippets
+                                ], key=lambda x: (x['code_language'], x['code_content']))
+                                
+                                if deep_equal(m_snippets, db_snippets_dict):
+                                    # Also check other fields
+                                    other_fields = {k: m.get(k) for k in ['protocol', 'expected_response', 'requires_auth']}
+                                    db_other = {k: getattr(db_m, k) for k in ['protocol', 'expected_response', 'requires_auth']}
+                                    if deep_equal(other_fields, db_other):
+                                        found_equivalent = True
+                                        break
+                            else:
+                                # DB has no snippets, check if legacy fields match first snippet
+                                first_snippet = m['code_snippets'][0] if m['code_snippets'] else {}
+                                if (db_m.code_language == first_snippet.get('code_language') and 
+                                    db_m.code_content == first_snippet.get('code_content')):
+                                    other_fields = {k: m.get(k) for k in ['protocol', 'expected_response', 'requires_auth']}
+                                    db_other = {k: getattr(db_m, k) for k in ['protocol', 'expected_response', 'requires_auth']}
+                                    if deep_equal(other_fields, db_other):
+                                        found_equivalent = True
+                                        break
+                        else:
+                            # Legacy format comparison
+                            db_m_dict = {k: getattr(db_m, k) for k in ['protocol','code_language','code_content','expected_response','requires_auth']}
+                            m_compare = {k: m.get(k) for k in ['protocol','code_language','code_content','expected_response','requires_auth']}
+                            if deep_equal(m_compare, db_m_dict):
+                                found_equivalent = True
+                                break
                     if not found_equivalent:
                         # If method name exists, it's a change; if not, it's new
                         if any(db_m.name == m_name for db_m in db_methods):
@@ -307,29 +350,23 @@ def import_preview():
 
                 prod_guides = prod.get('setup_guides', [])
                 add_guides = []
-                changed_guides = []
 
                 for g in prod_guides:
-                    g_title = g.get('title')
-                    g_content = g.get('content', '')
-                    if not g_title or not g_content:
+                    g_instructions = g.get('instructions', '').strip()
+                    if not g_instructions:
                         continue
                     found_equivalent = False
                     for db_g in db_guides:
-                        expected_title = f"Title: {g_title}\n\n{g_content}"
-                        if db_g.instructions == g_content or db_g.instructions == expected_title:
+                        if db_g.instructions == g_instructions:
                             found_equivalent = True
                             break
                     if not found_equivalent:
-                        # If guide title exists, it's a change; if not, it's new
-                        if any(g_title in (db_g.instructions or '') for db_g in db_guides):
-                            changed_guides.append(g)
-                        else:
-                            add_guides.append(g)
+                        # For guides, treat all as additions since we don't have titles to match
+                        add_guides.append(g)
                         all_products_unchanged = False
 
                 # If there are any new or changed methods/guides, allow add/replace
-                if add_methods or changed_methods or add_guides or changed_guides:
+                if add_methods or changed_methods or add_guides:
                     # For Add mode, new methods/guides are added
                     if add_methods or add_guides:
                         add_products.append({
@@ -338,13 +375,12 @@ def import_preview():
                             'add_guides': add_guides
                         })
                     # For Replace mode, new or changed methods/guides are replaced
-                    if add_methods or changed_methods or add_guides or changed_guides:
+                    if add_methods or changed_methods or add_guides:
                         replace_products.append({
                             'name': p_name,
                             'add_methods': add_methods,
                             'changed_methods': changed_methods,
-                            'add_guides': add_guides,
-                            'changed_guides': changed_guides
+                            'add_guides': add_guides
                         })
 
             # If all products exist and match for this vendor, mark it
@@ -460,13 +496,31 @@ def import_data():
                         overall_summary['products']['errors'].append(f"Product {product_name}: {str(e)}")
                         continue
 
-                # REPLACE MODE: Delete only what is present in import
+                # REPLACE MODE: Delete only what is present in import with proper cascade handling
                 if mode == 'replace':
                     if 'detection_methods' in product_data:
-                        DetectionMethod.query.filter_by(product_id=existing_product.id).delete()
+                        # Get all existing detection methods for this product
+                        existing_methods = DetectionMethod.query.filter_by(product_id=existing_product.id).all()
+                        
+                        # Delete each method individually to trigger cascade deletes for code snippets
+                        for method in existing_methods:
+                            # SQLAlchemy should handle the cascade automatically, but let's be explicit
+                            try:
+                                db.session.delete(method)
+                                db.session.flush()  # Flush individual deletes
+                            except Exception as delete_error:
+                                print(f"Error deleting method {method.id}: {delete_error}", flush=True)
+                                # Force explicit deletion of code snippets if cascade fails
+                                from app.models.detection_method import CodeSnippet
+                                CodeSnippet.query.filter_by(method_id=method.id).delete(synchronize_session=False)
+                                db.session.delete(method)
+                                db.session.flush()
+                        
                     if 'setup_guides' in product_data:
-                        SetupGuide.query.filter_by(product_id=existing_product.id).delete()
-                    db.session.flush()
+                        SetupGuide.query.filter_by(product_id=existing_product.id).delete(synchronize_session=False)
+                    
+                    # Commit the deletions before proceeding with insertions
+                    db.session.commit()
 
                 # Process detection methods
                 for method_data in product_data.get('detection_methods', []):
@@ -480,17 +534,45 @@ def import_data():
                         if existing_method:
                             continue
                     try:
+                        # Create the detection method
                         method = DetectionMethod(
                             name=method_name,
                             product_id=existing_product.id,
-                            technique=method_data.get('technique'),
-                            regex_python=method_data.get('regex_python'),
-                            regex_ruby=method_data.get('regex_ruby'),
-                            curl_command=method_data.get('curl_command'),
+                            protocol=method_data.get('protocol'),
                             expected_response=method_data.get('expected_response'),
                             requires_auth=method_data.get('requires_auth', False)
                         )
+                        
+                        # Handle legacy fields for backward compatibility
+                        if 'code_language' in method_data and 'code_content' in method_data:
+                            method.code_language = method_data.get('code_language')
+                            method.code_content = method_data.get('code_content')
+                        
                         db.session.add(method)
+                        db.session.flush()  # Get the method ID
+                        
+                        # Handle code snippets (new format)
+                        code_snippets_data = method_data.get('code_snippets', [])
+                        if code_snippets_data:
+                            from app.models.detection_method import CodeSnippet
+                            for snippet_data in code_snippets_data:
+                                if snippet_data.get('code_language') and snippet_data.get('code_content'):
+                                    snippet = CodeSnippet(
+                                        method_id=method.id,
+                                        code_language=snippet_data['code_language'],
+                                        code_content=snippet_data['code_content']
+                                    )
+                                    db.session.add(snippet)
+                        elif method.code_language and method.code_content:
+                            # Create snippet from legacy fields
+                            from app.models.detection_method import CodeSnippet
+                            snippet = CodeSnippet(
+                                method_id=method.id,
+                                code_language=method.code_language,
+                                code_content=method.code_content
+                            )
+                            db.session.add(snippet)
+                        
                         overall_summary['methods']['added'].append({
                             'name': method_name, 
                             'product': product_name, 
@@ -501,35 +583,30 @@ def import_data():
 
                 # Process setup guides
                 for guide_data in product_data.get('setup_guides', []):
-                    guide_title = guide_data.get('title', '').strip()
-                    if not guide_title:
-                        overall_summary['guides']['errors'].append(f"Guide missing title for product {product_name}")
-                        continue
-
-                    guide_content = guide_data.get('content', '')
-                    if not guide_content:
-                        overall_summary['guides']['errors'].append(f"Guide missing content for product {product_name}")
+                    guide_instructions = guide_data.get('instructions', '').strip()
+                    if not guide_instructions:
+                        overall_summary['guides']['errors'].append(f"Guide missing instructions for product {product_name}")
                         continue
 
                     if mode == 'add':
                         existing_guide = SetupGuide.query.filter_by(product_id=existing_product.id).filter(
-                            (SetupGuide.instructions == guide_content) | (SetupGuide.instructions == f"Title: {guide_title}\n\n{guide_content}")
+                            SetupGuide.instructions == guide_instructions
                         ).first()
                         if existing_guide:
                             continue
                     try:
                         guide = SetupGuide(
-                            instructions=f"Title: {guide_title}\n\n{guide_content}",
+                            instructions=guide_instructions,
                             product_id=existing_product.id
                         )
                         db.session.add(guide)
                         overall_summary['guides']['added'].append({
-                            'title': guide_title, 
+                            'instructions': guide_instructions[:50] + '...' if len(guide_instructions) > 50 else guide_instructions, 
                             'product': product_name, 
                             'action': 'replaced' if mode == 'replace' else 'added'
                         })
                     except Exception as e:
-                        overall_summary['guides']['errors'].append(f"Guide {guide_title}: {str(e)}")
+                        overall_summary['guides']['errors'].append(f"Guide for {product_name}: {str(e)}")
 
         db.session.commit()
         return jsonify(overall_summary), 200

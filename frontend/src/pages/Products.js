@@ -15,6 +15,9 @@ export default function Products() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [modalContent, setModalContent] = useState({ isOpen: false, title: "", content: "" });
+  const [expandedVendors, setExpandedVendors] = useState(new Set());
+  const [filterVendor, setFilterVendor] = useState("");
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
@@ -73,6 +76,30 @@ export default function Products() {
       setError("Failed to delete product");
     }
   };
+
+  // Filtering and grouping
+  const filteredProducts = products.filter(p => {
+    const vendorMatch = !filterVendor || String(p.vendor_id) === String(filterVendor);
+    const searchMatch = !search ||
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.category?.toLowerCase().includes(search.toLowerCase()) ||
+      p.description?.toLowerCase().includes(search.toLowerCase());
+    return vendorMatch && searchMatch;
+  });
+  
+  // Group products by vendor
+  const groupedProducts = filteredProducts.reduce((acc, product) => {
+    const vendorId = product.vendor_id;
+    if (!acc[vendorId]) {
+      acc[vendorId] = {
+        vendor_id: vendorId,
+        vendor_name: vendors.find(v => v.id === vendorId)?.name || "Unknown Vendor",
+        products: []
+      };
+    }
+    acc[vendorId].products.push(product);
+    return acc;
+  }, {});
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -133,7 +160,7 @@ export default function Products() {
           <div>
             <label className="label">Description (Markdown supported)</label>
             <textarea
-              className="input h-32 font-mono text-sm resize-none"
+              className="input h-48 font-mono text-sm resize-none"
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder={`Describe what this product does, its features, etc.
@@ -155,153 +182,221 @@ You can use Markdown formatting:
           </div>
         </form>
       )}
-      {error && (
-        <div className="alert alert-warning mb-6">
-          <div className="flex items-center">
-            <svg className="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {error}
+      
+      {!showAddForm && (
+        <>
+          <div className="mb-6 flex flex-col md:flex-row gap-2">
+            <select
+              className="border px-3 py-2 rounded"
+              value={filterVendor}
+              onChange={e => setFilterVendor(e.target.value)}
+            >
+              <option value="">All Vendors</option>
+              {vendors.map(v => (
+                <option key={v.id} value={v.id}>{v.name}</option>
+              ))}
+            </select>
+            <input
+              className="border px-3 py-2 rounded flex-1"
+              placeholder="Search products..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
           </div>
-        </div>
-      )}
-      {loading ? (
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading products...</p>
-        </div>
-      ) : (
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-lg">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Vendor Name</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Product Name</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Category</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Description</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Created By</th>
-                  <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map(p => (
-                  <tr key={p.id} className="table-row-hover border-b border-gray-100">
-                    <td className="p-4">
-                      <div className="flex items-center">
-                        <div className="bg-blue-100 rounded-full p-2 mr-3">
-                          <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                          </svg>
-                        </div>
-                        <span className="font-semibold text-gray-800">{vendors.find(v => v.id === p.vendor_id)?.name || ""}</span>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <a
-                        href={`/methods?product=${p.id}`}
-                        className="text-blue-600 hover:text-blue-800 font-semibold cursor-pointer transition-colors duration-200 hover:underline"
-                      >
-                        {p.name}
-                      </a>
-                    </td>
-                    <td className="p-4">
-                        <span className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
-                          {p.category || "Not specified"}
-                        </span>
-                    </td>
-                    <td className="p-4">
-                        <div className="max-w-xs">
-                          {p.description ? (
-                            <div className="text-sm">
-                              <MarkdownRenderer 
-                                content={p.description.length > 200 
-                                  ? p.description.substring(0, 200) + "..." 
-                                  : p.description
-                                } 
-                              />
-                              {p.description.length > 200 && (
-                                <button 
-                                  className="text-blue-600 text-xs mt-2 px-2 py-1 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors duration-200"
-                                  onClick={() => {
-                                    setModalContent({
-                                      isOpen: true,
-                                      title: `${p.name} - Full Description`,
-                                      content: p.description
-                                    });
-                                  }}
-                                >
-                                  Show More
-                                </button>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-gray-400 text-xs italic">No description</span>
-                          )}
-                        </div>
-                    </td>
-                    <td className="p-4 text-sm text-gray-600">
-                      {p.creator ? (
-                        <div className="flex items-center">
-                          {p.creator.avatar_url ? (
-                            <img 
-                              src={p.creator.avatar_url} 
-                              alt={p.creator.github_username || p.creator.username}
-                              className="h-6 w-6 rounded-full mr-2"
-                            />
-                          ) : (
-                            <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center mr-2 text-xs font-semibold">
-                              {(p.creator.github_username || p.creator.username || '?').charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                          {p.creator.github_username || p.creator.username}
-                        </div>
-                      ) : (
-                        'Unknown'
-                      )}
-                    </td>
-                    <td className="p-4 text-center">
-                      <div className="flex gap-2 justify-center">
-                        {/* Allow edit/delete if user is admin OR owns the record */}
-                        {(user?.role === 'admin' || p.created_by === user?.id) && (
-                          <>
-                            <button 
-                              className="btn btn-warning btn-sm" 
-                              onClick={() => navigate(`/products/${p.id}/edit`)}
-                            >
-                              Edit
-                            </button>
-                            <button 
-                              className="btn btn-danger btn-sm" 
-                              onClick={() => deleteProduct(p.id)}
-                            >
-                              Delete
-                            </button>
-                          </>
-                        )}
-                        {/* Show view-only indicator for records user doesn't own */}
-                        {user?.role === 'contributor' && p.created_by !== user?.id && (
-                          <span className="text-xs text-gray-500 italic">View Only</span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {products.length === 0 && (
-            <div className="text-center py-16">
-              <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          {error && (
+            <div className="alert alert-warning mb-6">
+              <div className="flex items-center">
+                <svg className="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
+                {error}
               </div>
-              <p className="text-gray-500 font-medium text-lg">No products found</p>
-              <p className="text-gray-400 text-sm mt-2">Add your first product using the button above</p>
             </div>
           )}
-        </div>
+          {loading ? (
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 font-medium">Loading products...</p>
+            </div>
+          ) : (
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-lg">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
+                      <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Vendor</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Products</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.values(groupedProducts).map(vendorGroup => {
+                      const isExpanded = expandedVendors.has(vendorGroup.vendor_id);
+                      const displayProducts = isExpanded ? vendorGroup.products : vendorGroup.products.slice(0, 2);
+                      const hiddenProductsCount = vendorGroup.products.length - displayProducts.length;
+                      
+                      return (
+                        <tr key={vendorGroup.vendor_id} className="border-b hover:bg-gray-50">
+                          <td className="p-4 font-medium align-top">
+                            <div className="flex flex-col">
+                              <div className="flex items-center">
+                                <div className="bg-blue-100 rounded-full p-2 mr-3">
+                                  <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                  </svg>
+                                </div>
+                                <span className="text-sm font-semibold">{vendorGroup.vendor_name}</span>
+                              </div>
+                              <span className="text-xs text-gray-500 ml-11">
+                                {vendorGroup.products.length} product{vendorGroup.products.length !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-4 align-top">
+                            <div className="space-y-3">
+                              {displayProducts.map((product, idx) => (
+                                <div key={product.id} className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                      <a
+                                        href={`/methods?product=${product.id}`}
+                                        className="text-blue-600 hover:text-blue-800 font-semibold cursor-pointer transition-colors duration-200 hover:underline text-sm"
+                                      >
+                                        {product.name}
+                                      </a>
+                                      {product.category && (
+                                        <span className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                          {product.category}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {(user?.role === 'admin' || product.created_by === user?.id) && (
+                                      <div className="flex gap-1">
+                                        <button 
+                                          className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200 transition-colors" 
+                                          onClick={() => navigate(`/products/${product.id}/edit`)}
+                                        >
+                                          Edit
+                                        </button>
+                                        <button 
+                                          className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 transition-colors" 
+                                          onClick={() => deleteProduct(product.id)}
+                                        >
+                                          Delete
+                                        </button>
+                                      </div>
+                                    )}
+                                    {/* Show view-only indicator for records user doesn't own */}
+                                    {user?.role === 'contributor' && product.created_by !== user?.id && (
+                                      <span className="text-xs text-gray-500 italic">View Only</span>
+                                    )}
+                                  </div>
+                                  
+                                  {/* Description Preview */}
+                                  {product.description ? (
+                                    <div className="text-xs text-gray-600">
+                                      <MarkdownRenderer 
+                                        content={product.description.length > 150 
+                                          ? product.description.substring(0, 150) + "..." 
+                                          : product.description
+                                        } 
+                                      />
+                                      {product.description.length > 150 && (
+                                        <button 
+                                          className="text-blue-600 text-xs mt-1 px-2 py-0.5 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors duration-200"
+                                          onClick={() => {
+                                            setModalContent({
+                                              isOpen: true,
+                                              title: `${product.name} - Full Description`,
+                                              content: product.description
+                                            });
+                                          }}
+                                        >
+                                          Show More
+                                        </button>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <span className="text-gray-400 text-xs italic">No description</span>
+                                  )}
+                                  
+                                  {/* Created By Information */}
+                                  <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 flex items-center">
+                                    <span>Created by: </span>
+                                    {product.creator ? (
+                                      <div className="flex items-center ml-1">
+                                        {product.creator.avatar_url ? (
+                                          <img 
+                                            src={product.creator.avatar_url} 
+                                            alt={product.creator.github_username || product.creator.username}
+                                            className="h-4 w-4 rounded-full mr-1"
+                                          />
+                                        ) : (
+                                          <div className="h-4 w-4 rounded-full bg-gray-300 flex items-center justify-center mr-1 text-[8px] font-semibold">
+                                            {(product.creator.github_username || product.creator.username || '?').charAt(0).toUpperCase()}
+                                          </div>
+                                        )}
+                                        <span className="font-medium">
+                                          {product.creator.github_username || product.creator.username}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="font-medium">Unknown</span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                              
+                              {hiddenProductsCount > 0 && (
+                                <div className="text-center">
+                                  <button 
+                                    className="text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition-colors"
+                                    onClick={() => {
+                                      const newExpanded = new Set(expandedVendors);
+                                      newExpanded.add(vendorGroup.vendor_id);
+                                      setExpandedVendors(newExpanded);
+                                    }}
+                                  >
+                                    Show {hiddenProductsCount} more product{hiddenProductsCount !== 1 ? 's' : ''}
+                                  </button>
+                                </div>
+                              )}
+                              
+                              {isExpanded && vendorGroup.products.length > 2 && (
+                                <div className="text-center">
+                                  <button 
+                                    className="text-xs text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded transition-colors"
+                                    onClick={() => {
+                                      const newExpanded = new Set(expandedVendors);
+                                      newExpanded.delete(vendorGroup.vendor_id);
+                                      setExpandedVendors(newExpanded);
+                                    }}
+                                  >
+                                    Show less
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              {Object.keys(groupedProducts).length === 0 && (
+                <div className="text-center py-16">
+                  <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-500 font-medium text-lg">No products found</p>
+                  <p className="text-gray-400 text-sm mt-2">Add your first product using the button above</p>
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
       
       <Modal
@@ -313,4 +408,4 @@ You can use Markdown formatting:
       </Modal>
     </div>
   );
-} 
+}
