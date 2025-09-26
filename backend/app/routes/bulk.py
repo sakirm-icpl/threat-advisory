@@ -3,7 +3,7 @@ from app.models.vendor import Vendor
 from app.models.product import Product
 from app.models.detection_method import DetectionMethod
 from app.models.setup_guide import SetupGuide
-from app.services.auth import require_admin
+from app.services.rbac import require_admin
 from app import db
 import json
 import io

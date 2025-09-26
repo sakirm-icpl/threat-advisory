@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.services.cve_service import CVEService
-from app.services.auth import require_permission
+from app.services.rbac import require_permission
 from app.services.ai_researcher import AIResearcherService
 import re
 

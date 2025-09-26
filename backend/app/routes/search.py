@@ -3,7 +3,7 @@ from app.models.vendor import Vendor
 from app.models.product import Product
 from app.models.detection_method import DetectionMethod
 from app.models.setup_guide import SetupGuide
-from app.services.auth import require_permission
+from app.services.rbac import require_permission
 from app.services.cve_service import CVEService
 from sqlalchemy import or_
 
