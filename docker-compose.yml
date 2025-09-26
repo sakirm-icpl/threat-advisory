@@ -34,8 +34,8 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/versionintel
       - NVD_API_KEY=523ff249-3119-49fa-a1d6-31ba53131052
       # GitHub OAuth Configuration
-      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
-      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GITHUB_CLIENT_ID=Ov23licijFemPDL32cZK
+      - GITHUB_CLIENT_SECRET=6a9573e7f32e678123f4e49e3cd5f7735f26f68d
       - GITHUB_REDIRECT_URI=${GITHUB_REDIRECT_URI:-http://localhost:3000/auth/callback}
       # AI Remediation (Gemini / Google)
       - AI_PROVIDER=gemini
@@ -60,7 +60,7 @@ services:
       - backend
     environment:
       - REACT_APP_API_URL=http://localhost:8000
-      - REACT_APP_GITHUB_CLIENT_ID=${REACT_APP_GITHUB_CLIENT_ID}
+      - REACT_APP_GITHUB_CLIENT_ID=Ov23licijFemPDL32cZK
     ports:
       - "3000:3000"
     restart: unless-stopped

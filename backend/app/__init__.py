@@ -109,6 +109,37 @@ def create_app():
     with app.app_context():
         try:
             db.create_all()
+            
+            # --- Auto-migrate existing users table for GitHub OAuth ---
+            from sqlalchemy import text
+            try:
+                # Check if github_id column exists
+                result = db.session.execute(text("""
+                    SELECT column_name FROM information_schema.columns 
+                    WHERE table_name='users' AND column_name='github_id'
+                """))
+                if not result.fetchone():
+                    app.logger.info("Running GitHub OAuth migration...")
+                    # Add GitHub OAuth fields
+                    db.session.execute(text("""
+                        ALTER TABLE users 
+                        ADD COLUMN github_id VARCHAR(50) UNIQUE,
+                        ADD COLUMN avatar_url VARCHAR(255),
+                        ADD COLUMN github_username VARCHAR(80)
+                    """))
+                    # Make password_hash nullable
+                    db.session.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"))
+                    # Add indexes
+                    db.session.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_github_id ON users(github_id)"))
+                    db.session.execute(text("CREATE INDEX IF NOT EXISTS idx_users_github_username ON users(github_username)"))
+                    db.session.commit()
+                    app.logger.info("GitHub OAuth migration completed successfully")
+                else:
+                    app.logger.info("GitHub OAuth fields already exist")
+            except Exception as migration_error:
+                app.logger.warning(f"Migration check/execution failed (this is normal for new installations): {migration_error}")
+                db.session.rollback()
+            
             # --- Ensure default admin user exists ---
             from app.models.user import User
             if not User.query.filter_by(username="admin").first():
