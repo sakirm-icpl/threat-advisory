@@ -35,7 +35,7 @@ function AppContent() {
     return (
       <Routes>
         <Route path="/login" element={<GitHubLogin />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/auth/github/callback" element={<AuthCallback />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );

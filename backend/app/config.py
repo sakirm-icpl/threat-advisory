@@ -13,7 +13,7 @@ class Config:
     # GitHub OAuth configuration
     GITHUB_CLIENT_ID = os.environ.get("GITHUB_CLIENT_ID", "")
     GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET", "")
-    GITHUB_REDIRECT_URI = os.environ.get("GITHUB_REDIRECT_URI", "http://localhost:3000/auth/callback")
+    GITHUB_REDIRECT_URI = os.environ.get("GITHUB_REDIRECT_URI", "http://localhost:3000/auth/github/callback")
     
     # Security configuration
     ENFORCE_HTTPS = os.environ.get("ENFORCE_HTTPS", "false").lower() == "true"
@@ -29,6 +29,8 @@ class Config:
         "http://127.0.0.1:8000",
         "http://0.0.0.0:3000",
         "http://0.0.0.0:8000",
+        "http://172.17.14.65:3000",
+        "http://172.17.14.65:8000",
         "https://versionintel.yourdomain.com",  # Add your production domain
     ]
     
@@ -128,6 +130,6 @@ class Config:
         'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
     }
 
-    # Development settings
-    FLASK_ENV = 'development'
-    FLASK_DEBUG = True
+    # Development settings (only use when explicitly set)
+    FLASK_ENV = os.environ.get('FLASK_ENV', 'production')
+    FLASK_DEBUG = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'

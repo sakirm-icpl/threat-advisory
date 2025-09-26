@@ -86,7 +86,7 @@ def login():
         'in': 'query',
         'type': 'string',
         'description': 'Callback URI after authentication',
-        'default': 'http://localhost:3000/auth/callback'
+        'default': 'http://localhost:3000/auth/github/callback'
     }],
     'responses': {
         '200': {
@@ -94,7 +94,8 @@ def login():
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'authorization_url': {'type': 'string'}
+                    'authorization_url': {'type': 'string'},
+                    'state': {'type': 'string'}
                 }
             }
         },
@@ -104,13 +105,19 @@ def login():
 def github_login():
     """Initiate GitHub OAuth login"""
     try:
-        redirect_uri = request.args.get('redirect_uri', 'http://localhost:3000/auth/callback')
-        return github_oauth.get_authorization_url(redirect_uri)
+        redirect_uri = request.args.get('redirect_uri', 'http://localhost:3000/auth/github/callback')
+        result = github_oauth.get_authorization_url(redirect_uri)
+        if result:
+            current_app.logger.info(f"GitHub OAuth login initiated with state: {result.get('state', 'none')[:8]}...")
+            return jsonify(result), 200
+        else:
+            return jsonify({'error': 'Failed to initiate GitHub authentication'}), 500
     except Exception as e:
         current_app.logger.error(f"Error initiating GitHub OAuth: {str(e)}")
         return jsonify({'error': 'Failed to initiate GitHub authentication'}), 500
 
 @bp.route('/github/callback', methods=['GET'])
+@bp.route('/callback', methods=['GET'])
 @swag_from({
     'tags': ['Authentication'],
     'summary': 'GitHub OAuth callback handler',
@@ -121,6 +128,12 @@ def github_login():
         'required': True,
         'type': 'string',
         'description': 'OAuth authorization code from GitHub'
+    }, {
+        'name': 'state',
+        'in': 'query',
+        'required': True,
+        'type': 'string',
+        'description': 'CSRF protection state parameter'
     }, {
         'name': 'error',
         'in': 'query',
@@ -148,42 +161,62 @@ def github_login():
                 }
             }
         },
-        '400': {'description': 'OAuth error or missing code'},
+        '400': {'description': 'OAuth error, missing code/state, or CSRF validation failed'},
         '500': {'description': 'Authentication failed'}
     }
 })
 def github_callback():
     """Handle GitHub OAuth callback - primary authentication method"""
     code = request.args.get('code')
+    state = request.args.get('state')
     error = request.args.get('error')
+    
+    current_app.logger.info(f"GitHub callback received - code: {'present' if code else 'missing'}, state: {'present' if state else 'missing'}, error: {error}")
     
     if error:
         current_app.logger.warning(f"GitHub OAuth error: {error}")
         return jsonify({'error': 'GitHub OAuth error', 'details': error}), 400
     
     if not code:
+        current_app.logger.error("Authorization code not provided")
         return jsonify({'error': 'Authorization code not provided'}), 400
     
+    if not state:
+        current_app.logger.error("State parameter missing - CSRF protection failed")
+        return jsonify({'error': 'State parameter missing - CSRF protection failed'}), 400
+    
     try:
-        # Exchange code for access token
-        token_data = github_oauth.get_access_token(code)
+        current_app.logger.info(f"Attempting to exchange code for token with state: {state[:8]}...")
+        
+        # Exchange code for access token with state validation
+        token_data = github_oauth.get_access_token(code, state)
         if not token_data or 'access_token' not in token_data:
-            return jsonify({'error': 'Failed to get access token'}), 400
+            current_app.logger.error("Failed to get access token - token exchange failed")
+            return jsonify({'error': 'Failed to get access token or CSRF validation failed'}), 400
+        
+        current_app.logger.info("Token exchange successful, fetching user info...")
         
         # Get user info from GitHub
         user_info = github_oauth.get_user_info(token_data['access_token'])
         if not user_info:
+            current_app.logger.error("Failed to get user information from GitHub")
             return jsonify({'error': 'Failed to get user information'}), 400
         
         if not user_info.get('email'):
+            current_app.logger.error("GitHub account missing verified email address")
             return jsonify({'error': 'GitHub account must have a verified public email address'}), 400
+        
+        current_app.logger.info(f"User info retrieved for: {user_info.get('github_username')}")
         
         # Create or update user
         request_info = get_request_info()
         user = github_oauth.create_or_update_user(user_info, request_info['ip_address'])
         
         if not user:
+            current_app.logger.error("Failed to create or update user")
             return jsonify({'error': 'Failed to create or update user'}), 500
+        
+        current_app.logger.info(f"User created/updated successfully: {user.github_username}")
         
         # Generate JWT tokens
         result = login_github_user(user)
@@ -191,12 +224,13 @@ def github_callback():
             current_app.logger.info(f"GitHub OAuth login successful for user: {user.github_username}")
             return jsonify(result), 200
         else:
+            current_app.logger.error("JWT token generation failed")
             return jsonify({'error': 'Authentication failed'}), 500
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"GitHub OAuth error: {str(e)}")
-        return jsonify({'error': 'Authentication failed'}), 500
+        current_app.logger.error(f"GitHub OAuth error: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Authentication failed', 'details': str(e)}), 500
 
 @bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)

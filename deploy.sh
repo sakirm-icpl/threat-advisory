@@ -83,6 +83,8 @@ else
     echo "✅ Frontend environment file already exists"
     # Update the API URL to use the correct IP
     sed -i "s|REACT_APP_API_URL=.*|REACT_APP_API_URL=http://$SERVER_IP:${BACKEND_PORT:-8000}|" frontend/.env
+    # Update the GitHub Client ID to match the main .env file
+    sed -i "s|REACT_APP_GITHUB_CLIENT_ID=.*|REACT_APP_GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}|" frontend/.env
     echo "✅ Updated frontend environment file"
 fi
 

@@ -49,33 +49,47 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const loginWithGitHub = () => {
-    // Generate state parameter for CSRF protection
-    const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    localStorage.setItem('oauth_state', state);
-    
-    // Redirect to GitHub OAuth
-    const clientId = process.env.REACT_APP_GITHUB_CLIENT_ID;
-    const redirectUri = `${window.location.origin}/auth/callback`;
-    const scope = 'user:email';
-    
-    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
-    
-    window.location.href = githubAuthUrl;
+  const loginWithGitHub = async () => {
+    try {
+      // Get authorization URL from backend with proper state handling
+      const redirectUri = `${window.location.origin}/auth/github/callback`;
+      const response = await api.get(`/auth/github/login?redirect_uri=${encodeURIComponent(redirectUri)}`);
+      
+      if (response.data && response.data.authorization_url) {
+        // Store state in localStorage for verification
+        if (response.data.state) {
+          localStorage.setItem('oauth_state', response.data.state);
+        }
+        
+        // Redirect to GitHub OAuth
+        window.location.href = response.data.authorization_url;
+      } else {
+        throw new Error('Failed to get authorization URL');
+      }
+    } catch (error) {
+      console.error('Error initiating GitHub login:', error);
+      toast.error('Failed to initiate GitHub authentication');
+    }
   };
 
   const handleGitHubCallback = async (code, state) => {
     try {
-      // Verify state parameter for CSRF protection
+      // Verify state parameter for CSRF protection (optional since backend also validates)
       const storedState = localStorage.getItem('oauth_state');
-      if (!storedState || storedState !== state) {
+      if (storedState && state && storedState !== state) {
         throw new Error('Invalid state parameter - possible CSRF attack');
       }
       
       // Clear stored state
       localStorage.removeItem('oauth_state');
       
-      const response = await api.get(`/auth/github/callback?code=${code}`);
+      // Send both code and state to backend for validation
+      const params = new URLSearchParams({ code });
+      if (state) {
+        params.append('state', state);
+      }
+      
+      const response = await api.get(`/auth/github/callback?${params.toString()}`);
       const { access_token, refresh_token, user } = response.data;
       
       localStorage.setItem('access_token', access_token);

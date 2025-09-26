@@ -1,63 +1,100 @@
 from flask import Blueprint, request, jsonify
 import re
+from flasgger import swag_from
 
 bp = Blueprint('regex_test', __name__, url_prefix='/regex-test')
 
-@bp.route('', methods=['GET', 'POST'])
+@bp.route('', methods=['POST'])
+@swag_from({
+    'tags': ['Regex Testing'],
+    'summary': 'Test regular expressions against sample text',
+    'description': 'Test regex patterns and validate their behavior',
+    'parameters': [{
+        'name': 'test_data',
+        'in': 'body',
+        'required': True,
+        'schema': {
+            'type': 'object',
+            'properties': {
+                'pattern': {'type': 'string', 'example': r'(\d+\.\d+\.\d+)'},
+                'text': {'type': 'string', 'example': 'Apache/2.4.41'},
+                'flags': {'type': 'array', 'items': {'type': 'string'}, 'example': ['IGNORECASE']}
+            },
+            'required': ['pattern', 'text']
+        }
+    }],
+    'responses': {
+        '200': {
+            'description': 'Regex test results',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'matches': {'type': 'array'},
+                    'match_count': {'type': 'integer'},
+                    'valid_pattern': {'type': 'boolean'},
+                    'error': {'type': 'string'}
+                }
+            }
+        },
+        '400': {'description': 'Invalid request data'}
+    }
+})
 def test_regex():
+    """Test regular expression patterns"""
     try:
-        if request.method == 'GET':
-            regex = request.args.get('regex')
-            sample = request.args.get('sample')
-            regex_type = request.args.get('type', 'python')  # python or ruby
-        else:
-            data = request.json
-            if not data:
-                return jsonify({'error': 'No data provided'}), 400
-            regex = data.get('regex')
-            sample = data.get('sample')
-            regex_type = data.get('type', 'python')
+        data = request.json
+        if not data or 'pattern' not in data or 'text' not in data:
+            return jsonify({'error': 'Pattern and text are required'}), 400
         
-        if not regex or not sample:
-            return jsonify({'error': 'regex and sample are required'}), 400
+        pattern = data['pattern']
+        text = data['text']
+        flags = data.get('flags', [])
         
-        if regex_type not in ['python', 'ruby']:
-            return jsonify({'error': 'type must be either "python" or "ruby"'}), 400
+        # Convert string flags to regex flags
+        regex_flags = 0
+        flag_map = {
+            'IGNORECASE': re.IGNORECASE,
+            'MULTILINE': re.MULTILINE,
+            'DOTALL': re.DOTALL,
+            'VERBOSE': re.VERBOSE
+        }
+        
+        for flag in flags:
+            if flag.upper() in flag_map:
+                regex_flags |= flag_map[flag.upper()]
         
         try:
-            # For Ruby regex, we need to handle some differences
-            if regex_type == 'ruby':
-                # Convert Ruby regex to Python regex (basic conversion)
-                # Ruby uses \A and \z for start/end of string, Python uses ^ and $
-                regex = regex.replace(r'\A', '^').replace(r'\z', '$')
-                # Ruby uses (?i) for case insensitive, Python uses re.IGNORECASE
-                case_insensitive = '(?i)' in regex
-                regex = regex.replace('(?i)', '')
-                flags = re.IGNORECASE if case_insensitive else 0
-            else:
-                flags = 0
+            # Test if pattern is valid
+            compiled_pattern = re.compile(pattern, regex_flags)
             
-            match = re.search(regex, sample, flags)
+            # Find all matches
+            matches = compiled_pattern.findall(text)
             
-            if match:
-                return jsonify({
-                    'match': match.group(0),
-                    'groups': match.groups(),
+            # Get match objects for more detailed info
+            match_objects = []
+            for match in compiled_pattern.finditer(text):
+                match_objects.append({
+                    'match': match.group(),
                     'start': match.start(),
                     'end': match.end(),
-                    'regex_type': regex_type
+                    'groups': match.groups()
                 })
-            else:
-                return jsonify({
-                    'match': None,
-                    'groups': (),
-                    'start': None,
-                    'end': None,
-                    'regex_type': regex_type
-                })
-                
+            
+            return jsonify({
+                'valid_pattern': True,
+                'matches': matches,
+                'match_details': match_objects,
+                'match_count': len(matches),
+                'error': None
+            }), 200
+            
         except re.error as e:
-            return jsonify({'error': f'Invalid regex pattern: {str(e)}'}), 400
+            return jsonify({
+                'valid_pattern': False,
+                'matches': [],
+                'match_count': 0,
+                'error': f'Invalid regex pattern: {str(e)}'
+            }), 200
             
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'Server error: {str(e)}'}), 500

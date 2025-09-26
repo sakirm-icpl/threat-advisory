@@ -60,7 +60,7 @@ api.interceptors.response.use(
         }
 
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/auth/refresh`,
+          `${getApiUrl()}/auth/refresh`,
           {},
           {
             headers: { Authorization: `Bearer ${refreshToken}` }
