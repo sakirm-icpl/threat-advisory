@@ -16,8 +16,8 @@ class User(db.Model):
     id = db.Column(db.String, primary_key=True, default=lambda: str(uuid.uuid4()))
     
     # GitHub OAuth fields (primary authentication method)
-    github_id = db.Column(db.String(50), unique=True, nullable=False, index=True)
-    github_username = db.Column(db.String(80), nullable=False, index=True)
+    github_id = db.Column(db.String(50), unique=True, nullable=True, index=True)  # Made nullable for legacy users
+    github_username = db.Column(db.String(80), nullable=True, index=True)  # Made nullable for legacy users
     name = db.Column(db.String(200), nullable=True)  # Full name from GitHub
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     avatar_url = db.Column(db.String(500), nullable=True)

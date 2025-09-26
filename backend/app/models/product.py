@@ -28,7 +28,12 @@ class Product(db.Model):
                 'vendor_id': self.vendor_id,
                 'vendor_name': self.vendor.name if self.vendor else None,
                 'created_by': self.created_by,
-                'creator_name': self.creator.github_username if self.creator else None,
+                'creator': {
+                    'id': self.creator.id,
+                    'github_username': self.creator.github_username,
+                    'username': self.creator.username,
+                    'avatar_url': self.creator.avatar_url
+                } if self.creator else None,
                 'created_at': self.created_at.isoformat() if self.created_at else None,
                 'updated_at': self.updated_at.isoformat() if self.updated_at else None
             }
@@ -42,7 +47,7 @@ class Product(db.Model):
                 'vendor_id': self.vendor_id,
                 'vendor_name': None,
                 'created_by': self.created_by,
-                'creator_name': None,
+                'creator': None,
                 'created_at': self.created_at.isoformat() if self.created_at else None,
                 'updated_at': self.updated_at.isoformat() if self.updated_at else None
             }

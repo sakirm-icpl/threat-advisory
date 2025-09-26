@@ -1,13 +1,21 @@
 from flask import Blueprint, request, jsonify
 from app.models.product import Product
 from app.models.vendor import Vendor
+from app.services.rbac import get_current_user
 from app import db
+from flask_jwt_extended import jwt_required
 
 bp = Blueprint('products', __name__, url_prefix='/products')
 
 @bp.route('', methods=['POST'])
+@jwt_required()
 def add_product():
     try:
+        # Get current user
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Authentication required'}), 401
+        
         data = request.json
         if not data or 'name' not in data or 'vendor_id' not in data:
             return jsonify({'error': 'Name and vendor_id are required'}), 400
@@ -21,7 +29,8 @@ def add_product():
             name=data['name'],
             category=data.get('category'),
             description=data.get('description'),
-            vendor_id=data['vendor_id']
+            vendor_id=data['vendor_id'],
+            created_by=current_user.id  # Set the creator
         )
         db.session.add(product)
         db.session.commit()

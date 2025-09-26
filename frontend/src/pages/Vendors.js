@@ -71,16 +71,16 @@ export default function Vendors() {
           <h1 className="text-3xl font-bold text-gray-900">Vendors</h1>
           <p className="text-gray-600">Manage your vendor catalog for product association</p>
         </div>
-        {user?.role === 'admin' && (
-          <button
-            onClick={() => setEditingId(editingId === 'add' ? null : 'add')}
-            className="btn btn-primary"
-          >
-            {editingId === 'add' ? 'Cancel' : '+ Add Vendor'}
-          </button>
-        )}
+        {/* Allow both admin and contributor to add vendors */}
+        <button
+          onClick={() => setEditingId(editingId === 'add' ? null : 'add')}
+          className="btn btn-primary"
+        >
+          {editingId === 'add' ? 'Cancel' : '+ Add Vendor'}
+        </button>
       </div>
-      {user?.role === 'admin' && editingId === 'add' && (
+      {/* Allow both admin and contributor to see the add form */}
+      {editingId === 'add' && (
         <form onSubmit={addVendor} className="bg-white p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
           <label className="block text-sm font-medium mb-2">Vendor Name *</label>
           <div className="flex items-end gap-4">
@@ -118,7 +118,8 @@ export default function Vendors() {
               <thead>
                 <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Name</th>
-                  {user?.role === 'admin' && <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>}
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Created By</th>
+                  <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,21 +136,48 @@ export default function Vendors() {
                         v.name
                       )}
                     </td>
-                    {user?.role === 'admin' && (
-                      <td className="p-4 flex gap-2 justify-center">
-                        {editingId === v.id ? (
-                          <>
-                            <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onClick={() => saveEdit(v.id)}>Save</button>
-                            <button className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500" onClick={() => setEditingId(null)}>Cancel</button>
-                          </>
-                        ) : (
-                          <>
-                            <button className="btn btn-warning btn-sm" onClick={() => startEdit(v)}>Edit</button>
-                            <button className="btn btn-danger btn-sm" onClick={() => deleteVendor(v.id)}>Delete</button>
-                          </>
-                        )}
-                      </td>
-                    )}
+                    <td className="p-4 text-sm text-gray-600">
+                      {v.creator ? (
+                        <div className="flex items-center">
+                          {v.creator.avatar_url ? (
+                            <img 
+                              src={v.creator.avatar_url} 
+                              alt={v.creator.github_username || v.creator.username}
+                              className="h-6 w-6 rounded-full mr-2"
+                            />
+                          ) : (
+                            <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center mr-2 text-xs font-semibold">
+                              {(v.creator.github_username || v.creator.username || '?').charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          {v.creator.github_username || v.creator.username}
+                        </div>
+                      ) : (
+                        'Unknown'
+                      )}
+                    </td>
+                    <td className="p-4 flex gap-2 justify-center">
+                      {editingId === v.id ? (
+                        <>
+                          <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onClick={() => saveEdit(v.id)}>Save</button>
+                          <button className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500" onClick={() => setEditingId(null)}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          {/* Allow edit/delete if user is admin OR owns the record */}
+                          {(user?.role === 'admin' || v.created_by === user?.id) && (
+                            <>
+                              <button className="btn btn-warning btn-sm" onClick={() => startEdit(v)}>Edit</button>
+                              <button className="btn btn-danger btn-sm" onClick={() => deleteVendor(v.id)}>Delete</button>
+                            </>
+                          )}
+                          {/* Show view-only indicator for records user doesn't own */}
+                          {user?.role === 'contributor' && v.created_by !== user?.id && (
+                            <span className="text-xs text-gray-500 italic">View Only</span>
+                          )}
+                        </>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

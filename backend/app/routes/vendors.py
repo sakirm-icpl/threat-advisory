@@ -1,12 +1,20 @@
 from flask import Blueprint, request, jsonify
 from app.models.vendor import Vendor
+from app.services.rbac import get_current_user
 from app import db
+from flask_jwt_extended import jwt_required
 
 bp = Blueprint('vendors', __name__, url_prefix='/vendors')
 
 @bp.route('', methods=['POST'])
+@jwt_required()
 def add_vendor():
     try:
+        # Get current user
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Authentication required'}), 401
+        
         data = request.json
         if not data or 'name' not in data:
             return jsonify({'error': 'Name is required'}), 400
@@ -16,7 +24,10 @@ def add_vendor():
         if existing_vendor:
             return jsonify({'error': 'Vendor with this name already exists'}), 409
         
-        vendor = Vendor(name=data['name'])
+        vendor = Vendor(
+            name=data['name'],
+            created_by=current_user.id  # Set the creator
+        )
         db.session.add(vendor)
         db.session.commit()
         return jsonify(vendor.to_dict()), 201

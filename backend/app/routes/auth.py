@@ -309,53 +309,70 @@ def change_password():
 @bp.route('/users', methods=['POST'])
 @require_admin
 def create_user():
-    """Create new user (admin only)"""
+    """Create new user (admin only) - GitHub OAuth preferred"""
     try:
         data = request.json
-        print(f"[DEBUG] Received user creation request with data: {data}")
+        current_app.logger.info(f"Admin creating user with data: {data.keys() if data else 'None'}")
         
-        if not data or 'username' not in data or 'email' not in data or 'password' not in data:
-            missing_fields = []
-            if not data:
-                missing_fields.append("request body")
-            else:
-                if 'username' not in data:
-                    missing_fields.append("username")
-                if 'email' not in data:
-                    missing_fields.append("email")
-                if 'password' not in data:
-                    missing_fields.append("password")
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        # For GitHub OAuth users, only email and role are required
+        if data.get('github_username'):
+            # GitHub OAuth user creation
+            required_fields = ['email', 'github_username']
+            missing_fields = [field for field in required_fields if not data.get(field)]
             
-            error_msg = f"Missing required fields: {', '.join(missing_fields)}"
-            print(f"[DEBUG] Validation failed: {error_msg}")
-            return jsonify({'error': error_msg}), 400
+            if missing_fields:
+                return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
+            
+            # Check if user already exists
+            if User.query.filter_by(email=data['email']).first():
+                return jsonify({'error': 'Email already exists'}), 409
+            
+            if User.query.filter_by(github_username=data['github_username']).first():
+                return jsonify({'error': 'GitHub username already exists'}), 409
+            
+            user = User(
+                github_username=data['github_username'],
+                username=data['github_username'],  # Fallback for legacy compatibility
+                email=data['email'],
+                name=data.get('name', ''),
+                role=UserRole.ADMIN if data.get('role') == 'admin' else UserRole.CONTRIBUTOR,
+                github_id=data.get('github_id', f"manual_{data['github_username']}")  # Manual ID for admin-created users
+            )
+        else:
+            # Legacy user creation (requires password)
+            required_fields = ['username', 'email', 'password']
+            missing_fields = [field for field in required_fields if not data.get(field)]
+            
+            if missing_fields:
+                return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
+            
+            # Check if user already exists
+            if User.query.filter_by(username=data['username']).first():
+                return jsonify({'error': 'Username already exists'}), 409
+            
+            if User.query.filter_by(email=data['email']).first():
+                return jsonify({'error': 'Email already exists'}), 409
+            
+            user = User(
+                username=data['username'],
+                email=data['email'],
+                role=UserRole.ADMIN if data.get('role') == 'admin' else UserRole.CONTRIBUTOR
+            )
+            user.set_password(data['password'])
         
-        # Check if user already exists
-        if User.query.filter_by(username=data['username']).first():
-            print(f"[DEBUG] Username already exists: {data['username']}")
-            return jsonify({'error': 'Username already exists'}), 409
-        
-        if User.query.filter_by(email=data['email']).first():
-            print(f"[DEBUG] Email already exists: {data['email']}")
-            return jsonify({'error': 'Email already exists'}), 409
-        
-        user = User(
-            username=data['username'],
-            email=data['email'],
-            role=data.get('role', 'user')
-        )
-        user.set_password(data['password'])
-        
-        print(f"[DEBUG] Creating user: {user.username} ({user.email}) with role: {user.role}")
+        current_app.logger.info(f"Creating user: {user.username or user.github_username} ({user.email}) with role: {user.role}")
         
         db.session.add(user)
         db.session.commit()
         
-        print(f"[DEBUG] User created successfully with ID: {user.id}")
+        current_app.logger.info(f"User created successfully with ID: {user.id}")
         return jsonify(user.to_dict()), 201
     except Exception as e:
         db.session.rollback()
-        print(f"[DEBUG] Error creating user: {str(e)}")
+        current_app.logger.error(f"Error creating user: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/users', methods=['GET'])

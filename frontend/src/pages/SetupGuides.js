@@ -96,16 +96,16 @@ export default function SetupGuides() {
           <h1 className="text-3xl font-bold text-gray-900">Setup Guides</h1>
           <p className="text-gray-600">Manage your setup guides for product configuration and onboarding</p>
         </div>
-        {user?.role === 'admin' && (
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="btn btn-primary"
-          >
-            {showAddForm ? 'Cancel' : '+ Add Setup Guide'}
-          </button>
-        )}
+        {/* Allow both admin and contributor to add setup guides */}
+        <button
+          onClick={() => setShowAddForm(!showAddForm)}
+          className="btn btn-primary"
+        >
+          {showAddForm ? 'Cancel' : '+ Add Setup Guide'}
+        </button>
       </div>
-      {user?.role === 'admin' && showAddForm && (
+      {/* Allow both admin and contributor to see the add form */}
+      {showAddForm && (
         <form onSubmit={addGuide} className="bg-white p-8 rounded-2xl mb-8 w-full shadow-xl border border-blue-100">
           <div className="flex justify-between items-start mb-6">
             <div className="font-semibold text-lg">Add Setup Guide</div>
@@ -135,7 +135,15 @@ export default function SetupGuides() {
                   name="instructions"
                   value={form.instructions}
                   onChange={handleFormChange}
-                  placeholder={`Setup instructions (markdown supported)\n\nExample:\n# Setup Steps\n1. Install dependencies\n2. Configure settings\n3. Run the application\n\n**Important:** Make sure to...`}
+                  placeholder={`Setup instructions (markdown supported)
+
+Example:
+# Setup Steps
+1. Install dependencies
+2. Configure settings
+3. Run the application
+
+**Important:** Make sure to...`}
                   required
                 />
               </div>
@@ -194,7 +202,8 @@ export default function SetupGuides() {
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Category</th>
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Description</th>
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Instructions</th>
-                  {user?.role === 'admin' && <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>}
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Created By</th>
+                  <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,12 +240,51 @@ export default function SetupGuides() {
                           </button>
                         )}
                       </td>
-                      {user?.role === 'admin' && (
-                        <td className="p-4 flex gap-2">
-                          <button className="bg-yellow-500 text-white px-2 py-1 rounded" onClick={() => navigate(`/setup-guides/${g.id}/edit`)}>Edit</button>
-                          <button className="bg-red-600 text-white px-2 py-1 rounded" onClick={() => deleteGuide(g.id)}>Delete</button>
-                        </td>
-                      )}
+                      <td className="p-4 text-sm text-gray-600">
+                        {g.creator ? (
+                          <div className="flex items-center">
+                            {g.creator.avatar_url ? (
+                              <img 
+                                src={g.creator.avatar_url} 
+                                alt={g.creator.github_username || g.creator.username}
+                                className="h-6 w-6 rounded-full mr-2"
+                              />
+                            ) : (
+                              <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center mr-2 text-xs font-semibold">
+                                {(g.creator.github_username || g.creator.username || '?').charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                            {g.creator.github_username || g.creator.username}
+                          </div>
+                        ) : (
+                          'Unknown'
+                        )}
+                      </td>
+                      <td className="p-4 text-center">
+                        <div className="flex gap-2 justify-center">
+                          {/* Allow edit/delete if user is admin OR owns the record */}
+                          {(user?.role === 'admin' || g.created_by === user?.id) && (
+                            <>
+                              <button 
+                                className="btn btn-warning btn-sm" 
+                                onClick={() => navigate(`/setup-guides/${g.id}/edit`)}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                className="btn btn-danger btn-sm" 
+                                onClick={() => deleteGuide(g.id)}
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
+                          {/* Show view-only indicator for records user doesn't own */}
+                          {user?.role === 'contributor' && g.created_by !== user?.id && (
+                            <span className="text-xs text-gray-500 italic">View Only</span>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   );
                 })}

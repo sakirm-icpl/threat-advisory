@@ -127,16 +127,16 @@ export default function Methods() {
           <h1 className="text-3xl font-bold text-gray-900">Detection Methods</h1>
           <p className="text-gray-600">Manage your detection methods for product version detection</p>
         </div>
-        {user?.role === 'admin' && (
-          <button 
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="btn btn-primary"
-          >
-            {showAddForm ? "Cancel" : "+ Add Detection Method"}
-          </button>
-        )}
+        {/* Allow both admin and contributor to add methods */}
+        <button 
+          onClick={() => setShowAddForm(!showAddForm)}
+          className="btn btn-primary"
+        >
+          {showAddForm ? "Cancel" : "+ Add Detection Method"}
+        </button>
       </div>
-      {user?.role === 'admin' && showAddForm && (
+      {/* Allow both admin and contributor to see the add form */}
+      {showAddForm && (
         <form onSubmit={addMethod} className="bg-white p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
           <h3 className="text-lg font-semibold mb-4">Add Detection Method</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -289,14 +289,8 @@ export default function Methods() {
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Product</th>
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Name</th>
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Technique</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Python Regex</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Ruby Regex</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Curl Command</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Expected Response</th>
-                  <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Auth</th>
-                  {user?.role === 'admin' && (
-                    <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
-                  )}
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Created By</th>
+                  <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -313,89 +307,51 @@ export default function Methods() {
                         {m.technique}
                       </span>
                     </td>
-                    <td className="p-4">
-                      <div className="max-w-xs">
-                        {m.regex_python ? (
-                          <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
-                            {m.regex_python.length > 50 
-                              ? m.regex_python.substring(0, 50) + "..." 
-                              : m.regex_python
-                            }
-                          </div>
-                        ) : (
-                          <span className="text-gray-400 text-xs">-</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="max-w-xs">
-                        {m.regex_ruby ? (
-                          <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
-                            {m.regex_ruby.length > 50 
-                              ? m.regex_ruby.substring(0, 50) + "..." 
-                              : m.regex_ruby
-                            }
-                          </div>
-                        ) : (
-                          <span className="text-gray-400 text-xs">-</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="max-w-xs">
-                        {m.curl_command ? (
-                          <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
-                            {m.curl_command.length > 50 
-                              ? m.curl_command.substring(0, 50) + "..." 
-                              : m.curl_command
-                            }
-                          </div>
-                        ) : (
-                          <span className="text-gray-400 text-xs">-</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="max-w-xs">
-                        {m.expected_response ? (
-                          <div className="bg-gray-100 p-2 rounded text-xs font-mono overflow-hidden">
-                            {m.expected_response.length > 50 
-                              ? m.expected_response.substring(0, 50) + "..." 
-                              : m.expected_response
-                            }
-                          </div>
-                        ) : (
-                          <span className="text-gray-400 text-xs">-</span>
-                        )}
-                      </div>
+                    <td className="p-4 text-sm text-gray-600">
+                      {m.creator ? (
+                        <div className="flex items-center">
+                          {m.creator.avatar_url ? (
+                            <img 
+                              src={m.creator.avatar_url} 
+                              alt={m.creator.github_username || m.creator.username}
+                              className="h-6 w-6 rounded-full mr-2"
+                            />
+                          ) : (
+                            <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center mr-2 text-xs font-semibold">
+                              {(m.creator.github_username || m.creator.username || '?').charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          {m.creator.github_username || m.creator.username}
+                        </div>
+                      ) : (
+                        'Unknown'
+                      )}
                     </td>
                     <td className="p-4 text-center">
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        m.requires_auth 
-                          ? "bg-red-100 text-red-800" 
-                          : "bg-green-100 text-green-800"
-                      }`}>
-                        {m.requires_auth ? "Yes" : "No"}
-                      </span>
+                      <div className="flex gap-2 justify-center">
+                        {/* Allow edit/delete if user is admin OR owns the record */}
+                        {(user?.role === 'admin' || m.created_by === user?.id) && (
+                          <>
+                            <button 
+                              className="btn btn-warning btn-sm" 
+                              onClick={() => navigate(`/methods/${m.id}/edit`)}
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              className="btn btn-danger btn-sm" 
+                              onClick={() => deleteMethod(m.id)}
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                        {/* Show view-only indicator for records user doesn't own */}
+                        {user?.role === 'contributor' && m.created_by !== user?.id && (
+                          <span className="text-xs text-gray-500 italic">View Only</span>
+                        )}
+                      </div>
                     </td>
-                    {user?.role === 'admin' && (
-                      <td className="p-4 text-center">
-                        <div className="flex gap-2 justify-center">
-                          <button 
-                            className="btn btn-warning btn-sm" 
-                            onClick={() => navigate(`/methods/${m.id}/edit`)}
-                          >
-                            Edit
-                          </button>
-                          <button 
-                            className="btn btn-danger btn-sm" 
-                            onClick={() => deleteMethod(m.id)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    )}
                   </tr>
                 ))}
               </tbody>

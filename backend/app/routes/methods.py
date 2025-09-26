@@ -1,13 +1,21 @@
 from flask import Blueprint, request, jsonify
 from app.models.detection_method import DetectionMethod
 from app.models.product import Product
+from app.services.rbac import get_current_user
 from app import db
+from flask_jwt_extended import jwt_required
 
 bp = Blueprint('methods', __name__, url_prefix='/methods')
 
 @bp.route('', methods=['POST'])
+@jwt_required()
 def add_method():
     try:
+        # Get current user
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Authentication required'}), 401
+        
         data = request.json
         if not data or 'product_id' not in data or 'name' not in data or 'technique' not in data:
             return jsonify({'error': 'product_id, name, and technique are required'}), 400
@@ -25,7 +33,8 @@ def add_method():
             regex_ruby=data.get('regex_ruby'),
             curl_command=data.get('curl_command'),
             expected_response=data.get('expected_response'),
-            requires_auth=data.get('requires_auth', False)
+            requires_auth=data.get('requires_auth', False),
+            created_by=current_user.id  # Set the creator
         )
         db.session.add(method)
         db.session.commit()

@@ -1,13 +1,21 @@
 from flask import Blueprint, request, jsonify
 from app.models.setup_guide import SetupGuide
 from app.models.product import Product
+from app.services.rbac import get_current_user
 from app import db
+from flask_jwt_extended import jwt_required
 
 bp = Blueprint('setup_guides', __name__, url_prefix='/setup-guides')
 
 @bp.route('', methods=['POST'])
+@jwt_required()
 def add_setup_guide():
     try:
+        # Get current user
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'error': 'Authentication required'}), 401
+        
         data = request.json
         if not data or 'product_id' not in data or 'instructions' not in data:
             return jsonify({'error': 'product_id and instructions are required'}), 400
@@ -19,7 +27,8 @@ def add_setup_guide():
         
         setup_guide = SetupGuide(
             product_id=data['product_id'],
-            instructions=data['instructions']
+            instructions=data['instructions'],
+            created_by=current_user.id  # Set the creator
         )
         db.session.add(setup_guide)
         db.session.commit()

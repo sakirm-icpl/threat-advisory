@@ -20,10 +20,12 @@ export default function Users() {
   const [showPasswordReset, setShowPasswordReset] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
+    github_username: '',
     username: '',
     email: '',
     password: '',
     role: '', // Default to empty so placeholder is shown
+    userType: 'github' // 'github' or 'legacy'
   });
   const [resetPassword, setResetPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -130,12 +132,24 @@ export default function Users() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.username.trim()) newErrors.username = 'Username is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email format';
-    if (!formData.password) newErrors.password = 'Password is required';
-    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
-    else if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) newErrors.password = 'Password must contain at least one special character';
+    
+    if (formData.userType === 'github') {
+      // GitHub OAuth user validation
+      if (!formData.github_username?.trim()) newErrors.github_username = 'GitHub username is required';
+      if (!formData.email?.trim()) newErrors.email = 'Email is required';
+      else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email format';
+      if (!formData.role) newErrors.role = 'Role is required';
+    } else {
+      // Legacy user validation
+      if (!formData.username?.trim()) newErrors.username = 'Username is required';
+      if (!formData.email?.trim()) newErrors.email = 'Email is required';
+      else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email format';
+      if (!formData.password) newErrors.password = 'Password is required';
+      else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+      else if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) newErrors.password = 'Password must contain at least one special character';
+      if (!formData.role) newErrors.role = 'Role is required';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -173,8 +187,7 @@ export default function Users() {
   const getRoleBadgeColor = (role) => {
     switch (role) {
       case 'admin': return 'bg-red-100 text-red-800';
-      case 'user': return 'bg-blue-100 text-blue-800';
-      case 'readonly': return 'bg-gray-100 text-gray-800';
+      case 'contributor': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -197,16 +210,16 @@ export default function Users() {
           </p>
         </div>
         {user?.role === 'admin' && (
-          <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-            <button
-              type="button"
-              onClick={() => setShowAddForm(true)}
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
-            >
-              <UserPlusIcon className="-ml-1 mr-2 h-5 w-5" />
-              Add User
-            </button>
-          </div>
+            <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+              <button
+                type="button"
+                onClick={() => setShowAddForm(true)}
+                className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+              >
+                <UserPlusIcon className="-ml-1 mr-2 h-5 w-5" />
+                Add User
+              </button>
+            </div>
         )}
       </div>
 
@@ -252,74 +265,138 @@ export default function Users() {
       {user?.role === 'admin' && showAddForm && (
         <div className="mt-6 bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Add New User</h3>
+          
+          {/* User Type Selection */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">User Type</label>
+            <div className="flex space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="userType"
+                  value="github"
+                  checked={formData.userType === 'github'}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                />
+                <span className="ml-2 text-sm text-gray-700">GitHub OAuth User (Recommended)</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="userType"
+                  value="legacy"
+                  checked={formData.userType === 'legacy'}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                />
+                <span className="ml-2 text-sm text-gray-700">Legacy User (Username/Password)</span>
+              </label>
+            </div>
+          </div>
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Username</label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.username ? 'border-red-300' : ''}`}
-                  placeholder="Enter username"
-                />
-                {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.email ? 'border-red-300' : ''}`}
-                  placeholder="Enter email address"
-                />
-                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-              </div>
+              {formData.userType === 'github' ? (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">GitHub Username</label>
+                    <input
+                      type="text"
+                      name="github_username"
+                      value={formData.github_username}
+                      onChange={handleInputChange}
+                      className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.github_username ? 'border-red-300' : ''}`}
+                      placeholder="Enter GitHub username"
+                    />
+                    {errors.github_username && <p className="mt-1 text-sm text-red-600">{errors.github_username}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.email ? 'border-red-300' : ''}`}
+                      placeholder="Enter email address"
+                    />
+                    {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Username</label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleInputChange}
+                      className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.username ? 'border-red-300' : ''}`}
+                      placeholder="Enter username"
+                    />
+                    {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.email ? 'border-red-300' : ''}`}
+                      placeholder="Enter email address"
+                    />
+                    {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                  </div>
+                </>
+              )}
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Password</label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm pr-12 ${errors.password ? 'border-red-300' : ''}`}
-                    placeholder="Enter password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center px-3 focus:outline-none hover:bg-gray-100 rounded transition"
-                    style={{ minWidth: 40, height: 44 }}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? (
-                      <EyeSlashIcon className="h-6 w-6 text-gray-400 hover:text-gray-600 transition" />
-                    ) : (
-                      <EyeIcon className="h-6 w-6 text-gray-400 hover:text-gray-600 transition" />
-                    )}
-                  </button>
+              {formData.userType === 'legacy' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm pr-12 ${errors.password ? 'border-red-300' : ''}`}
+                      placeholder="Enter password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center px-3 focus:outline-none hover:bg-gray-100 rounded transition"
+                      style={{ minWidth: 40, height: 44 }}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? (
+                        <EyeSlashIcon className="h-6 w-6 text-gray-400 hover:text-gray-600 transition" />
+                      ) : (
+                        <EyeIcon className="h-6 w-6 text-gray-400 hover:text-gray-600 transition" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
                 </div>
-                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-              </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Role</label>
                 <select
                   name="role"
                   value={formData.role}
                   onChange={handleInputChange}
-                  className="mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.role ? 'border-red-300' : ''}`}
                   required
                 >
                   <option value="" disabled>Select the role</option>
                   <option value="admin">Admin</option>
-                  <option value="readonly">Read Only</option>
+                  <option value="contributor">Contributor</option>
                 </select>
+                {errors.role && <p className="mt-1 text-sm text-red-600">{errors.role}</p>}
               </div>
             </div>
             <div className="flex justify-end space-x-3">
@@ -327,7 +404,7 @@ export default function Users() {
                 type="button"
                 onClick={() => {
                   setShowAddForm(false);
-                  setFormData({ username: '', email: '', password: '', role: 'user' });
+                  setFormData({ github_username: '', username: '', email: '', password: '', role: '', userType: 'github' });
                   setErrors({});
                 }}
                 className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -386,7 +463,7 @@ export default function Users() {
                             <div className="flex-shrink-0 h-10 w-10">
                               <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                                 <span className="text-sm font-medium text-gray-700">
-                                  {userRow.username.charAt(0).toUpperCase()}
+                                  {(userRow.github_username || userRow.username).charAt(0).toUpperCase()}
                                 </span>
                               </div>
                             </div>
@@ -395,12 +472,12 @@ export default function Users() {
                                 {editingUser?.id === userRow.id ? (
                                   <input
                                     type="text"
-                                    value={editingUser.username}
+                                    value={editingUser.github_username || editingUser.username}
                                     onChange={(e) => setEditingUser({...editingUser, username: e.target.value})}
                                     className="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                   />
                                 ) : (
-                                  userRow.username
+                                  userRow.github_username || userRow.username
                                 )}
                               </div>
                               <div className="text-sm text-gray-500">
@@ -425,9 +502,8 @@ export default function Users() {
                               onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
                               className="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                             >
-                              <option value="user">User</option>
+                              <option value="contributor">Contributor</option>
                               <option value="admin">Admin</option>
-                              <option value="readonly">Read Only</option>
                             </select>
                           ) : (
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(userRow.role)}`}>

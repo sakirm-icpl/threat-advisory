@@ -193,9 +193,17 @@ export default function Layout({ children }) {
               className="flex items-center gap-2 focus:outline-none"
               onClick={() => setProfileOpen((open) => !open)}
             >
-              <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-bold text-lg">
-                {user?.username ? user.username[0].toUpperCase() : '?'}
-              </div>
+              {user?.avatar_url ? (
+                <img 
+                  src={user.avatar_url} 
+                  alt={user.github_username || user.username}
+                  className="h-10 w-10 rounded-full"
+                />
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-bold text-lg">
+                  {(user?.github_username || user?.username || '?').charAt(0).toUpperCase()}
+                </div>
+              )}
             </button>
             {/* Dropdown menu */}
             {profileOpen && (

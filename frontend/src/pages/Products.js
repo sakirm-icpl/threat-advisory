@@ -81,16 +81,16 @@ export default function Products() {
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-600">Manage your product catalog and version detection targets</p>
         </div>
-        {user?.role === 'admin' && (
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="btn btn-primary"
-          >
-            {showAddForm ? 'Cancel' : '+ Add Product'}
-          </button>
-        )}
+        {/* Allow both admin and contributor to add products */}
+        <button
+          onClick={() => setShowAddForm(!showAddForm)}
+          className="btn btn-primary"
+        >
+          {showAddForm ? 'Cancel' : '+ Add Product'}
+        </button>
       </div>
-      {user?.role === 'admin' && showAddForm && (
+      {/* Allow both admin and contributor to see the add form */}
+      {showAddForm && (
         <form onSubmit={addProduct} className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
@@ -136,7 +136,15 @@ export default function Products() {
               className="input h-32 font-mono text-sm resize-none"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder={`Describe what this product does, its features, etc.\n\nYou can use Markdown formatting:\n**Bold text**\n*Italic text*\n- Bullet points\n1. Numbered lists\n\`\`\`code blocks\`\`\`\n[Links](https://example.com)`}
+              placeholder={`Describe what this product does, its features, etc.
+
+You can use Markdown formatting:
+**Bold text**
+*Italic text*
+- Bullet points
+1. Numbered lists
+\`\`\`code blocks\`\`\`
+[Links](https://example.com)`}
             />
             {description && (
               <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
@@ -172,9 +180,8 @@ export default function Products() {
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Product Name</th>
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Category</th>
                   <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Description</th>
-                  {user?.role === 'admin' && (
-                    <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
-                  )}
+                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Created By</th>
+                  <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -233,24 +240,51 @@ export default function Products() {
                           )}
                         </div>
                     </td>
-                    {user?.role === 'admin' && (
-                      <td className="p-4 text-center">
-                        <div className="flex gap-2 justify-center">
-                          <button 
-                            className="btn btn-warning btn-sm" 
-                            onClick={() => navigate(`/products/${p.id}/edit`)}
-                          >
-                            Edit
-                          </button>
-                          <button 
-                            className="btn btn-danger btn-sm" 
-                            onClick={() => deleteProduct(p.id)}
-                          >
-                            Delete
-                          </button>
+                    <td className="p-4 text-sm text-gray-600">
+                      {p.creator ? (
+                        <div className="flex items-center">
+                          {p.creator.avatar_url ? (
+                            <img 
+                              src={p.creator.avatar_url} 
+                              alt={p.creator.github_username || p.creator.username}
+                              className="h-6 w-6 rounded-full mr-2"
+                            />
+                          ) : (
+                            <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center mr-2 text-xs font-semibold">
+                              {(p.creator.github_username || p.creator.username || '?').charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          {p.creator.github_username || p.creator.username}
                         </div>
-                      </td>
-                    )}
+                      ) : (
+                        'Unknown'
+                      )}
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="flex gap-2 justify-center">
+                        {/* Allow edit/delete if user is admin OR owns the record */}
+                        {(user?.role === 'admin' || p.created_by === user?.id) && (
+                          <>
+                            <button 
+                              className="btn btn-warning btn-sm" 
+                              onClick={() => navigate(`/products/${p.id}/edit`)}
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              className="btn btn-danger btn-sm" 
+                              onClick={() => deleteProduct(p.id)}
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                        {/* Show view-only indicator for records user doesn't own */}
+                        {user?.role === 'contributor' && p.created_by !== user?.id && (
+                          <span className="text-xs text-gray-500 italic">View Only</span>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
