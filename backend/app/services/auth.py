@@ -59,6 +59,33 @@ def login_github_user(user):
         'user': user.to_dict()
     }
 
+def require_permission(permission):
+    """Decorator to require specific permission based on user role"""
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            verify_jwt_in_request()
+            user_id = get_jwt_identity()
+            user = User.query.get(user_id)
+            
+            if not user or not user.is_active:
+                return jsonify({'error': 'Authentication required'}), 401
+            
+            # Check permissions based on role
+            if user.role == UserRole.ADMIN:
+                # Admin has all permissions
+                return fn(*args, **kwargs)
+            elif user.role == UserRole.CONTRIBUTOR:
+                # Contributor has read permissions but limited write permissions
+                if permission in ['read']:
+                    return fn(*args, **kwargs)
+                else:
+                    return jsonify({'error': 'Insufficient permissions'}), 403
+            else:
+                return jsonify({'error': 'Insufficient permissions'}), 403
+        return wrapper
+    return decorator
+
 def require_admin(fn):
     """Decorator to require admin role - uses new RBAC system"""
     @wraps(fn)
@@ -80,4 +107,4 @@ def get_current_user():
         user_id = get_jwt_identity()
         return User.query.get(user_id)
     except:
-        return None 
+        return None
