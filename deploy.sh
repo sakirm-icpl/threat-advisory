@@ -3,7 +3,13 @@
 # VersionIntel Clean Deployment Script for Linux/Mac
 # This script cleans all Docker resources and starts fresh deployment
 
-set -e  # Exit on any error
+# Load environment variables
+if [ -f ".env" ]; then
+    export $(cat .env | xargs)
+    echo "✅ Environment variables loaded from .env file"
+else
+    echo "⚠️  No .env file found. Using default values."
+fi
 
 echo "========================================"
 echo "VersionIntel Clean Deployment Script"
@@ -63,20 +69,20 @@ docker volume prune -f
 
 echo "✅ All Docker resources cleaned"
 
-# Set server IP to localhost
-SERVER_IP=localhost
-echo "🌐 Using localhost for local development"
+# Set server IP from environment or default to localhost
+SERVER_IP=${SERVER_HOST:-localhost}
+echo "🌐 Using server IP: $SERVER_IP"
 
 # Create frontend .env file if it doesn't exist
 if [ ! -f "frontend/.env" ]; then
     echo "📝 Creating frontend environment file..."
-    echo "REACT_APP_API_URL=http://$SERVER_IP:8000" > frontend/.env
-    echo "REACT_APP_GITHUB_CLIENT_ID=Ov23licijFemPDL32cZK" >> frontend/.env
+    echo "REACT_APP_API_URL=http://$SERVER_IP:${BACKEND_PORT:-8000}" > frontend/.env
+    echo "REACT_APP_GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}" >> frontend/.env
     echo "✅ Frontend environment file created"
 else
     echo "✅ Frontend environment file already exists"
     # Update the API URL to use the correct IP
-    sed -i "s|REACT_APP_API_URL=.*|REACT_APP_API_URL=http://$SERVER_IP:8000|" frontend/.env
+    sed -i "s|REACT_APP_API_URL=.*|REACT_APP_API_URL=http://$SERVER_IP:${BACKEND_PORT:-8000}|" frontend/.env
     echo "✅ Updated frontend environment file"
 fi
 
@@ -111,10 +117,10 @@ echo "========================================"
 echo "DEPLOYMENT COMPLETE"
 echo "========================================"
 echo ""
-echo "🌐 FRONTEND URL: http://$SERVER_IP:3000"
-echo "🛠️  BACKEND API: http://$SERVER_IP:8000"
-echo "📚 API DOCS: http://$SERVER_IP:8000/docs"
-echo "🏥 HEALTH CHECK: http://$SERVER_IP:8000/health"
+echo "🌐 FRONTEND URL: http://$SERVER_IP:${FRONTEND_PORT:-3000}"
+echo "🛠️  BACKEND API: http://$SERVER_IP:${BACKEND_PORT:-8000}"
+echo "📚 API DOCS: http://$SERVER_IP:${BACKEND_PORT:-8000}/apidocs/"
+echo "🏥 HEALTH CHECK: http://$SERVER_IP:${BACKEND_PORT:-8000}/health"
 echo ""
 echo "🔐 DEFAULT LOGIN CREDENTIALS:"
 echo "   Username: admin"

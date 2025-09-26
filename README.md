@@ -16,6 +16,12 @@ A comprehensive platform for managing internal version detection research for va
 ```bash
 git clone <repository-url>
 cd versionintel
+
+# Create .env file with your configuration (see env.example)
+cp env.example .env
+# Edit .env file with your settings
+
+# Run deployment
 ./deploy.sh    # Linux/Mac
 # OR
 deploy.bat     # Windows

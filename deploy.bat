@@ -2,9 +2,15 @@
 REM VersionIntel Clean Deployment Script for Windows
 REM This script cleans all Docker resources and starts fresh deployment
 
-echo ========================================
-echo VersionIntel Clean Deployment Script
-echo ========================================
+REM Load environment variables
+if exist ".env" (
+    for /f "tokens=*" %%i in ('type .env') do (
+        set "%%i"
+    )
+    echo SUCCESS: Environment variables loaded from .env file
+) else (
+    echo WARNING: No .env file found. Using default values.
+)
 
 REM Check if Docker is installed
 docker --version >nul 2>&1
@@ -68,20 +74,24 @@ docker volume prune -f
 
 echo SUCCESS: All Docker resources cleaned
 
-REM Set server IP to localhost
-set SERVER_IP=localhost
-echo Using localhost for local development
+REM Set server IP from environment or default to localhost
+if defined SERVER_HOST (
+    set SERVER_IP=%SERVER_HOST%
+) else (
+    set SERVER_IP=localhost
+)
+echo Using server IP: %SERVER_IP%
 
 REM Create frontend .env file if it doesn't exist
 if not exist "frontend\.env" (
     echo Creating frontend environment file...
-    echo REACT_APP_API_URL=http://%SERVER_IP%:8000 > frontend\.env
-    echo REACT_APP_GITHUB_CLIENT_ID=Ov23licijFemPDL32cZK >> frontend\.env
+    echo REACT_APP_API_URL=http://%SERVER_IP%:%BACKEND_PORT:~8000% > frontend\.env
+    echo REACT_APP_GITHUB_CLIENT_ID=%GITHUB_CLIENT_ID% >> frontend\.env
     echo SUCCESS: Frontend environment file created
 ) else (
     echo SUCCESS: Frontend environment file already exists
     REM Update the API URL to use the correct IP
-    powershell -Command "(Get-Content frontend\.env) -replace 'REACT_APP_API_URL=.*', 'REACT_APP_API_URL=http://%SERVER_IP%:8000' | Set-Content frontend\.env"
+    powershell -Command "(Get-Content frontend\.env) -replace 'REACT_APP_API_URL=.*', 'REACT_APP_API_URL=http://%SERVER_IP%:%BACKEND_PORT:~8000%' | Set-Content frontend\.env"
     echo SUCCESS: Updated frontend environment file
 )
 
@@ -134,10 +144,10 @@ echo ========================================
 echo DEPLOYMENT COMPLETE
 echo ========================================
 echo.
-echo 🌐 FRONTEND URL: http://%SERVER_IP%:3000
-echo 🛠️  BACKEND API: http://%SERVER_IP%:8000
-echo 📚 API DOCS: http://%SERVER_IP%:8000/docs
-echo 🏥 HEALTH CHECK: http://%SERVER_IP%:8000/health
+echo 🌐 FRONTEND URL: http://%SERVER_IP%:%FRONTEND_PORT:~3000%
+echo 🛠️  BACKEND API: http://%SERVER_IP%:%BACKEND_PORT:~8000%
+echo 📚 API DOCS: http://%SERVER_IP%:%BACKEND_PORT:~8000%/apidocs/
+echo 🏥 HEALTH CHECK: http://%SERVER_IP%:%BACKEND_PORT:~8000%/health
 echo.
 echo 🔐 DEFAULT LOGIN CREDENTIALS:
 echo    Username: admin

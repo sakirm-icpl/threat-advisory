@@ -10,15 +10,17 @@ versionintel/
 ├── 📁 frontend/                # React Web Application (JavaScript/TypeScript)
 ├── 📁 db/                      # Database initialization and migrations
 ├── 📄 docker-compose.yml       # Service orchestration
+├── 📄 .env                     # Environment variables (NOT COMMITTED)
+├── 📄 env.example              # Environment variables template
 ├── 📄 deploy.sh               # Clean deployment script for Linux/Mac
 ├── 📄 deploy.bat              # Clean deployment script for Windows
 ├── 📄 README.md                # Main project documentation
 ├── 📄 DEPLOYMENT.md            # Comprehensive deployment guide
+├── 📄 STANDARD_DEPLOYMENT.md   # Standard environment-based deployment guide
 ├── 📄 API.md                   # Complete API documentation
 ├── 📄 TROUBLESHOOTING.md       # Troubleshooting guide
 ├── 📄 PROJECT_STRUCTURE.md     # This file
-├── 📄 .gitignore               # Git ignore rules
-└── 📄 env.example              # Environment variables template
+└── 📄 .gitignore               # Git ignore rules
 ```
 
 ## 🔧 Backend Structure
