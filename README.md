@@ -16,9 +16,9 @@ A comprehensive platform for managing internal version detection research for va
 ```bash
 git clone <repository-url>
 cd versionintel
-./build-and-deploy.sh    # Linux/Mac
+./deploy.sh    # Linux/Mac
 # OR
-build-and-deploy.bat     # Windows
+deploy.bat     # Windows
 ```
 
 ### Access the Application
@@ -39,7 +39,7 @@ build-and-deploy.bat     # Windows
 - **CVE Integration**: Search and analyze CVE data with intelligent query parsing (supports Vendor@Product format)
 - **Setup Guides**: Document setup instructions with Docker images and VM requirements
 - **Regex Testing**: Test Python and Ruby regex patterns against sample outputs
-- **Authentication & Authorization**: JWT-based authentication with role-based access control
+- **Authentication & Authorization**: GitHub OAuth 2.0 with role-based access control (Admin/Contributor roles)
 - **Bulk Operations**: Import/export data in JSON/CSV/DOCX/PDF formats
 - **API Documentation**: Interactive Swagger/OpenAPI documentation
 - **Modern Frontend**: React-based web interface with responsive design
@@ -66,7 +66,7 @@ versionintel/
 │   └── Dockerfile
 ├── db/                     # Database initialization
 ├── docker-compose.yml      # Service orchestration
-└── build-and-deploy.sh     # Deployment script
+└── deploy.sh              # Deployment script
 ```
 
 ## 🔧 Development Setup
@@ -185,7 +185,9 @@ cd versionintel
 # - Set REACT_APP_API_URL to your domain
 
 # Deploy
-./build-and-deploy.sh
+deploy.sh
+# OR on Windows
+deploy.bat
 ```
 
 ### Production Optimizations
@@ -246,7 +248,7 @@ docker-compose logs -f
 
 **Permission errors?**
 ```bash
-chmod +x build-and-deploy.sh
+chmod +x deploy.sh
 ```
 
 **Database connection issues?**
@@ -291,7 +293,9 @@ docker-compose exec backend bash
 docker-compose exec db psql -U postgres -d versionintel
 
 # Rebuild and deploy
-./build-and-deploy.sh
+deploy.sh  # Linux/Mac
+# OR
+deploy.bat # Windows
 ```
 
 ## 🔐 Security Notes
@@ -306,10 +310,21 @@ docker-compose exec db psql -U postgres -d versionintel
 ## 📚 API Documentation
 
 Once the application is running, you can access:
-- **Interactive API Docs**: http://localhost:8000/docs
-- **OpenAPI Schema**: http://localhost:8000/openapi.json
+- **Interactive API Docs**: http://localhost:8000/apidocs/
+- **OpenAPI Schema**: http://localhost:8000/apispec_1.json
+- **Complete RBAC Guide**: [RBAC_API_DOCUMENTATION.md](./RBAC_API_DOCUMENTATION.md)
 
 ### Authentication
+**GitHub OAuth (Primary)**
+```http
+# Step 1: Initiate OAuth
+GET /auth/github/login?redirect_uri=http://localhost:3000/auth/callback
+
+# Step 2: Handle callback (returns JWT tokens)
+GET /auth/github/callback?code=oauth_code
+```
+
+**Legacy Login (Deprecated)**
 ```http
 POST /auth/login
 Content-Type: application/json
@@ -321,7 +336,6 @@ Content-Type: application/json
 ```
 
 ### Using Authentication
-Include the JWT token in the Authorization header:
 ```http
 Authorization: Bearer <your-jwt-token>
 ```

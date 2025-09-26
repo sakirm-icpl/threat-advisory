@@ -6,6 +6,11 @@ class SetupGuide(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
     instructions = db.Column(db.Text, nullable=False)
+    
+    # RBAC: Track who created this record
+    created_by = db.Column(db.String, db.ForeignKey('users.id'), nullable=True, index=True)
+    creator = db.relationship('User', backref='created_guides', lazy=True)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -16,6 +21,8 @@ class SetupGuide(db.Model):
                 'product_id': self.product_id,
                 'product_name': self.product.name if self.product else None,
                 'instructions': self.instructions,
+                'created_by': self.created_by,
+                'creator_name': self.creator.github_username if self.creator else None,
                 'created_at': self.created_at.isoformat() if self.created_at else None,
                 'updated_at': self.updated_at.isoformat() if self.updated_at else None
             }
@@ -26,6 +33,8 @@ class SetupGuide(db.Model):
                 'product_id': self.product_id,
                 'product_name': None,
                 'instructions': self.instructions,
+                'created_by': self.created_by,
+                'creator_name': None,
                 'created_at': self.created_at.isoformat() if self.created_at else None,
                 'updated_at': self.updated_at.isoformat() if self.updated_at else None
             }

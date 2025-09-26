@@ -9,6 +9,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showLegacyForm, setShowLegacyForm] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [imagePaths] = useState([
     '/infologo.png',
@@ -17,10 +18,14 @@ export default function Login() {
     '/public/infologo.png'
   ]);
   const [currentPathIndex, setCurrentPathIndex] = useState(0);
-  const { login } = useAuth();
+  const { login, loginWithGitHub } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleGitHubLogin = () => {
+    loginWithGitHub();
+  };
+
+  const handleLegacyLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -28,7 +33,7 @@ export default function Login() {
     if (success) {
       navigate('/dashboard');
     } else {
-      setError('Invalid username or password.');
+      setError('Invalid credentials. Please use GitHub OAuth for authentication.');
     }
     setLoading(false);
   };
@@ -128,11 +133,65 @@ export default function Login() {
             </div>
           </div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent text-center">
-            Infopercept VersionIntel
+            Sign in to VersionIntel
           </h2>
-          <p className="text-sm text-gray-300 text-center mt-2 font-medium">Version Detection Research Platform</p>
+          <p className="text-sm text-gray-300 text-center mt-2 font-medium">
+            Version Detection Research Platform
+          </p>
         </div>
-        <form className="space-y-6" onSubmit={handleSubmit} autoComplete="off">
+
+        {/* Primary GitHub OAuth Login */}
+        <div className="space-y-4">
+          <button
+            onClick={handleGitHubLogin}
+            disabled={loading}
+            className="group relative w-full flex justify-center items-center py-4 px-6 border border-transparent text-lg font-medium rounded-xl text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
+            <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />
+            </svg>
+            {loading ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Signing in...
+              </div>
+            ) : (
+              'Continue with GitHub'
+            )}
+          </button>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">or</span>
+            </div>
+          </div>
+
+          {/* Legacy Login Toggle */}
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setShowLegacyForm(!showLegacyForm)}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200"
+            >
+              {showLegacyForm ? 'Hide legacy login' : 'Use legacy username/password'}
+            </button>
+          </div>
+        </div>
+
+        {/* Legacy Login Form (Hidden by default) */}
+        {showLegacyForm && (
+          <div className="mt-6 border-t border-gray-200 pt-6">
+            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-yellow-800 text-sm">
+                <strong>⚠️ Legacy Login:</strong> This method is deprecated. Please use GitHub OAuth for secure authentication.
+              </p>
+            </div>
+
+            <form className="space-y-6" onSubmit={handleLegacyLogin} autoComplete="off">
             <div>
               <label htmlFor="username" className="label">Username</label>
               <input
@@ -172,32 +231,38 @@ export default function Login() {
                 )}
               </button>
             </div>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-center text-sm font-medium">
-              <div className="flex items-center justify-center">
-                <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {error}
-              </div>
-            </div>
-          )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary w-full flex justify-center items-center text-lg py-3 mt-8"
-            >
-              {loading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Signing in...
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-center text-sm font-medium">
+                <div className="flex items-center justify-center">
+                  <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {error}
                 </div>
-              ) : (
-                'Sign in'
-              )}
-            </button>
-        </form>
+              </div>
+            )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn btn-primary w-full flex justify-center items-center text-lg py-3 mt-8"
+              >
+                {loading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Signing in...
+                  </div>
+                ) : (
+                  'Sign in (Legacy)'
+                )}
+              </button>
+            </form>
+          </div>
+        )}
         <div className="mt-8 text-xs text-gray-400 text-center select-none font-medium">
+          <p className="mb-2">
+            By signing in, you agree to collaborate on security research
+          </p>
           &copy; {new Date().getFullYear()} Infopercept. All rights reserved.
         </div>
       </div>

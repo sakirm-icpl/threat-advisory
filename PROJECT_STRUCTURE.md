@@ -10,8 +10,8 @@ versionintel/
 ├── 📁 frontend/                # React Web Application (JavaScript/TypeScript)
 ├── 📁 db/                      # Database initialization and migrations
 ├── 📄 docker-compose.yml       # Service orchestration
-├── 📄 build-and-deploy.sh      # Linux/Mac deployment script
-├── 📄 build-and-deploy.bat     # Windows deployment script
+├── 📄 deploy.sh               # Clean deployment script for Linux/Mac
+├── 📄 deploy.bat              # Clean deployment script for Windows
 ├── 📄 README.md                # Main project documentation
 ├── 📄 DEPLOYMENT.md            # Comprehensive deployment guide
 ├── 📄 API.md                   # Complete API documentation

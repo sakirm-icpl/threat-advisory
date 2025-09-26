@@ -144,7 +144,13 @@ export const endpoints = {
   createUser: (data) => api.post('/auth/users', data),
   updateUser: (id, data) => api.put(`/auth/users/${id}`, data),
   deleteUser: (id) => api.delete(`/auth/users/${id}`),
-  resetUserPassword: (data) => api.post('/auth/reset-password', data),
+  resetUserPassword: (id, data) => api.post(`/auth/users/${id}/reset-password`, data),
+  
+  // Admin Panel - Role Management
+  promoteUser: (id) => api.post(`/auth/users/${id}/promote`),
+  demoteUser: (id) => api.post(`/auth/users/${id}/demote`),
+  getSystemStats: () => api.get('/auth/admin/system-stats'),
+  getAuditLogs: (params) => api.get('/auth/admin/audit-logs', { params }),
   
   // Health & Metrics
   health: () => api.get('/health'),

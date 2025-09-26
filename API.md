@@ -44,9 +44,39 @@ All responses follow this structure:
 
 ## 🔐 Authentication
 
-VersionIntel uses JWT (JSON Web Token) authentication.
+VersionIntel uses **GitHub OAuth 2.0** as the primary authentication method with JWT tokens.
 
-### Login
+### GitHub OAuth Login (Recommended)
+
+**Step 1: Initiate OAuth**
+```http
+GET /auth/github/login?redirect_uri=http://localhost:3000/auth/callback
+```
+
+**Step 2: Handle Callback**
+```http
+GET /auth/github/callback?code=oauth_authorization_code
+```
+
+**Response:**
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "user": {
+    "id": 1,
+    "github_username": "johndoe",
+    "email": "john@example.com",
+    "role": "contributor",
+    "github_id": "12345678"
+  }
+}
+```
+
+### Legacy Username/Password Login
+
+**⚠️ Deprecated but available for backward compatibility**
+
 ```http
 POST /auth/login
 Content-Type: application/json
@@ -54,19 +84,6 @@ Content-Type: application/json
 {
   "username": "admin",
   "password": "Admin@1234"
-}
-```
-
-**Response:**
-```json
-{
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-  "user": {
-    "id": 1,
-    "username": "admin",
-    "email": "admin@example.com",
-    "role": "admin"
-  }
 }
 ```
 
@@ -79,13 +96,54 @@ Authorization: Bearer <your-jwt-token>
 ### Token Refresh
 ```http
 POST /auth/refresh
-Authorization: Bearer <your-jwt-token>
+Authorization: Bearer <your-refresh-token>
 ```
 
-### Logout
+## 🛡️ Role-Based Access Control (RBAC)
+
+VersionIntel implements a 2-role RBAC system:
+
+### **Admin Role**
+- ✅ Full CRUD access to all entities
+- ✅ User management (promote/demote contributors)
+- ✅ System administration (audit logs, stats)
+- ✅ Bulk operations
+
+### **Contributor Role** (Default for new GitHub users)
+- ✅ Read access to all public data
+- ✅ CRUD access only to records they created (`created_by = user.id`)
+- ❌ Cannot manage users or access admin endpoints
+
+### Admin-Only Endpoints
+
+#### List Users
 ```http
-POST /auth/logout
-Authorization: Bearer <your-jwt-token>
+GET /auth/users
+Authorization: Bearer <admin-token>
+```
+
+#### Promote User to Admin
+```http
+POST /auth/users/{user_id}/promote
+Authorization: Bearer <admin-token>
+```
+
+#### Demote Admin to Contributor
+```http
+POST /auth/users/{user_id}/demote
+Authorization: Bearer <admin-token>
+```
+
+#### View Audit Logs
+```http
+GET /auth/admin/audit-logs?page=1&per_page=50
+Authorization: Bearer <admin-token>
+```
+
+#### System Statistics
+```http
+GET /auth/admin/system-stats
+Authorization: Bearer <admin-token>
 ```
 
 ## 🏥 Health & Monitoring

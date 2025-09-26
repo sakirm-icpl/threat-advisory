@@ -15,6 +15,7 @@ import BulkOperations from './pages/BulkOperations';
 import CVESearch from './pages/CVESearch';
 import Profile from './pages/Profile';
 import Users from './pages/Users';
+import AdminPanel from './pages/AdminPanel';
 import EditProduct from "./pages/EditProduct";
 import EditDetectionMethod from "./pages/EditDetectionMethod";
 import EditSetupGuide from "./pages/EditSetupGuide";
@@ -54,6 +55,7 @@ function AppContent() {
         <Route path="/cve-search" element={<CVESearch />} />
         <Route path="/profile" element={<Profile />} />
         {user.role === 'admin' && <Route path="/users" element={<Users />} />}
+        {user.role === 'admin' && <Route path="/admin" element={<AdminPanel />} />}
         <Route path="/products/:id/edit" element={<EditProduct />} />
         <Route path="/methods/:id/edit" element={<EditDetectionMethod />} />
         <Route path="/setup-guides/:id/edit" element={<EditSetupGuide />} />

@@ -12,6 +12,11 @@ class DetectionMethod(db.Model):
     curl_command = db.Column(db.Text)  # New field for curl commands
     expected_response = db.Column(db.Text)  # New field for expected output
     requires_auth = db.Column(db.Boolean, default=False)
+    
+    # RBAC: Track who created this record
+    created_by = db.Column(db.String, db.ForeignKey('users.id'), nullable=True, index=True)
+    creator = db.relationship('User', backref='created_methods', lazy=True)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -28,6 +33,8 @@ class DetectionMethod(db.Model):
                 'curl_command': self.curl_command,
                 'expected_response': self.expected_response,
                 'requires_auth': self.requires_auth,
+                'created_by': self.created_by,
+                'creator_name': self.creator.github_username if self.creator else None,
                 'created_at': self.created_at.isoformat() if self.created_at else None,
                 'updated_at': self.updated_at.isoformat() if self.updated_at else None
             }
@@ -44,6 +51,8 @@ class DetectionMethod(db.Model):
                 'curl_command': self.curl_command,
                 'expected_response': self.expected_response,
                 'requires_auth': self.requires_auth,
+                'created_by': self.created_by,
+                'creator_name': None,
                 'created_at': self.created_at.isoformat() if self.created_at else None,
                 'updated_at': self.updated_at.isoformat() if self.updated_at else None
             }

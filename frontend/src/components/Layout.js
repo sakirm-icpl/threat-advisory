@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import {
   HomeIcon,
@@ -13,6 +14,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   ShieldExclamationIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 
 const navigation = [
@@ -28,6 +30,7 @@ const navigation = [
 
 const adminNavigation = [
   { name: 'Users', href: '/users', icon: UserGroupIcon },
+  { name: 'Admin Panel', href: '/admin', icon: ShieldCheckIcon },
 ];
 
 export default function Layout({ children }) {
@@ -174,8 +177,18 @@ export default function Layout({ children }) {
           <div className="flex-1" />
           {/* User Avatar and Dropdown on far right */}
           <div className="flex items-center gap-x-4 lg:gap-x-6 relative" ref={profileRef}>
-            {user?.username && (
-              <span className="text-base font-medium text-gray-700 mr-2 hidden sm:inline">{user.username}</span>
+            {/* Role Badge */}
+            {user?.role && (
+              <div className={`px-3 py-1 text-xs font-semibold rounded-full border ${
+                user.role === 'admin' ? 'bg-red-100 text-red-800 border-red-200' : 'bg-blue-100 text-blue-800 border-blue-200'
+              }`}>
+                {user.role === 'admin' ? 'Admin' : 'Contributor'}
+              </div>
+            )}
+            {user?.github_username && (
+              <span className="text-base font-medium text-gray-700 mr-2 hidden sm:inline">
+                {user.github_username || user.username}
+              </span>
             )}
             <button
               className="flex items-center gap-2 focus:outline-none"
