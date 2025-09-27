@@ -2,6 +2,18 @@ import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
+import { 
+  EyeIcon, 
+  PlusIcon, 
+  PencilIcon, 
+  TrashIcon,
+  UserIcon,
+  MagnifyingGlassIcon,
+  CubeIcon,
+  ShieldCheckIcon,
+  ExclamationTriangleIcon,
+  CodeBracketIcon
+} from '@heroicons/react/24/outline';
 
 function getProductIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -156,59 +168,98 @@ export default function Methods() {
   }, {});
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Detection Methods</h1>
-          <p className="text-gray-600">Manage your detection methods for product version detection</p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="hero-section rounded-2xl p-8 text-white shadow-cyber border border-cyber-600/30 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute inset-0 scan-line"></div>
+        
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="glass-effect p-4 rounded-xl border border-cyber-600/30">
+              <EyeIcon className="h-12 w-12 text-cyber-400" />
+            </div>
+            <div>
+              <h1 className="hero-title text-3xl lg:text-4xl mb-2">
+                <span className="gradient-text">Detection Methods</span>
+              </h1>
+              <p className="hero-subtitle mb-4">
+                Advanced threat signatures and version detection techniques
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-cyber-400 rounded-full animate-pulse"></div>
+                  {methods.length} Detection Signatures
+                </div>
+                <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-security-success rounded-full animate-pulse delay-300"></div>
+                  Real-time Scanning
+                </div>
+                <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-matrix-green rounded-full animate-pulse delay-600"></div>
+                  Threat Intelligence Active
+                </div>
+              </div>
+            </div>
+          </div>
+          <button 
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="btn-primary flex items-center gap-3 text-lg px-8 py-4"
+          >
+            <PlusIcon className="h-6 w-6" />
+            {showAddForm ? "Cancel Operation" : "Add Detection Method"}
+          </button>
         </div>
-        {/* Allow both admin and contributor to add methods */}
-        <button 
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="btn btn-primary"
-        >
-          {showAddForm ? "Cancel" : "+ Add Detection Method"}
-        </button>
       </div>
       {/* Allow both admin and contributor to see the add form */}
       {showAddForm && (
-        <form onSubmit={addMethod} className="bg-white p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
-          <h3 className="text-lg font-semibold mb-4">Add Detection Method</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="card-cyber">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="bg-cyber-500/20 border border-cyber-500/30 rounded-xl p-3 shadow-glow">
+              <PlusIcon className="h-6 w-6 text-cyber-400" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-slate-100">Add Detection Method</h2>
+              <p className="text-slate-400">Create a new threat signature for version detection</p>
+            </div>
+          </div>
+        <form onSubmit={addMethod} className="form-group">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium mb-1">Product *</label>
+                <label className="label">Security Product *</label>
                 <select
-                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  className="input"
                   name="product_id"
                   value={form.product_id}
                   onChange={handleFormChange}
                   required
                 >
-                  <option value="">Select product</option>
+                  <option value="">Select security product</option>
                   {products.map(p => (
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Method Name *</label>
+                <label className="label">Detection Method Name *</label>
                 <input
-                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  className="input"
                   name="name"
                   value={form.name}
                   onChange={handleFormChange}
-                  placeholder="e.g., HTTP Header Detection"
+                  placeholder="e.g., HTTP Header Detection, Version Banner Grab"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Protocol *</label>
+                <label className="label">Protocol *</label>
                 <input
-                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  className="input"
                   name="protocol"
                   value={form.protocol}
                   onChange={handleFormChange}
-                  placeholder="e.g., HTTP, SSH, SNMP"
+                  placeholder="e.g., HTTP, SSH, SNMP, TCP"
                   required
                 />
               </div>
@@ -227,9 +278,9 @@ export default function Methods() {
               </div>
               
               {form.code_snippets.map((snippet, index) => (
-                <div key={index} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <div key={index} className="mb-4 p-4 border border-slate-600 rounded-lg bg-slate-800/30">
                   <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-sm font-medium">Snippet #{index + 1}</h4>
+                    <h4 className="text-sm font-medium text-slate-200">Snippet #{index + 1}</h4>
                     {form.code_snippets.length > 1 && (
                       <button 
                         type="button" 
@@ -243,9 +294,9 @@ export default function Methods() {
                   
                   <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                     <div className="lg:col-span-1">
-                      <label className="block text-sm font-medium mb-1">Programming Language</label>
+                      <label className="label">Programming Language</label>
                       <select
-                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                        className="input text-sm"
                         value={snippet.code_language}
                         onChange={(e) => handleCodeSnippetChange(index, 'code_language', e.target.value)}
                       >
@@ -285,9 +336,9 @@ export default function Methods() {
                       </select>
                     </div>
                     <div className="lg:col-span-3">
-                      <label className="block text-sm font-medium mb-1">Code Content</label>
+                      <label className="label">Code Content</label>
                       <textarea
-                        className="w-full border border-gray-300 rounded px-3 py-2 h-32 font-mono text-sm"
+                        className="input h-32 font-mono text-sm"
                         value={snippet.code_content}
                         onChange={(e) => handleCodeSnippetChange(index, 'code_content', e.target.value)}
                         placeholder="Enter your code here..."
@@ -299,9 +350,9 @@ export default function Methods() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Expected Response/Output</label>
+              <label className="label">Expected Response/Output</label>
               <textarea
-                className="w-full border border-gray-300 rounded px-3 py-2 h-20 font-mono text-sm"
+                className="input h-20 font-mono text-sm"
                 name="expected_response"
                 value={form.expected_response}
                 onChange={handleFormChange}
@@ -337,71 +388,127 @@ export default function Methods() {
                   </label>
                 </div>
               </div>
-              <div className="flex gap-2 md:ml-auto">
+              <div className="flex gap-4 pt-6">
                 <button 
                   type="submit" 
-                  className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                  className="btn-primary flex items-center gap-2"
                 >
-                  Add Method
+                  <EyeIcon className="h-5 w-5" />
+                  Deploy Detection Method
                 </button>
                 <button 
                   type="button" 
                   onClick={resetForm}
-                  className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
+                  className="btn-secondary"
                 >
-                  Cancel
+                  Cancel Operation
                 </button>
               </div>
             </div>
         </form>
+        </div>
       )}
 
       {!showAddForm && (
         <>
-          <div className="mb-6 flex flex-col md:flex-row gap-2">
-            <select
-              className="border px-3 py-2 rounded"
-              value={filterProduct}
-              onChange={e => setFilterProduct(e.target.value)}
-            >
-              <option value="">All Products</option>
-              {products.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-            <input
-              className="border px-3 py-2 rounded flex-1"
-              placeholder="Search methods..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+          {/* Search and Filter Controls */}
+          <div className="card-cyber p-6 mb-8">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="bg-cyber-500/20 border border-cyber-500/30 rounded-xl p-3 shadow-glow">
+                <MagnifyingGlassIcon className="h-6 w-6 text-cyber-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100">Threat Intelligence Search</h3>
+                <p className="text-slate-400 text-sm">Filter and search detection methods</p>
+              </div>
+            </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-shrink-0">
+                <select
+                  className="input w-full md:w-auto"
+                  value={filterProduct}
+                  onChange={e => setFilterProduct(e.target.value)}
+                >
+                  <option value="">🛡️ All Security Products</option>
+                  {products.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1 relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <input
+                  className="input pl-10 w-full"
+                  placeholder="Search detection methods, protocols, signatures..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
 
-          {error && <div className="text-red-600 mb-4 p-3 bg-red-50 rounded border">{error}</div>}
+          {/* Error Alert */}
+          {error && (
+            <div className="alert-error mb-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-security-critical/20 rounded-full p-2 border border-security-critical/30">
+                  <ExclamationTriangleIcon className="h-5 w-5 text-security-critical" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-security-critical">Security Operation Failed</h3>
+                  <p className="text-security-critical/80">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {loading ? (
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 font-medium">Loading detection methods...</p>
+            <div className="card-cyber text-center py-16">
+              <div className="loading-spinner mx-auto mb-6"></div>
+              <h3 className="text-xl font-semibold text-slate-100 mb-2">Scanning Detection Methods</h3>
+              <p className="text-slate-400">Analyzing threat signatures and detection rules...</p>
+              <div className="mt-4 flex justify-center">
+                <div className="terminal text-xs">
+                  <div className="text-matrix-green">$ nmap -sV detection-methods.db</div>
+                  <div className="text-cyber-400">Scanning... Please wait</div>
+                </div>
+              </div>
             </div>
           ) : Object.keys(groupedMethods).length === 0 ? (
-            <div className="text-center py-16">
-              <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
+            <div className="card-cyber text-center py-20">
+              <div className="bg-cyber-500/20 border border-cyber-500/30 rounded-full p-6 w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-glow">
+                <EyeIcon className="h-10 w-10 text-cyber-400" />
               </div>
-              <p className="text-gray-500 font-medium text-lg">No detection methods found</p>
-              <p className="text-gray-400 text-sm mt-2">Add your first detection method using the button above</p>
+              <h3 className="text-2xl font-bold text-slate-100 mb-2">No Detection Methods Found</h3>
+              <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                Initialize your threat detection arsenal by deploying advanced signature-based detection methods
+              </p>
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="btn-primary flex items-center gap-2 mx-auto"
+              >
+                <PlusIcon className="h-5 w-5" />
+                Deploy First Detection Method
+              </button>
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-lg">
-              <div className="overflow-x-auto">
+            <div className="table-modern">
+              <div className="overflow-x-auto scrollbar-cyber">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
-                      <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Product</th>
-                      <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Detection Methods</th>
+                    <tr className="table-header">
+                      <th className="table-cell text-left">
+                        <div className="flex items-center gap-2">
+                          <CubeIcon className="h-5 w-5 text-cyber-400" />
+                          <span className="gradient-text">Security Product</span>
+                        </div>
+                      </th>
+                      <th className="table-cell text-left">
+                        <div className="flex items-center gap-2">
+                          <EyeIcon className="h-5 w-5 text-cyber-400" />
+                          <span className="gradient-text">Detection Methods</span>
+                        </div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -411,19 +518,24 @@ export default function Methods() {
                       const hiddenMethodsCount = productGroup.methods.length - displayMethods.length;
                       
                       return (
-                        <tr key={productGroup.product_id} className="border-b hover:bg-gray-50">
-                          <td className="p-4 font-medium align-top">
+                        <tr key={productGroup.product_id} className="table-row-hover border-b border-slate-700 last:border-b-0">
+                          <td className="table-cell align-top">
                             <div className="flex flex-col">
-                              <span className="text-sm font-semibold">{productGroup.product_name}</span>
-                              <span className="text-xs text-gray-500">
-                                {productGroup.methods.length} method{productGroup.methods.length !== 1 ? 's' : ''}
+                              <div className="flex items-center">
+                                <div className="bg-gradient-to-br from-cyber-500/20 to-cyber-600/20 border border-cyber-500/30 rounded-xl p-2 mr-3 shadow-glow">
+                                  <CubeIcon className="h-4 w-4 text-cyber-400" />
+                                </div>
+                                <span className="text-lg font-semibold text-slate-200">{productGroup.product_name}</span>
+                              </div>
+                              <span className="text-sm text-blue-400 font-medium ml-11">
+                                {productGroup.methods.length} detection method{productGroup.methods.length !== 1 ? 's' : ''}
                               </span>
                             </div>
                           </td>
-                          <td className="p-4 align-top">
+                          <td className="table-cell align-top">
                             <div className="space-y-3">
                               {displayMethods.map((method, idx) => (
-                                <div key={method.id} className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
+                                <div key={method.id} className="card-glass border border-slate-600 rounded-xl p-4 shadow-cyber hover:border-cyber-500/50 transition-all duration-200">
                                   <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-2">
                                       <span className="font-medium text-sm text-gray-900">{method.name}</span>

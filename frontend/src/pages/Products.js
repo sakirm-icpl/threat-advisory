@@ -4,6 +4,17 @@ import MarkdownRenderer from "../components/MarkdownRenderer";
 import Modal from "../components/Modal";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
+import { 
+  ShieldCheckIcon, 
+  PlusIcon, 
+  PencilIcon, 
+  TrashIcon,
+  UserIcon,
+  MagnifyingGlassIcon,
+  CubeIcon,
+  BuildingOfficeIcon,
+  ExclamationTriangleIcon
+} from '@heroicons/react/24/outline';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -102,130 +113,212 @@ export default function Products() {
   }, {});
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600">Manage your product catalog and version detection targets</p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="hero-section rounded-2xl p-8 text-white shadow-cyber border border-cyber-600/30 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute inset-0 scan-line"></div>
+        
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="glass-effect p-4 rounded-xl border border-cyber-600/30">
+              <ShieldCheckIcon className="h-12 w-12 text-cyber-400" />
+            </div>
+            <div>
+              <h1 className="hero-title text-3xl lg:text-4xl mb-2">
+                <span className="gradient-text">Security Products</span>
+              </h1>
+              <p className="hero-subtitle mb-4">
+                Manage your cybersecurity product catalog and version detection targets
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-cyber-400 rounded-full animate-pulse"></div>
+                  {products.length} Security Products
+                </div>
+                <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-security-success rounded-full animate-pulse delay-300"></div>
+                  Version Detection Ready
+                </div>
+                <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-matrix-green rounded-full animate-pulse delay-600"></div>
+                  Threat Intelligence Active
+                </div>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="btn-primary flex items-center gap-3 text-lg px-8 py-4"
+          >
+            <PlusIcon className="h-6 w-6" />
+            {showAddForm ? 'Cancel Operation' : 'Add Security Product'}
+          </button>
         </div>
-        {/* Allow both admin and contributor to add products */}
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="btn btn-primary"
-        >
-          {showAddForm ? 'Cancel' : '+ Add Product'}
-        </button>
       </div>
-      {/* Allow both admin and contributor to see the add form */}
+      {/* Add Product Form */}
       {showAddForm && (
-        <form onSubmit={addProduct} className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
+        <div className="card-cyber">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="bg-cyber-500/20 border border-cyber-500/30 rounded-xl p-3 shadow-glow">
+              <PlusIcon className="h-6 w-6 text-cyber-400" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-100">Add New Security Product</h2>
+              <p className="text-gray-400">Register a new cybersecurity product for version detection</p>
+            </div>
+          </div>
+        <form onSubmit={addProduct} className="form-group">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
-              <label className="label">Product Name *</label>
+              <label className="label">Security Product Name *</label>
               <input
                 className="input"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                placeholder="Product name"
+                placeholder="e.g., Apache HTTP Server, Nginx, WordPress"
                 required
               />
             </div>
             <div>
-              <label className="label">Category</label>
+              <label className="label">Product Category</label>
               <input
                 className="input"
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                placeholder="e.g., Web Application, Service, OS"
+                placeholder="e.g., Web Server, CMS, Database, Firewall"
               />
             </div>
             <div>
-              <label className="label">Vendor *</label>
+              <label className="label">Security Vendor *</label>
               <select
                 className="input"
                 value={vendorId}
                 onChange={e => setVendorId(e.target.value)}
                 required
               >
-                <option value="">Select vendor</option>
+                <option value="">Select security vendor</option>
                 {vendors.map(v => (
                   <option key={v.id} value={v.id}>{v.name}</option>
                 ))}
               </select>
             </div>
             <div className="flex items-end">
-              <button className="btn btn-primary w-full" type="submit">Add Product</button>
+              <button className="btn-primary w-full flex items-center justify-center gap-2" type="submit">
+                <ShieldCheckIcon className="h-5 w-5" />
+                Deploy Product
+              </button>
             </div>
           </div>
           <div>
-            <label className="label">Description (Markdown supported)</label>
+            <label className="label">Product Description (Markdown supported)</label>
             <textarea
               className="input h-48 font-mono text-sm resize-none"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder={`Describe what this product does, its features, etc.
+              placeholder={`Describe the security product, its features, vulnerabilities, etc.
 
 You can use Markdown formatting:
-**Bold text**
-*Italic text*
-- Bullet points
-1. Numbered lists
-\`\`\`code blocks\`\`\`
-[Links](https://example.com)`}
+**Bold text** - for important security notes
+*Italic text* - for emphasis
+- Bullet points for features
+1. Numbered lists for procedures
+\`\`\`code blocks\`\`\` - for configuration examples
+[Links](https://example.com) - for documentation`}
             />
             {description && (
-              <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Preview:</div>
+              <div className="mt-4 card-glass p-4 border border-cyber-600/30">
+                <div className="text-xs font-semibold text-cyber-400 mb-3 uppercase tracking-wide">Security Intelligence Preview:</div>
                 <MarkdownRenderer content={description} />
               </div>
             )}
           </div>
         </form>
+        </div>
       )}
       
       {!showAddForm && (
         <>
-          <div className="mb-6 flex flex-col md:flex-row gap-2">
-            <select
-              className="border px-3 py-2 rounded"
-              value={filterVendor}
-              onChange={e => setFilterVendor(e.target.value)}
-            >
-              <option value="">All Vendors</option>
-              {vendors.map(v => (
-                <option key={v.id} value={v.id}>{v.name}</option>
-              ))}
-            </select>
-            <input
-              className="border px-3 py-2 rounded flex-1"
-              placeholder="Search products..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+          {/* Search and Filter Controls */}
+          <div className="card-cyber p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="bg-cyber-500/20 border border-cyber-500/30 rounded-xl p-3 shadow-glow">
+                <MagnifyingGlassIcon className="h-6 w-6 text-cyber-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-100">Threat Intelligence Search</h3>
+                <p className="text-gray-400 text-sm">Filter and search security products</p>
+              </div>
+            </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-shrink-0">
+                <select
+                  className="input w-full md:w-auto"
+                  value={filterVendor}
+                  onChange={e => setFilterVendor(e.target.value)}
+                >
+                  <option value="">🏢 All Security Vendors</option>
+                  {vendors.map(v => (
+                    <option key={v.id} value={v.id}>{v.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1 relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  className="input pl-10 w-full"
+                  placeholder="Search security products, categories, descriptions..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
+          {/* Error Alert */}
           {error && (
-            <div className="alert alert-warning mb-6">
-              <div className="flex items-center">
-                <svg className="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {error}
+            <div className="alert-error">
+              <div className="flex items-center gap-3">
+                <div className="bg-security-critical/20 rounded-full p-2 border border-security-critical/30">
+                  <ExclamationTriangleIcon className="h-5 w-5 text-security-critical" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-security-critical">Security Operation Failed</h3>
+                  <p className="text-security-critical/80">{error}</p>
+                </div>
               </div>
             </div>
           )}
           {loading ? (
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 font-medium">Loading products...</p>
+            <div className="card-cyber text-center py-16">
+              <div className="loading-spinner mx-auto mb-6"></div>
+              <h3 className="text-xl font-semibold text-gray-100 mb-2">Scanning Security Products</h3>
+              <p className="text-gray-400">Analyzing cybersecurity product catalog...</p>
+              <div className="mt-4 flex justify-center">
+                <div className="terminal text-xs">
+                  <div className="text-matrix-green">$ nmap -sV security-products.db</div>
+                  <div className="text-cyber-400">Scanning... Please wait</div>
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-lg">
-              <div className="overflow-x-auto">
+            <div className="table-modern">
+              <div className="overflow-x-auto scrollbar-cyber">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
-                      <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Vendor</th>
-                      <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Products</th>
+                    <tr className="table-header">
+                      <th className="table-cell text-left">
+                        <div className="flex items-center gap-2">
+                          <BuildingOfficeIcon className="h-5 w-5 text-cyber-400" />
+                          <span className="gradient-text">Security Vendor</span>
+                        </div>
+                      </th>
+                      <th className="table-cell text-left">
+                        <div className="flex items-center gap-2">
+                          <ShieldCheckIcon className="h-5 w-5 text-cyber-400" />
+                          <span className="gradient-text">Security Products</span>
+                        </div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -235,36 +328,35 @@ You can use Markdown formatting:
                       const hiddenProductsCount = vendorGroup.products.length - displayProducts.length;
                       
                       return (
-                        <tr key={vendorGroup.vendor_id} className="border-b hover:bg-gray-50">
-                          <td className="p-4 font-medium align-top">
+                        <tr key={vendorGroup.vendor_id} className="table-row-hover border-b border-dark-700/50 last:border-b-0">
+                          <td className="table-cell align-top">
                             <div className="flex flex-col">
                               <div className="flex items-center">
-                                <div className="bg-blue-100 rounded-full p-2 mr-3">
-                                  <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                  </svg>
+                                <div className="bg-gradient-to-br from-cyber-500/20 to-cyber-600/20 border border-cyber-500/30 rounded-xl p-2 mr-3 shadow-glow">
+                                  <BuildingOfficeIcon className="h-4 w-4 text-cyber-400" />
                                 </div>
-                                <span className="text-sm font-semibold">{vendorGroup.vendor_name}</span>
+                                <span className="text-sm font-semibold text-gray-200">{vendorGroup.vendor_name}</span>
                               </div>
-                              <span className="text-xs text-gray-500 ml-11">
-                                {vendorGroup.products.length} product{vendorGroup.products.length !== 1 ? 's' : ''}
+                              <span className="text-xs text-gray-400 ml-11">
+                                {vendorGroup.products.length} security product{vendorGroup.products.length !== 1 ? 's' : ''}
                               </span>
                             </div>
                           </td>
-                          <td className="p-4 align-top">
+                          <td className="table-cell align-top">
                             <div className="space-y-3">
                               {displayProducts.map((product, idx) => (
-                                <div key={product.id} className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
+                                <div key={product.id} className="card-glass border border-cyber-600/30 rounded-lg p-3 shadow-glow hover:border-cyber-500/50 transition-all duration-200">
                                   <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-2">
                                       <a
                                         href={`/methods?product=${product.id}`}
-                                        className="text-blue-600 hover:text-blue-800 font-semibold cursor-pointer transition-colors duration-200 hover:underline text-sm"
+                                        className="text-cyber-400 hover:text-cyber-300 font-semibold cursor-pointer transition-colors duration-200 hover:underline text-sm flex items-center gap-1"
                                       >
+                                        <CubeIcon className="h-4 w-4" />
                                         {product.name}
                                       </a>
                                       {product.category && (
-                                        <span className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                        <span className="status-info text-xs">
                                           {product.category}
                                         </span>
                                       )}
@@ -272,28 +364,32 @@ You can use Markdown formatting:
                                     {(user?.role === 'admin' || product.created_by === user?.id) && (
                                       <div className="flex gap-1">
                                         <button 
-                                          className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200 transition-colors" 
+                                          className="btn-outline btn-sm flex items-center gap-1 text-cyber-400 border-cyber-500/50 hover:bg-cyber-500 hover:text-white" 
                                           onClick={() => navigate(`/products/${product.id}/edit`)}
                                         >
-                                          Edit
+                                          <PencilIcon className="h-3 w-3" />
+                                          Modify
                                         </button>
                                         <button 
-                                          className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 transition-colors" 
+                                          className="btn-outline btn-sm flex items-center gap-1 text-security-critical border-security-critical/50 hover:bg-security-critical hover:text-white" 
                                           onClick={() => deleteProduct(product.id)}
                                         >
-                                          Delete
+                                          <TrashIcon className="h-3 w-3" />
+                                          Remove
                                         </button>
                                       </div>
                                     )}
                                     {/* Show view-only indicator for records user doesn't own */}
                                     {user?.role === 'contributor' && product.created_by !== user?.id && (
-                                      <span className="text-xs text-gray-500 italic">View Only</span>
+                                      <div className="status-info">
+                                        🔒 Read-Only Access
+                                      </div>
                                     )}
                                   </div>
                                   
                                   {/* Description Preview */}
                                   {product.description ? (
-                                    <div className="text-xs text-gray-600">
+                                    <div className="text-xs text-gray-300">
                                       <MarkdownRenderer 
                                         content={product.description.length > 150 
                                           ? product.description.substring(0, 150) + "..." 
@@ -302,45 +398,45 @@ You can use Markdown formatting:
                                       />
                                       {product.description.length > 150 && (
                                         <button 
-                                          className="text-blue-600 text-xs mt-1 px-2 py-0.5 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors duration-200"
+                                          className="text-cyber-400 text-xs mt-1 px-2 py-0.5 bg-cyber-500/20 border border-cyber-500/30 rounded-full hover:bg-cyber-500/30 transition-colors duration-200"
                                           onClick={() => {
                                             setModalContent({
                                               isOpen: true,
-                                              title: `${product.name} - Full Description`,
+                                              title: `${product.name} - Security Intelligence`,
                                               content: product.description
                                             });
                                           }}
                                         >
-                                          Show More
+                                          Show Intelligence
                                         </button>
                                       )}
                                     </div>
                                   ) : (
-                                    <span className="text-gray-400 text-xs italic">No description</span>
+                                    <span className="text-gray-500 text-xs italic">No security intelligence available</span>
                                   )}
                                   
                                   {/* Created By Information */}
-                                  <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 flex items-center">
-                                    <span>Created by: </span>
+                                  <div className="mt-2 pt-2 border-t border-cyber-600/30 text-xs text-gray-400 flex items-center">
+                                    <span>Security Analyst: </span>
                                     {product.creator ? (
                                       <div className="flex items-center ml-1">
                                         {product.creator.avatar_url ? (
                                           <img 
                                             src={product.creator.avatar_url} 
                                             alt={product.creator.github_username || product.creator.username}
-                                            className="h-4 w-4 rounded-full mr-1"
+                                            className="h-4 w-4 rounded-full mr-1 border border-cyber-600/30"
                                           />
                                         ) : (
-                                          <div className="h-4 w-4 rounded-full bg-gray-300 flex items-center justify-center mr-1 text-[8px] font-semibold">
+                                          <div className="h-4 w-4 rounded-full bg-gradient-to-br from-cyber-500 to-cyber-600 flex items-center justify-center mr-1 text-[8px] font-semibold text-white">
                                             {(product.creator.github_username || product.creator.username || '?').charAt(0).toUpperCase()}
                                           </div>
                                         )}
-                                        <span className="font-medium">
+                                        <span className="font-medium text-cyber-400">
                                           {product.creator.github_username || product.creator.username}
                                         </span>
                                       </div>
                                     ) : (
-                                      <span className="font-medium">Unknown</span>
+                                      <span className="font-medium text-gray-500">System User</span>
                                     )}
                                   </div>
                                 </div>
@@ -349,14 +445,14 @@ You can use Markdown formatting:
                               {hiddenProductsCount > 0 && (
                                 <div className="text-center">
                                   <button 
-                                    className="text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition-colors"
+                                    className="text-xs text-cyber-400 hover:text-cyber-300 bg-cyber-500/20 hover:bg-cyber-500/30 border border-cyber-500/30 px-3 py-1 rounded-lg transition-colors"
                                     onClick={() => {
                                       const newExpanded = new Set(expandedVendors);
                                       newExpanded.add(vendorGroup.vendor_id);
                                       setExpandedVendors(newExpanded);
                                     }}
                                   >
-                                    Show {hiddenProductsCount} more product{hiddenProductsCount !== 1 ? 's' : ''}
+                                    Show {hiddenProductsCount} more security product{hiddenProductsCount !== 1 ? 's' : ''}
                                   </button>
                                 </div>
                               )}
@@ -364,7 +460,7 @@ You can use Markdown formatting:
                               {isExpanded && vendorGroup.products.length > 2 && (
                                 <div className="text-center">
                                   <button 
-                                    className="text-xs text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded transition-colors"
+                                    className="text-xs text-gray-400 hover:text-gray-300 bg-dark-700/50 hover:bg-dark-700 border border-dark-600 px-3 py-1 rounded-lg transition-colors"
                                     onClick={() => {
                                       const newExpanded = new Set(expandedVendors);
                                       newExpanded.delete(vendorGroup.vendor_id);
@@ -384,14 +480,21 @@ You can use Markdown formatting:
                 </table>
               </div>
               {Object.keys(groupedProducts).length === 0 && (
-                <div className="text-center py-16">
-                  <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                    <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
+                <div className="text-center py-20">
+                  <div className="bg-cyber-500/20 border border-cyber-500/30 rounded-full p-6 w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-glow">
+                    <ShieldCheckIcon className="h-10 w-10 text-cyber-400" />
                   </div>
-                  <p className="text-gray-500 font-medium text-lg">No products found</p>
-                  <p className="text-gray-400 text-sm mt-2">Add your first product using the button above</p>
+                  <h3 className="text-2xl font-bold text-gray-100 mb-2">No Security Products Detected</h3>
+                  <p className="text-gray-400 mb-6 max-w-md mx-auto">
+                    Initialize your cybersecurity product catalog by registering security solutions for version detection
+                  </p>
+                  <button
+                    onClick={() => setShowAddForm(true)}
+                    className="btn-primary flex items-center gap-2 mx-auto"
+                  >
+                    <PlusIcon className="h-5 w-5" />
+                    Deploy First Security Product
+                  </button>
                 </div>
               )}
             </div>

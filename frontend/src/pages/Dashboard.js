@@ -8,6 +8,12 @@ import {
   MagnifyingGlassIcon,
   DocumentTextIcon,
   PlusIcon,
+  ChartBarIcon,
+  ShieldCheckIcon,
+  BoltIcon,
+  EyeIcon,
+  CogIcon,
+  UserIcon,
 } from '@heroicons/react/24/outline';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LabelList } from 'recharts';
 import { PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
@@ -167,59 +173,75 @@ export default function Dashboard() {
   const summaryData = summary?.data?.data || {};
   const stats = [
     {
-      name: 'Vendors',
+      name: 'Security Vendors',
       value: summaryData.vendors ?? 0,
       icon: BuildingOfficeIcon,
       href: '/vendors',
-      color: 'bg-blue-500',
+      color: 'infopercept-secondary',
+      description: 'Trusted Partners',
+      status: 'Active',
     },
     {
-      name: 'Products',
+      name: 'Security Products',
       value: summaryData.products ?? 0,
-      icon: CubeIcon,
+      icon: ShieldCheckIcon,
       href: '/products',
-      color: 'bg-green-500',
+      color: 'security-success',
+      description: 'Monitored Solutions',
+      status: 'Scanning',
     },
     {
       name: 'Detection Methods',
       value: summaryData.detection_methods ?? 0,
-      icon: MagnifyingGlassIcon,
+      icon: EyeIcon,
       href: '/methods',
-      color: 'bg-purple-500',
+      color: 'matrix-darkGreen',
+      description: 'Threat Signatures',
+      status: 'Updated',
     },
     {
       name: 'Setup Guides',
       value: summaryData.setup_guides ?? 0,
       icon: DocumentTextIcon,
       href: '/setup-guides',
-      color: 'bg-orange-500',
+      color: 'security-info',
+      description: 'Implementation Docs',
+      status: 'Ready',
     },
   ];
 
   const quickActions = [
     {
-      name: 'Add Vendor',
+      name: 'Deploy Security Vendor',
       href: '/vendors',
-      icon: PlusIcon,
-      description: 'Create a new vendor',
+      icon: BuildingOfficeIcon,
+      description: 'Onboard cybersecurity partner',
+      color: 'infopercept-secondary',
+      status: 'Ready',
     },
     {
-      name: 'Add Product',
+      name: 'Add Security Product',
       href: '/products',
-      icon: PlusIcon,
-      description: 'Add a new product',
+      icon: ShieldCheckIcon,
+      description: 'Register security solution',
+      color: 'security-success',
+      status: 'Active',
     },
     {
-      name: 'Add Detection Method',
+      name: 'Create Detection Rule',
       href: '/methods',
-      icon: PlusIcon,
-      description: 'Create detection logic',
+      icon: EyeIcon,
+      description: 'Build threat signature',
+      color: 'matrix-darkGreen',
+      status: 'Updated',
     },
     {
-      name: 'Search',
+      name: 'Threat Intelligence',
       href: '/search',
       icon: MagnifyingGlassIcon,
-      description: 'Search across all data',
+      description: 'Search security database',
+      color: 'security-info',
+      status: 'Online',
     },
   ];
 
@@ -259,72 +281,143 @@ export default function Dashboard() {
   }
 
   return (
-    <div>
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Welcome to VersionIntel - Version Detection Research Platform</p>
-      </div>
-      {/* Widget Toggles */}
-      <div className="flex flex-wrap gap-4 my-4 items-center">
-        <span className="font-semibold text-gray-700">Show/Hide Widgets:</span>
-        {WIDGETS.map(w => (
-          <label key={w.key} className="flex items-center gap-1 text-sm">
-            <input
-              type="checkbox"
-              checked={widgetPrefs[w.key]}
-              onChange={() => handleWidgetToggle(w.key)}
-              className="accent-blue-600"
-            />
-            {w.label}
-          </label>
-        ))}
-      </div>
-      {/* Stats */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Link
-            key={stat.name}
-            to={stat.href}
-            className="stat-card group"
-          >
-            <div className="flex items-center">
-              <div className={`flex-shrink-0 ${stat.color} rounded-xl p-4 shadow-lg group-hover:shadow-xl transition-all duration-300`}>
-                <stat.icon className="h-8 w-8 text-white" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-semibold text-gray-600 truncate uppercase tracking-wide">
-                    {stat.name}
-                  </dt>
-                  <dd className="text-2xl font-bold text-gray-900 mt-1">
-                    {stat.value}
-                  </dd>
-                </dl>
+    <div className="space-y-8">
+      {/* Hero Section */}
+      <div className="hero-section rounded-2xl p-8 text-white shadow-cyber border border-cyber-600/30 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute inset-0 scan-line"></div>
+        
+        <div className="relative flex items-center justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-4 mb-4">
+              <img 
+                src="/Infopercept_idJrlnvSvX_2.svg" 
+                alt="Infopercept" 
+                className="h-12 w-auto filter brightness-0 invert"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+              <div className="h-8 w-px bg-white/30"></div>
+              <div>
+                <h1 className="hero-title text-3xl lg:text-4xl">
+                  Welcome back, <span className="gradient-text-security">{user?.github_username || user?.username || 'Analyst'}</span>
+                </h1>
               </div>
             </div>
-          </Link>
-        ))}
+            <p className="hero-subtitle mb-6">
+              Advanced cybersecurity research platform for version detection and vulnerability analysis
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                <div className="w-2 h-2 bg-security-success rounded-full animate-pulse"></div>
+                System Operational
+              </div>
+              <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                <div className="w-2 h-2 bg-cyber-400 rounded-full animate-pulse delay-300"></div>
+                Real-time Monitoring
+              </div>
+              <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                <div className="w-2 h-2 bg-matrix-green rounded-full animate-pulse delay-600"></div>
+                Threat Intelligence Active
+              </div>
+            </div>
+          </div>
+          <div className="hidden lg:block">
+            <div className="w-32 h-32 card-glass flex items-center justify-center border border-cyber-600/30">
+              <ChartBarIcon className="h-16 w-16 text-cyber-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Widget Controls */}
+      <div className="card-cyber">
+        <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+          <CogIcon className="h-5 w-5 text-cyber-400" />
+          <span className="gradient-text">Analytics Configuration</span>
+        </h3>
+        <div className="flex flex-wrap gap-4 items-center">
+          <span className="font-medium text-gray-300">Intelligence Modules:</span>
+          {WIDGETS.map(w => (
+            <label key={w.key} className="flex items-center gap-2 glass-effect hover:bg-cyber-600/20 px-3 py-2 rounded-lg transition-colors duration-200 cursor-pointer border border-cyber-600/30">
+              <input
+                type="checkbox"
+                checked={widgetPrefs[w.key]}
+                onChange={() => handleWidgetToggle(w.key)}
+                className="checkbox"
+              />
+              <span className="text-sm font-medium text-gray-300">{w.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+      {/* Security Metrics */}
+      <div>
+        <h2 className="text-2xl font-bold text-gray-100 mb-6 flex items-center gap-3">
+          <BoltIcon className="h-8 w-8 text-cyber-400" />
+          <span className="gradient-text">Threat Intelligence Dashboard</span>
+        </h2>
+        <div className="dashboard-grid">
+          {stats.map((stat) => (
+            <Link
+              key={stat.name}
+              to={stat.href}
+              className="metric-card group hover:scale-105 hover:shadow-cyber-lg"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={`bg-${stat.color}/20 border border-${stat.color}/30 rounded-xl p-4 shadow-cyber group-hover:shadow-glow transition-all duration-300`}>
+                  <stat.icon className={`h-8 w-8 text-${stat.color}`} />
+                </div>
+                <div className="text-right">
+                  <div className="metric-value text-cyber-400">{stat.value}</div>
+                  <div className={`status-${stat.status.toLowerCase()} text-xs mt-1`}>{stat.status}</div>
+                </div>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-200 group-hover:text-cyber-400 transition-colors duration-200">
+                  {stat.name}
+                </h3>
+                <p className="text-sm text-gray-400 mt-1">{stat.description}</p>
+                <div className="w-full bg-dark-700 rounded-full h-2 mt-3">
+                  <div 
+                    className={`bg-${stat.color} h-2 rounded-full transition-all duration-500 shadow-glow`}
+                    style={{ width: `${Math.min(100, (stat.value / 10) * 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
       {/* Products per Vendor & Detection Methods per Product - side by side */}
       {(widgetPrefs.productsPerVendor || widgetPrefs.methodsPerProduct) && (
         <div className="my-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {widgetPrefs.productsPerVendor && (
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Products per Vendor</h2>
-              <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl border border-blue-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="card-cyber">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-blue-500/20 border border-blue-500/30 rounded-xl p-3 shadow-glow">
+                  <BuildingOfficeIcon className="h-6 w-6 text-blue-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-100">Security Products per Vendor</h2>
+                  <p className="text-slate-400 text-sm">Distribution analysis across security vendors</p>
+                </div>
+              </div>
+              <div className="card-glass p-6 border border-slate-600">
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={productsPerVendor} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10 }} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-                    <Tooltip contentStyle={{ backgroundColor: '#1e40af', color: 'white', borderRadius: '8px', border: 'none' }} />
-                    <Bar dataKey="count" fill="url(#blueGradient)" radius={[4, 4, 0, 0]}>
-                      <LabelList dataKey="count" position="top" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                    <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e293b', color: '#e2e8f0', borderRadius: '8px', border: '1px solid #475569' }} />
+                    <Bar dataKey="count" fill="url(#cyberBlueGradient)" radius={[4, 4, 0, 0]}>
+                      <LabelList dataKey="count" position="top" style={{ fill: '#60a5fa' }} />
                     </Bar>
                     <defs>
-                      <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#3b82f6" />
-                        <stop offset="100%" stopColor="#1e40af" />
+                      <linearGradient id="cyberBlueGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#60a5fa" />
+                        <stop offset="100%" stopColor="#3b82f6" />
                       </linearGradient>
                     </defs>
                   </BarChart>
@@ -333,22 +426,30 @@ export default function Dashboard() {
             </div>
           )}
           {widgetPrefs.methodsPerProduct && (
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Detection Methods per Product</h2>
-              <div className="bg-gradient-to-br from-white to-orange-50 rounded-2xl border border-orange-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="card-cyber">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-green-500/20 border border-green-500/30 rounded-xl p-3 shadow-glow">
+                  <EyeIcon className="h-6 w-6 text-green-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-100">Detection Methods per Product</h2>
+                  <p className="text-slate-400 text-sm">Threat signature coverage analysis</p>
+                </div>
+              </div>
+              <div className="card-glass p-6 border border-slate-600">
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={methodsPerProduct} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10 }} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-                    <Tooltip contentStyle={{ backgroundColor: '#ea580c', color: 'white', borderRadius: '8px', border: 'none' }} />
-                    <Bar dataKey="count" fill="url(#orangeGradient)" radius={[4, 4, 0, 0]}>
-                      <LabelList dataKey="count" position="top" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                    <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e293b', color: '#e2e8f0', borderRadius: '8px', border: '1px solid #475569' }} />
+                    <Bar dataKey="count" fill="url(#cyberGreenGradient)" radius={[4, 4, 0, 0]}>
+                      <LabelList dataKey="count" position="top" style={{ fill: '#4ade80' }} />
                     </Bar>
                     <defs>
-                      <linearGradient id="orangeGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#f97316" />
-                        <stop offset="100%" stopColor="#ea580c" />
+                      <linearGradient id="cyberGreenGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#4ade80" />
+                        <stop offset="100%" stopColor="#22c55e" />
                       </linearGradient>
                     </defs>
                   </BarChart>
@@ -360,9 +461,17 @@ export default function Dashboard() {
       )}
       {/* Setup Guide Coverage Donut Chart */}
       {widgetPrefs.setupGuideCoverage && (
-        <div className="my-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Setup Guide Coverage</h2>
-          <div className="bg-gradient-to-br from-white to-green-50 rounded-2xl border border-green-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center">
+        <div className="my-8 card-cyber">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-purple-500/20 border border-purple-500/30 rounded-xl p-3 shadow-glow">
+              <DocumentTextIcon className="h-6 w-6 text-purple-400" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-100">Setup Guide Coverage</h2>
+              <p className="text-slate-400 text-sm">Implementation guide availability across products</p>
+            </div>
+          </div>
+          <div className="card-glass p-6 border border-slate-600 flex flex-col items-center">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -375,23 +484,24 @@ export default function Dashboard() {
                   outerRadius={100}
                   fill="#8884d8"
                   label={({ name, value }) => `${name}: ${value}`}
+                  labelStyle={{ fill: '#e2e8f0', fontSize: '12px' }}
                 >
                   {/* Custom colors */}
                   {setupGuideCoverageData.map((entry, idx) => (
-                    <Cell key={`cell-${idx}`} fill={idx === 0 ? '#10b981' : '#ef4444'} />
+                    <Cell key={`cell-${idx}`} fill={idx === 0 ? '#22c55e' : '#ef4444'} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#065f46', color: 'white', borderRadius: '8px', border: 'none' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#1e293b', color: '#e2e8f0', borderRadius: '8px', border: '1px solid #475569' }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="mt-6 flex gap-6">
-              <span className="flex items-center bg-green-100 px-3 py-1 rounded-full">
-                <span className="inline-block w-3 h-3 rounded-full mr-2 bg-green-500"></span>
-                <span className="text-sm font-medium text-green-800">With Setup Guide</span>
+              <span className="flex items-center bg-green-500/20 border border-green-500/30 px-4 py-2 rounded-lg">
+                <span className="inline-block w-3 h-3 rounded-full mr-2 bg-green-400"></span>
+                <span className="text-sm font-medium text-green-300">With Setup Guide</span>
               </span>
-              <span className="flex items-center bg-red-100 px-3 py-1 rounded-full">
-                <span className="inline-block w-3 h-3 rounded-full mr-2 bg-red-500"></span>
-                <span className="text-sm font-medium text-red-800">Without Setup Guide</span>
+              <span className="flex items-center bg-red-500/20 border border-red-500/30 px-4 py-2 rounded-lg">
+                <span className="inline-block w-3 h-3 rounded-full mr-2 bg-red-400"></span>
+                <span className="text-sm font-medium text-red-300">Without Setup Guide</span>
               </span>
             </div>
           </div>
@@ -401,36 +511,52 @@ export default function Dashboard() {
       {(widgetPrefs.recentTrends || (widgetPrefs.userRegistrations && user && user.role === 'admin')) && (
         <div className="my-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {widgetPrefs.recentTrends && (
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Trends (Last 8 Weeks)</h2>
-              <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl border border-purple-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="card-cyber">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-purple-500/20 border border-purple-500/30 rounded-xl p-3 shadow-glow">
+                  <ChartBarIcon className="h-6 w-6 text-purple-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-100">Recent Trends (Last 8 Weeks)</h2>
+                  <p className="text-slate-400 text-sm">Security intelligence growth patterns</p>
+                </div>
+              </div>
+              <div className="card-glass p-6 border border-slate-600">
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={trendsData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="week" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10 }} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-                    <Tooltip contentStyle={{ backgroundColor: '#7c3aed', color: 'white', borderRadius: '8px', border: 'none' }} />
-                    <Legend wrapperStyle={{ fontSize: 10 }} />
-                    <Line type="monotone" dataKey="Products" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }} />
-                    <Line type="monotone" dataKey="Methods" stroke="#f97316" strokeWidth={3} dot={{ fill: '#f97316', strokeWidth: 2, r: 4 }} />
-                    <Line type="monotone" dataKey="Guides" stroke="#10b981" strokeWidth={3} dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                    <XAxis dataKey="week" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e293b', color: '#e2e8f0', borderRadius: '8px', border: '1px solid #475569' }} />
+                    <Legend wrapperStyle={{ fontSize: 10, color: '#94a3b8' }} />
+                    <Line type="monotone" dataKey="Products" stroke="#60a5fa" strokeWidth={3} dot={{ fill: '#60a5fa', strokeWidth: 2, r: 4 }} />
+                    <Line type="monotone" dataKey="Methods" stroke="#4ade80" strokeWidth={3} dot={{ fill: '#4ade80', strokeWidth: 2, r: 4 }} />
+                    <Line type="monotone" dataKey="Guides" stroke="#a78bfa" strokeWidth={3} dot={{ fill: '#a78bfa', strokeWidth: 2, r: 4 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             </div>
           )}
           {widgetPrefs.userRegistrations && user && user.role === 'admin' && (
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-6">User Registrations (Last 8 Weeks)</h2>
-              <div className="bg-gradient-to-br from-white to-indigo-50 rounded-2xl border border-indigo-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="card-cyber">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-indigo-500/20 border border-indigo-500/30 rounded-xl p-3 shadow-glow">
+                  <UserIcon className="h-6 w-6 text-indigo-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-100">User Registrations (Last 8 Weeks)</h2>
+                  <p className="text-slate-400 text-sm">Security analyst onboarding trends</p>
+                </div>
+              </div>
+              <div className="card-glass p-6 border border-slate-600">
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={userTrendsData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="week" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10 }} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-                    <Tooltip contentStyle={{ backgroundColor: '#4f46e5', color: 'white', borderRadius: '8px', border: 'none' }} />
-                    <Legend wrapperStyle={{ fontSize: 10 }} />
-                    <Line type="monotone" dataKey="Users" stroke="#6366f1" strokeWidth={3} dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                    <XAxis dataKey="week" angle={-20} textAnchor="end" interval={0} height={60} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e293b', color: '#e2e8f0', borderRadius: '8px', border: '1px solid #475569' }} />
+                    <Legend wrapperStyle={{ fontSize: 10, color: '#94a3b8' }} />
+                    <Line type="monotone" dataKey="Users" stroke="#818cf8" strokeWidth={3} dot={{ fill: '#818cf8', strokeWidth: 2, r: 4 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -439,25 +565,34 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Quick Actions */}
+      {/* Security Operations Center */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <h2 className="text-2xl font-bold text-gray-100 mb-6 flex items-center gap-3">
+          <BoltIcon className="h-8 w-8 text-cyber-400" />
+          <span className="gradient-text">Security Operations Center</span>
+        </h2>
+        <div className="dashboard-grid">
           {quickActions.map((action) => (
             <Link
               key={action.name}
               to={action.href}
-              className="stat-card group"
+              className="group card-cyber hover:shadow-cyber-lg hover:-translate-y-2 transition-all duration-300"
             >
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-4 shadow-lg group-hover:shadow-xl transition-all duration-300">
-                  <action.icon className="h-6 w-6 text-white" />
+              <div className="flex flex-col items-center text-center">
+                <div className={`bg-${action.color}/20 border border-${action.color}/30 rounded-xl p-4 shadow-glow group-hover:shadow-cyber transition-all duration-300 mb-4`}>
+                  <action.icon className={`h-8 w-8 text-${action.color}`} />
                 </div>
-                <div className="ml-4">
-                  <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200">
-                    {action.name}
-                  </h3>
-                  <p className="text-sm text-gray-500">{action.description}</p>
+                <h3 className="font-semibold text-gray-200 group-hover:text-cyber-400 transition-colors duration-200 mb-2">
+                  {action.name}
+                </h3>
+                <p className="text-sm text-gray-400 mb-3">{action.description}</p>
+                <div className={`status-${action.status.toLowerCase()} mb-4`}>
+                  {action.status}
+                </div>
+                <div className="w-full">
+                  <div className="bg-dark-700 hover:bg-cyber-500 rounded-lg px-4 py-2 text-xs font-medium text-gray-400 group-hover:text-white transition-all duration-200 border border-dark-600 group-hover:border-cyber-500">
+                    Execute Operation →
+                  </div>
                 </div>
               </div>
             </Link>
@@ -466,51 +601,59 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Activity */}
-      <div className="my-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Activity</h2>
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+      <div className="my-8 card-cyber">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-cyan-500/20 border border-cyan-500/30 rounded-xl p-3 shadow-glow">
+            <BoltIcon className="h-6 w-6 text-cyan-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-100">Recent Security Activity</h2>
+            <p className="text-slate-400 text-sm">Latest operations and system events</p>
+          </div>
+        </div>
+        <div className="card-glass p-6 border border-slate-600">
           {activityLoading ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-500">Loading recent activity...</p>
+              <div className="loading-spinner mx-auto mb-4"></div>
+              <p className="text-slate-300">Loading security activity...</p>
             </div>
           ) : activityError ? (
             <div className="text-center py-8">
-              <div className="bg-red-100 rounded-full p-3 w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="bg-red-500/20 border border-red-500/30 rounded-full p-3 w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                <svg className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-red-600 font-medium">Failed to load recent activity</p>
+              <p className="text-red-400 font-medium">Failed to load security activity</p>
             </div>
           ) : activities.length === 0 ? (
             <div className="text-center py-12">
-              <div className="bg-gray-100 rounded-full p-3 w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="bg-slate-600/50 border border-slate-500 rounded-full p-3 w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                <svg className="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <p className="text-gray-500 font-medium">No recent activity to display</p>
-              <p className="text-sm text-gray-400 mt-2">
-                Start by adding vendors, products, or detection methods
+              <p className="text-slate-300 font-medium">No recent security activity</p>
+              <p className="text-sm text-slate-500 mt-2">
+                Start by deploying vendors, products, or detection methods
               </p>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-slate-700">
               {activities.map((activity, idx) => (
-                <li key={idx} className="flex items-center justify-between py-4 px-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-lg transition-all duration-200">
+                <li key={idx} className="flex items-center justify-between py-4 px-2 hover:bg-slate-700/30 rounded-lg transition-all duration-200">
                   <div className="flex items-center">
-                    <div className="bg-blue-100 rounded-full p-2 mr-4">
-                      <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="bg-cyan-500/20 border border-cyan-500/30 rounded-full p-2 mr-4">
+                      <svg className="h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </div>
                     <div>
-                      <span className="font-semibold text-gray-800">{activity.type}:</span>{' '}
-                      <span className="text-gray-700">{activity.name}</span>
+                      <span className="font-semibold text-slate-200">{activity.type}:</span>{' '}
+                      <span className="text-slate-300">{activity.name}</span>
                     </div>
                   </div>
-                  <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                  <div className="text-sm text-slate-400 bg-slate-700/50 border border-slate-600 px-3 py-1 rounded-full">
                     {formatDate(activity.created_at)}
                   </div>
                 </li>

@@ -38,37 +38,37 @@ function PreviewModal({ isOpen, onClose, title, content, downloadFileName = 'exp
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-8 relative h-[80vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="bg-slate-800 rounded-2xl shadow-2xl max-w-3xl w-full p-8 relative h-[80vh] flex flex-col border border-slate-600">
         <button
-          className="absolute top-3 right-3 btn btn-sm btn-circle btn-ghost text-2xl"
+          className="absolute top-3 right-3 text-slate-400 hover:text-slate-200 text-2xl p-2 hover:bg-slate-700 rounded-full transition-colors"
           onClick={onClose}
           aria-label="Close"
         >
           &times;
         </button>
-        <h2 className="text-xl font-bold mb-4">{title}</h2>
-        <pre className="bg-gray-100 rounded p-4 overflow-x-auto overflow-y-auto text-xs flex-1">
+        <h2 className="text-xl font-bold mb-4 text-slate-100">{title}</h2>
+        <pre className="bg-slate-900 border border-slate-700 rounded-lg p-4 overflow-x-auto overflow-y-auto text-xs flex-1 text-slate-300">
           {typeof content === 'string' ? content : JSON.stringify(content, null, 2)}
         </pre>
         <div className="flex justify-end gap-2 mt-4">
           <button
-            className="hover:bg-gray-200 rounded-full p-2 transition"
+            className="hover:bg-slate-700 rounded-full p-2 transition-colors"
             onClick={handleCopy}
             title="Copy"
           >
             {copyStatus === 'Copied' ? (
-              <CheckIcon className="h-6 w-6 text-green-500 transition-transform duration-200 scale-110" />
+              <CheckIcon className="h-6 w-6 text-green-400 transition-transform duration-200 scale-110" />
             ) : (
-              <ClipboardIcon className="h-6 w-6 text-gray-700 transition-transform duration-200" />
+              <ClipboardIcon className="h-6 w-6 text-slate-300 transition-transform duration-200" />
             )}
           </button>
           <button
-            className="hover:bg-gray-200 rounded-full p-2 transition"
+            className="hover:bg-slate-700 rounded-full p-2 transition-colors"
             onClick={handleDownload}
             title="Download"
           >
-            <ArrowDownTrayIcon className="h-6 w-6 text-blue-500" />
+            <ArrowDownTrayIcon className="h-6 w-6 text-blue-400" />
           </button>
         </div>
       </div>
@@ -320,23 +320,39 @@ export default function BulkOperations() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Bulk Operations</h1>
-        <p className="text-gray-600">Comprehensive data management tools for VersionIntel</p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="hero-section rounded-2xl p-8 text-white shadow-cyber border border-slate-700 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute inset-0 scan-line"></div>
+        
+        <div className="relative flex items-center gap-6">
+          <div className="glass-effect p-4 rounded-xl border border-slate-600">
+            <ServerStackIcon className="h-12 w-12 text-blue-400" />
+          </div>
+          <div>
+            <h1 className="hero-title text-3xl lg:text-4xl mb-2">
+              <span className="gradient-text">Bulk Operations</span>
+            </h1>
+            <p className="hero-subtitle">
+              Comprehensive data management tools for cybersecurity intelligence
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 mb-8">
-        <nav className="-mb-px flex space-x-8 overflow-x-auto">
+      <div className="card-cyber p-6">
+        <nav className="flex space-x-8 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+              className={`whitespace-nowrap py-3 px-6 rounded-lg font-medium text-sm flex items-center gap-2 transition-all duration-200 ${
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                  : 'text-slate-300 hover:text-blue-400 hover:bg-slate-700/50'
               }`}
             >
               <tab.icon className="h-4 w-4" />
@@ -352,49 +368,49 @@ export default function BulkOperations() {
           {/* Left column: Vendor and Product cards */}
           <div className="flex flex-col gap-10 w-full lg:w-1/2 items-center">
             {/* Export by Vendor Card */}
-            <div className="card p-6 shadow-xl rounded-lg bg-blue-50 max-w-md w-full flex flex-col gap-4 items-center transition-transform duration-200 hover:shadow-2xl hover:scale-[1.02]">
+            <div className="card-cyber p-6 max-w-md w-full flex flex-col gap-4 items-center transition-transform duration-200 hover:shadow-cyber-lg hover:scale-[1.02]">
               <div className="flex items-center gap-2 mb-2">
-                <BuildingOfficeIcon className="h-6 w-6 text-blue-500" />
-                <h2 className="text-lg font-semibold">Export by Vendor</h2>
+                <BuildingOfficeIcon className="h-6 w-6 text-blue-400" />
+                <h2 className="text-lg font-semibold text-slate-100">Export by Vendor</h2>
               </div>
-              <select value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} className="input input-bordered w-full mb-2">
-                <option value="">Select Vendor</option>
+              <select value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} className="input w-full mb-2">
+                <option value="">Select Security Vendor</option>
                 {vendorsList.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
               </select>
-              <button className="btn btn-primary w-full flex items-center justify-center" onClick={handleExportVendor} disabled={!selectedVendor || exportLoading}>
-                {exportLoading ? <Spinner /> : 'Export Vendor'}
+              <button className="btn-primary w-full flex items-center justify-center" onClick={handleExportVendor} disabled={!selectedVendor || exportLoading}>
+                {exportLoading ? <Spinner /> : 'Export Vendor Data'}
               </button>
             </div>
             
             {/* Export by Product Card */}
-            <div className="card p-6 shadow-xl rounded-lg bg-blue-50 max-w-md w-full flex flex-col gap-4 items-center transition-transform duration-200 hover:shadow-2xl hover:scale-[1.02]">
+            <div className="card-cyber p-6 max-w-md w-full flex flex-col gap-4 items-center transition-transform duration-200 hover:shadow-cyber-lg hover:scale-[1.02]">
               <div className="flex items-center gap-2 mb-2">
-                <CubeIcon className="h-6 w-6 text-green-500" />
-                <h2 className="text-lg font-semibold">Export by Product</h2>
+                <CubeIcon className="h-6 w-6 text-green-400" />
+                <h2 className="text-lg font-semibold text-slate-100">Export by Product</h2>
               </div>
-              <select value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} className="input input-bordered w-full mb-2">
-                <option value="">Select Vendor</option>
+              <select value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} className="input w-full mb-2">
+                <option value="">Select Security Vendor</option>
                 {vendorsList.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
               </select>
-              <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)} className="input input-bordered w-full mb-2" disabled={!selectedVendor}>
-                <option value="">Select Product</option>
+              <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)} className="input w-full mb-2" disabled={!selectedVendor}>
+                <option value="">Select Security Product</option>
                 {filteredProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              <button className="btn btn-primary w-full flex items-center justify-center" onClick={handleExportProduct} disabled={!selectedProduct || exportLoading}>
-                {exportLoading ? <Spinner /> : 'Export Product'}
+              <button className="btn-primary w-full flex items-center justify-center" onClick={handleExportProduct} disabled={!selectedProduct || exportLoading}>
+                {exportLoading ? <Spinner /> : 'Export Product Data'}
               </button>
             </div>
           </div>
           
           {/* Right column: Export All Data card */}
           <div className="flex flex-col items-start w-full lg:w-1/2">
-            <div className="card p-6 shadow-xl rounded-lg bg-blue-50 max-w-md w-full flex flex-col gap-4 items-center self-start transition-transform duration-200 hover:shadow-2xl hover:scale-[1.02]">
+            <div className="card-cyber p-6 max-w-md w-full flex flex-col gap-4 items-center self-start transition-transform duration-200 hover:shadow-cyber-lg hover:scale-[1.02]">
               <div className="flex items-center gap-2 mb-2">
-                <ServerStackIcon className="h-6 w-6 text-purple-500" />
-                <h2 className="text-lg font-semibold">Export All Data</h2>
+                <ServerStackIcon className="h-6 w-6 text-purple-400" />
+                <h2 className="text-lg font-semibold text-slate-100">Export All Data</h2>
               </div>
-              <button className="btn btn-primary w-full flex items-center justify-center" onClick={handleExportAll} disabled={exportLoading}>
-                {exportLoading ? <Spinner /> : 'Export All'}
+              <button className="btn-primary w-full flex items-center justify-center" onClick={handleExportAll} disabled={exportLoading}>
+                {exportLoading ? <Spinner /> : 'Export All Intelligence'}
               </button>
             </div>
           </div>

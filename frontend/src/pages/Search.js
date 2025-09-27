@@ -36,16 +36,30 @@ export default function Search() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Search</h1>
-        <p className="text-gray-600">Search across vendors, products, detection methods, and setup guides</p>
+      <div className="hero-section rounded-2xl p-8 text-white shadow-cyber border border-border-primary relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute inset-0 scan-line"></div>
+        
+        <div className="relative flex items-center gap-6">
+          <div className="glass-effect p-4 rounded-xl border border-border-secondary">
+            <MagnifyingGlassIcon className="h-12 w-12 text-infopercept-secondary" />
+          </div>
+          <div>
+            <h1 className="hero-title text-3xl lg:text-4xl mb-2">
+              <span className="gradient-text">Threat Intelligence Search</span>
+            </h1>
+            <p className="hero-subtitle">
+              Advanced search across security vendors, products, detection methods, and implementation guides
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Search Form */}
+      {/* Search Interface */}
       <form onSubmit={handleSearch} className="mb-8">
-        <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl border border-blue-100 p-6 shadow-lg">
+        <div className="card-cyber p-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-shrink-0">
               <select
@@ -53,46 +67,71 @@ export default function Search() {
                 onChange={(e) => setSearchType(e.target.value)}
                 className="input w-full md:w-auto"
               >
-                <option value="all">🔍 All Categories</option>
-                <option value="vendor">🏢 Vendors</option>
-                <option value="product">📦 Products</option>
-                <option value="method">🔬 Methods</option>
-                <option value="guide">📖 Guides</option>
+                <option value="all">🔍 All Intelligence</option>
+                <option value="vendor">🏢 Security Vendors</option>
+                <option value="product">🛡️ Security Products</option>
+                <option value="method">🔬 Detection Methods</option>
+                <option value="guide">📖 Implementation Guides</option>
               </select>
             </div>
             <div className="flex-1 relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-muted" />
               <input
                 type="text"
                 className="input pl-10 w-full"
-                placeholder={`Search for ${searchType === 'all' ? 'vendors, products, detection methods, guides...' : searchType === 'vendor' ? 'vendor names...' : searchType === 'product' ? 'product names...' : searchType === 'method' ? 'detection methods...' : 'setup guides...'}`}
+                placeholder={`Search ${searchType === 'all' ? 'threat intelligence database...' : searchType === 'vendor' ? 'security vendor names...' : searchType === 'product' ? 'security product names...' : searchType === 'method' ? 'detection signatures...' : 'implementation guides...'}`}
                 value={query}
                 onChange={e => setQuery(e.target.value)}
               />
             </div>
-            <button type="submit" className="btn btn-primary flex items-center gap-2">
+            <button type="submit" className="btn-primary flex items-center gap-2">
               <MagnifyingGlassIcon className="h-5 w-5" />
-              Search
+              Execute Search
             </button>
           </div>
+          
+          {/* Search Stats */}
+          {searchTerm && (
+            <div className="mt-4 flex items-center gap-4 text-sm text-text-muted">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-infopercept-secondary rounded-full animate-pulse"></div>
+                <span>Query: "{searchTerm}"</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-matrix-darkGreen rounded-full animate-pulse delay-300"></div>
+                <span>Results: {getResultsCount()}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-security-info rounded-full animate-pulse delay-600"></div>
+                <span>Category: {searchType}</span>
+              </div>
+            </div>
+          )}
         </div>
       </form>
       {/* Loading State */}
       {isLoading && (
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Searching...</p>
+        <div className="card-cyber text-center py-16">
+          <div className="loading-spinner mx-auto mb-6"></div>
+          <h3 className="text-xl font-semibold text-text-primary mb-2">Scanning Threat Intelligence</h3>
+          <p className="text-text-muted">Analyzing security database...</p>
+          <div className="mt-4 flex justify-center">
+            <div className="terminal text-xs">
+              <div className="text-matrix-green">$ grep -r "{searchTerm}" /threat-intel/</div>
+              <div className="text-infopercept-secondary">Searching... Please wait</div>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-6 shadow-lg">
+        <div className="alert-error">
           <div className="flex items-center">
-            <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mr-3" />
+            <ExclamationTriangleIcon className="h-6 w-6 text-security-critical mr-3" />
             <div>
-              <h3 className="font-medium text-red-800">Search Error</h3>
-              <p className="text-red-600 text-sm mt-1">{error.message}</p>
+              <h3 className="font-medium text-security-critical">Search Operation Failed</h3>
+              <p className="text-security-critical/80 text-sm mt-1">{error.message}</p>
             </div>
           </div>
         </div>
@@ -101,12 +140,18 @@ export default function Search() {
       {/* Results Summary */}
       {data && searchTerm && (
         <div className="mb-6">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
-            <p className="text-gray-700">
-              Found <span className="font-bold text-blue-600">{getResultsCount()}</span> results for 
-              <span className="font-medium"> "{searchTerm}"</span>
-              {searchType !== 'all' && <span className="text-gray-500"> in {searchType}s</span>}
-            </p>
+          <div className="card-glass p-4 border border-cyber-600/30">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-security-success rounded-full animate-pulse"></div>
+                <span className="text-gray-300">Scan Complete</span>
+              </div>
+              <div className="text-gray-300">
+                Found <span className="font-bold text-cyber-400 font-mono">{getResultsCount()}</span> intelligence records for 
+                <span className="font-medium text-matrix-green"> "{searchTerm}"</span>
+                {searchType !== 'all' && <span className="text-gray-400"> in {searchType} category</span>}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -114,25 +159,25 @@ export default function Search() {
         <div className="space-y-8">
           {/* Vendors with their products */}
           {data.vendors && data.vendors.length > 0 && (
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-6 shadow-lg">
+            <div className="card-cyber p-6">
               <div className="flex items-center mb-6">
-                <BuildingOfficeIcon className="h-6 w-6 text-blue-600 mr-3" />
-                <h2 className="text-xl font-bold text-gray-900">Vendors ({data.vendors.length})</h2>
+                <BuildingOfficeIcon className="h-6 w-6 text-blue-400 mr-3" />
+                <h2 className="text-xl font-bold text-slate-200">Vendors ({data.vendors.length})</h2>
               </div>
               <div className="space-y-6">
                 {data.vendors.map(v => (
-                  <div key={v.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-all duration-200">
-                    <div className="font-bold text-lg mb-4 text-gray-900 flex items-center">
-                      <BuildingOfficeIcon className="h-5 w-5 text-blue-600 mr-2" />
+                  <div key={v.id} className="card-glass border border-slate-600 rounded-xl p-6 shadow-cyber hover:shadow-glow transition-all duration-200">
+                    <div className="font-bold text-lg mb-4 text-slate-200 flex items-center">
+                      <BuildingOfficeIcon className="h-5 w-5 text-blue-400 mr-2" />
                       {v.name}
                     </div>
                     {v.products && v.products.length > 0 ? (
                       <div className="space-y-4">
                         {v.products.map(p => (
-                          <div key={p.id} className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                            <div className="font-medium mb-1">{p.name}</div>
+                          <div key={p.id} className="bg-slate-800/30 rounded-lg p-4 border border-slate-700">
+                            <div className="font-medium mb-1 text-slate-200">{p.name}</div>
                             {p.category && (
-                              <div className="text-sm text-blue-600 mb-1">Category: {p.category}</div>
+                              <div className="text-sm text-blue-400 mb-1">Category: {p.category}</div>
                             )}
                             {p.description && (
                               <div className="text-sm mb-2">
@@ -142,8 +187,8 @@ export default function Search() {
                             {/* Detection Methods Table */}
                             {p.detection_methods && p.detection_methods.length > 0 && (
                               <div className="overflow-x-auto">
-                                <table className="min-w-full border text-sm mb-2">
-                                  <thead className="bg-gray-100">
+                                <table className="min-w-full border border-slate-600 text-sm mb-2">
+                                  <thead className="bg-slate-800/50">
                                     <tr>
                                       <th className="border px-2 py-1">Product</th>
                                       <th className="border px-2 py-1">Name</th>
@@ -175,7 +220,7 @@ export default function Search() {
                             {/* Related Setup Guides */}
                             {p.setup_guides && p.setup_guides.length > 0 && (
                               <div className="mt-3">
-                                <div className="text-sm font-semibold text-gray-700 mb-2">Setup Guides:</div>
+                                <div className="text-sm font-semibold text-slate-300 mb-2">Setup Guides:</div>
                                 <div className="flex flex-wrap gap-2">
                                   {p.setup_guides.map(g => (
                                     <a
@@ -219,17 +264,17 @@ export default function Search() {
             const filteredProducts = (data.products || []).filter(p => !vendorProductIds.has(p.id));
             if (filteredProducts.length === 0) return null;
             return (
-              <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-6 shadow-lg">
+              <div className="card-cyber p-6">
                 <div className="flex items-center mb-6">
-                  <CubeIcon className="h-6 w-6 text-green-600 mr-3" />
-                  <h2 className="text-xl font-bold text-gray-900">Products ({filteredProducts.length})</h2>
+                  <CubeIcon className="h-6 w-6 text-green-400 mr-3" />
+                  <h2 className="text-xl font-bold text-slate-200">Products ({filteredProducts.length})</h2>
                 </div>
                 <div className="space-y-6">
                   {filteredProducts.map(p => (
-                    <div key={p.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-all duration-200">
-                      <div className="font-medium mb-1">{p.name}</div>
+                    <div key={p.id} className="card-glass border border-slate-600 rounded-xl p-6 shadow-cyber hover:shadow-glow transition-all duration-200">
+                      <div className="font-medium mb-1 text-slate-200">{p.name}</div>
                       {p.category && (
-                        <div className="text-sm text-blue-600 mb-1">Category: {p.category}</div>
+                        <div className="text-sm text-green-400 mb-1">Category: {p.category}</div>
                       )}
                       {p.description && (
                         <div className="text-sm mb-2">
@@ -239,8 +284,8 @@ export default function Search() {
                       {/* Detection Methods Table */}
                       {p.detection_methods && p.detection_methods.length > 0 && (
                         <div className="overflow-x-auto">
-                          <table className="min-w-full border text-sm mb-2">
-                            <thead className="bg-gray-100">
+                          <table className="min-w-full border border-slate-600 text-sm mb-2">
+                            <thead className="bg-slate-800/50">
                               <tr>
                                 <th className="border px-2 py-1">Product</th>
                                 <th className="border px-2 py-1">Name</th>
@@ -272,7 +317,7 @@ export default function Search() {
                       {/* Related Setup Guides */}
                       {p.setup_guides && p.setup_guides.length > 0 && (
                         <div className="mt-3">
-                          <div className="text-sm font-semibold text-gray-700 mb-2">Setup Guides:</div>
+                          <div className="text-sm font-semibold text-slate-300 mb-2">Setup Guides:</div>
                           <div className="flex flex-wrap gap-2">
                             {p.setup_guides.map(g => (
                               <a
