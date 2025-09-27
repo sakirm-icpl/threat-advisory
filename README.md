@@ -1,284 +1,444 @@
-# VersionIntel - Version Detection Research Platform
+# VersionIntel
 
-A comprehensive platform for managing internal version detection research for various service/web/OS applications. This platform allows you to record detection logic like banner grabbing techniques, version regex patterns (Python and Ruby), authentication requirements, and setup instructions per product/vendor.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker](https://img.shields.io/badge/Docker-Available-blue.svg)](https://hub.docker.com/)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
+[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue.svg)](https://postgresql.org)
+
+**VersionIntel** is a comprehensive platform designed to help security researchers, developers, and DevOps teams identify software versions and detect vulnerabilities through AI-powered analysis and repository scanning.
+
+## 🌟 Features
+
+### Core Capabilities
+- 🔍 **Version Detection**: Automated software version identification using AI and pattern matching
+- 🛡️ **Vulnerability Analysis**: AI-powered security assessment with CVE database integration
+- 📊 **Analytics Dashboard**: Comprehensive overview of software inventory and security posture
+- 🏢 **Product Management**: Centralized catalog of software products and vendors
+- 🔌 **RESTful API**: Full-featured API with Swagger documentation
+- 👥 **User Management**: Role-based access control with GitHub OAuth
+
+### Security Features
+- 🔐 **GitHub OAuth**: Secure authentication with GitHub integration
+- 🛡️ **RBAC**: Role-based access control (Admin/Contributor)
+- 🔒 **JWT Tokens**: Stateless authentication for API access
+- 🔄 **Audit Logging**: Comprehensive activity tracking
+- 🚨 **Rate Limiting**: API protection against abuse
+
+### Technical Features
+- 🐳 **Docker**: Containerized deployment with Docker Compose
+- 🤖 **AI Integration**: Google Gemini API for intelligent analysis
+- 📚 **NVD Integration**: National Vulnerability Database connectivity
+- 🗄️ **PostgreSQL**: Robust database with full-text search
+- ⚡ **Modern Stack**: React frontend with Flask backend
+
+## 🏗️ System Architecture
+
+### High-Level Architecture
+
+```mermaid
+graph TB
+    subgraph "User Interface"
+        WEB[Web Browser]
+        API_CLIENT[API Clients]
+    end
+    
+    subgraph "Frontend Layer"
+        REACT[React Application]
+        NGINX[Nginx Server]
+    end
+    
+    subgraph "Backend Services"
+        API[Flask API Gateway]
+        AUTH[Auth Service]
+        AI[AI Service]
+        CVE[CVE Service]
+    end
+    
+    subgraph "Data Layer"
+        DB[(PostgreSQL)]
+        PATTERNS[Service Patterns]
+    end
+    
+    subgraph "External Services"
+        GITHUB[GitHub OAuth]
+        GEMINI[Google Gemini AI]
+        NVD[NVD Database]
+    end
+    
+    WEB --> NGINX
+    API_CLIENT --> API
+    NGINX --> REACT
+    REACT --> API
+    
+    API --> AUTH
+    API --> AI
+    API --> CVE
+    
+    AUTH --> GITHUB
+    AI --> GEMINI
+    CVE --> NVD
+    
+    API --> DB
+    AI --> PATTERNS
+```
+
+### Data Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant A as API Gateway
+    participant AI as AI Service
+    participant DB as Database
+    participant EXT as External APIs
+    
+    U->>F: Access Dashboard
+    F->>A: Authenticate Request
+    A->>DB: Validate User
+    DB-->>A: User Data
+    A-->>F: Authentication Success
+    
+    U->>F: Request Analysis
+    F->>A: Submit Analysis Request
+    A->>AI: Process with AI
+    AI->>EXT: Query External APIs
+    EXT-->>AI: External Data
+    AI->>DB: Store Results
+    AI-->>A: Analysis Complete
+    A-->>F: Return Results
+    F-->>U: Display Analysis
+```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Docker**: 20.10 or higher
-- **Docker Compose**: 2.0 or higher
-- **Git**: Latest version
-- **Operating System**: Linux, macOS, or Windows
-- **RAM**: Minimum 2GB available
-- **Storage**: 1GB free space
 
-### One-Command Deployment
+- **Docker** (version 20.10+)
+- **Docker Compose** (version 1.29+)
+- **Git**
+
+### Installation
+
+1. **Clone the Repository**
 ```bash
-git clone <repository-url>
+git clone https://github.com/your-username/versionintel.git
 cd versionintel
-
-# Create .env file with your configuration (see env.example)
-cp env.example .env
-# Edit .env file with your settings
-
-# Run deployment
-./deploy.sh    # Linux/Mac
-# OR
-deploy.bat     # Windows
 ```
 
-### Access the Application
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
+2. **Configure Environment**
+```bash
+# Copy environment template
+cp env.example .env
 
-### Default Login
-- **Username**: `admin`
-- **Password**: `Admin@1234`
-- **⚠️ Important**: Change the default password after first login!
+# Edit configuration (update SERVER_HOST, GitHub OAuth, etc.)
+nano .env
+```
 
-## 🎯 Features
+3. **Deploy Application**
 
-- **Vendor Management**: Add, update, delete, and list vendors
-- **Product Management**: Manage products with vendor associations and categories
-- **Detection Methods**: Store and manage version detection logic with regex patterns
-- **CVE Integration**: Search and analyze CVE data with intelligent query parsing (supports Vendor@Product format)
-- **Setup Guides**: Document setup instructions with Docker images and VM requirements
-- **Regex Testing**: Test Python and Ruby regex patterns against sample outputs
-- **Authentication & Authorization**: GitHub OAuth 2.0 with role-based access control (Admin/Contributor roles)
-- **Bulk Operations**: Import/export data in JSON/CSV/DOCX/PDF formats
-- **API Documentation**: Interactive Swagger/OpenAPI documentation
-- **Modern Frontend**: React-based web interface with responsive design
+**Linux/Mac:**
+```bash
+chmod +x deploy-linux.sh
+./deploy-linux.sh
+```
 
-## 🏗️ Architecture
+**Windows:**
+```batch
+deploy-windows.bat
+```
+
+4. **Access Application**
+- **Frontend**: http://localhost:3000 (or your server IP)
+- **API Documentation**: http://localhost:8000/apidocs/
+- **Health Check**: http://localhost:8000/health
+
+### GitHub OAuth Setup
+
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+2. Create a new OAuth App with:
+   - **Homepage URL**: `http://your-server-ip:3000`
+   - **Callback URL**: `http://your-server-ip:3000/auth/github/callback`
+3. Update `.env` with your Client ID and Secret
+
+## 📊 Workflow Diagrams
+
+### User Authentication Flow
+
+```mermaid
+graph TD
+    A[User Visits App] --> B{Authenticated?}
+    B -->|No| C[Redirect to Login]
+    B -->|Yes| D[Access Dashboard]
+    
+    C --> E[Click GitHub Login]
+    E --> F[GitHub OAuth]
+    F --> G[Authorization Granted]
+    G --> H[Receive Auth Code]
+    H --> I[Exchange for Token]
+    I --> J[Create/Update User]
+    J --> K[Generate JWT]
+    K --> D
+    
+    D --> L[Browse Products]
+    D --> M[Analyze Repositories]
+    D --> N[Manage Users]
+    
+    N --> O{Admin Role?}
+    O -->|No| P[Access Denied]
+    O -->|Yes| Q[Admin Panel]
+```
+
+### Vulnerability Detection Workflow
+
+```mermaid
+graph TD
+    A[Submit Repository] --> B[Parse Repository Data]
+    B --> C[Extract Software Info]
+    C --> D[Query Product Database]
+    D --> E{Product Found?}
+    
+    E -->|No| F[AI Analysis for Detection]
+    E -->|Yes| G[Get Known Vulnerabilities]
+    
+    F --> H[Pattern Matching]
+    H --> I[Version Identification]
+    I --> G
+    
+    G --> J[Query CVE Database]
+    J --> K[AI Risk Assessment]
+    K --> L[Generate Report]
+    L --> M[Store Results]
+    M --> N[Return Analysis]
+    
+    N --> O[Display Dashboard]
+    N --> P[Export Report]
+    N --> Q[Schedule Monitoring]
+```
+
+### Development Workflow
+
+```mermaid
+graph LR
+    A[Feature Request] --> B[Create Branch]
+    B --> C[Develop Feature]
+    C --> D[Write Tests]
+    D --> E[Run Test Suite]
+    
+    E --> F{Tests Pass?}
+    F -->|No| C
+    F -->|Yes| G[Code Review]
+    
+    G --> H{Review Approved?}
+    H -->|No| C
+    H -->|Yes| I[Merge to Main]
+    
+    I --> J[CI/CD Pipeline]
+    J --> K[Deploy to Staging]
+    K --> L[Integration Tests]
+    L --> M{Tests Pass?}
+    M -->|No| N[Rollback]
+    M -->|Yes| O[Deploy to Production]
+    
+    N --> C
+```
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **Framework**: React 18+ with functional components
+- **Styling**: Tailwind CSS for responsive design
+- **State Management**: React Context and custom hooks
+- **Routing**: React Router for SPA navigation
+- **Build Tool**: Create React App with optimizations
+
+### Backend
+- **Framework**: Flask with Flask-RESTful extensions
+- **Database ORM**: SQLAlchemy with Alembic migrations
+- **Authentication**: JWT tokens with GitHub OAuth
+- **API Documentation**: Swagger/OpenAPI integration
+- **Task Queue**: Background job processing
+
+### Database
+- **Primary**: PostgreSQL 13+ with JSON support
+- **Features**: Full-text search, indexing, ACID compliance
+- **Migrations**: Alembic for version control
+- **Backup**: Automated backup strategies
+
+### Infrastructure
+- **Containerization**: Docker with multi-stage builds
+- **Orchestration**: Docker Compose for local development
+- **Reverse Proxy**: Nginx for production serving
+- **Monitoring**: Health checks and logging
+
+### External Integrations
+- **AI Provider**: Google Gemini API for analysis
+- **CVE Data**: National Vulnerability Database (NVD)
+- **Authentication**: GitHub OAuth 2.0
+- **Notifications**: Email and webhook support
+
+## 📁 Project Structure
 
 ```
 versionintel/
-├── backend/                 # Flask API Server (port 8000)
-│   ├── app/
-│   │   ├── models/         # Database models
-│   │   ├── routes/         # API endpoints
-│   │   ├── services/       # Business logic
-│   │   └── config.py       # Configuration
-│   ├── requirements.txt    # Python dependencies
-│   └── Dockerfile
-├── frontend/               # React Web Application (port 3000)
-│   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API services
-│   │   └── contexts/       # React contexts
-│   ├── package.json        # Node.js dependencies
-│   └── Dockerfile
-├── db/                     # Database initialization
-├── docker-compose.yml      # Service orchestration
-└── deploy.sh              # Deployment script
+├── 📂 backend/                 # Flask backend application
+│   ├── 📂 app/                # Application code
+│   │   ├── 📂 models/         # Database models
+│   │   ├── 📂 routes/         # API endpoints
+│   │   ├── 📂 services/       # Business logic
+│   │   └── 📄 main.py         # Application factory
+│   ├── 📂 alembic/            # Database migrations
+│   ├── 📄 requirements.txt    # Python dependencies
+│   └── 📄 Dockerfile          # Backend container
+├── 📂 frontend/               # React frontend application
+│   ├── 📂 src/               # Source code
+│   │   ├── 📂 components/    # React components
+│   │   ├── 📂 pages/         # Page components
+│   │   ├── 📂 hooks/         # Custom hooks
+│   │   └── 📂 services/      # API services
+│   ├── 📄 package.json       # Node dependencies
+│   └── 📄 Dockerfile         # Frontend container
+├── 📂 docs/                  # Comprehensive documentation
+│   ├── 📂 api/              # API documentation
+│   ├── 📂 architecture/     # System architecture
+│   ├── 📂 deployment/       # Deployment guides
+│   ├── 📂 user-guide/       # User documentation
+│   └── 📂 development/      # Developer guides
+├── 📂 tests/                 # Test suite
+│   ├── 📂 backend/          # Backend tests
+│   ├── 📂 frontend/         # Frontend tests
+│   └── 📂 integration/      # E2E tests
+├── 📂 patterns/              # Service detection patterns
+├── 📄 docker-compose.yml     # Container orchestration
+├── 📄 deploy-linux.sh        # Linux deployment script
+├── 📄 deploy-windows.bat     # Windows deployment script
+└── 📄 README.md              # This file
 ```
 
-## 🔧 Development Setup
+## 🔧 Configuration
 
-### Local Development (Without Docker)
+### Environment Variables
+
+#### Required Configuration
 ```bash
-# Backend Setup
-cd backend
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-pip install -r requirements.txt
+# Server Configuration
+SERVER_HOST=your-server-ip          # Server IP address
+BACKEND_PORT=8000                    # Backend API port
+FRONTEND_PORT=3000                   # Frontend port
 
-# Set environment variables
-export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/versionintel
-python wsgi.py
+# GitHub OAuth (Required)
+GITHUB_CLIENT_ID=your_client_id
+GITHUB_CLIENT_SECRET=your_secret
+GITHUB_REDIRECT_URI=http://your-server-ip:3000/auth/github/callback
 
-# Frontend Setup (in another terminal)
-cd frontend
-npm install
-echo "REACT_APP_API_URL=http://localhost:8000" > .env
-npm start
+# Security Keys (Required)
+SECRET_KEY=your-secure-secret-key
+JWT_SECRET_KEY=your-jwt-secret-key
+
+# Database Configuration
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=secure-password
+POSTGRES_DB=versionintel
 ```
 
-### Database Setup for Development
+#### Optional Configuration
 ```bash
-# Start database only
-docker-compose up db -d
+# AI Integration
+GOOGLE_API_KEY=your-google-api-key   # For enhanced AI features
+AI_PROVIDER=gemini                   # AI provider selection
 
-# Initialize database
-cd backend && python init_database.py
+# NVD API
+NVD_API_KEY=your-nvd-api-key        # For higher rate limits
+
+# CORS Configuration
+CORS_ORIGINS=http://localhost:3000,http://your-domain.com
 ```
 
-## 🚀 Production Deployment
+### Server Migration
 
-### Pre-Deployment Checklist
+To deploy on a different server:
 
-**Critical Security Updates Required:**
+1. **Update Server IP**: Change `SERVER_HOST` in `.env`
+2. **Update GitHub OAuth**: Update callback URL in GitHub app settings
+3. **Update CORS**: Add new domain to `CORS_ORIGINS`
+4. **Regenerate Secrets**: Create new secure keys for production
+5. **Run Deployment**: Execute platform-specific deployment script
 
-```yaml
-# Update docker-compose.yml environment variables
-environment:
-  - SECRET_KEY=generate-new-secure-key-here
-  - JWT_SECRET_KEY=generate-new-jwt-secret-here
-  - POSTGRES_PASSWORD=your-secure-database-password
-```
+## 🧪 Testing
 
-**Default Credentials to Change:**
-- Admin User: `admin` / `Admin@1234`
-- Database: `postgres` / `postgres`
+### Running Tests
 
-⚠️ **CRITICAL**: Change ALL default passwords before production deployment!
-
-### Server Setup
-
-#### Install Docker
+**All Tests:**
 ```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
+# Run comprehensive test suite
+python tests/run_all_tests.py
 
-# Install Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-
-# Add user to docker group
-sudo usermod -aG docker $USER
+# With coverage and verbose output
+python tests/run_all_tests.py --verbose
 ```
 
-#### Network Security
+**Individual Test Suites:**
 ```bash
-# Configure firewall
-sudo ufw allow 22    # SSH
-sudo ufw allow 80    # HTTP
-sudo ufw allow 443   # HTTPS
-sudo ufw enable
+# Backend tests only
+python tests/run_all_tests.py --backend-only
+
+# Frontend tests only
+python tests/run_all_tests.py --frontend-only
+
+# Integration tests only
+python tests/run_all_tests.py --integration-only
 ```
 
-### SSL/TLS Setup (Recommended)
-
-#### Nginx Reverse Proxy
-```nginx
-server {
-    listen 443 ssl;
-    server_name your-domain.com;
-    
-    ssl_certificate /path/to/cert.pem;
-    ssl_certificate_key /path/to/key.pem;
-    
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-    
-    location /api/ {
-        proxy_pass http://localhost:8000/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
-
-### Production Deployment
+**Manual Testing:**
 ```bash
-# Clone and configure
-git clone <repository-url>
-cd versionintel
+# Backend tests
+cd backend && python -m pytest
 
-# Update production settings in docker-compose.yml
-# - Change SECRET_KEY and JWT_SECRET_KEY
-# - Update POSTGRES_PASSWORD
-# - Set REACT_APP_API_URL to your domain
+# Frontend tests
+cd frontend && npm test
 
-# Deploy
-deploy.sh
-# OR on Windows
-deploy.bat
+# Linting
+python tests/run_all_tests.py --no-coverage
 ```
 
-### Production Optimizations
-```yaml
-# Add to docker-compose.yml
-services:
-  backend:
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: '0.5'
-```
+### Test Coverage
 
-### Backup Strategy
-```bash
-#!/bin/bash
-# Create automated backup script
-DATE=$(date +%Y%m%d_%H%M%S)
-docker-compose exec -T db pg_dump -U postgres versionintel > backup_$DATE.sql
-```
+Our testing suite maintains high coverage standards:
+- **Backend**: 85%+ test coverage
+- **Frontend**: 80%+ test coverage
+- **Integration**: Critical user journeys covered
+- **API**: All endpoints tested
 
-## 🔍 Monitoring & Maintenance
+## 📖 Documentation
 
-### Health Checks
-- Backend: `http://your-domain:8000/health`
-- Frontend: `http://your-domain:3000`
-- Metrics: `http://your-domain:8000/metrics`
+### User Documentation
+- 📚 [Getting Started Guide](docs/user-guide/getting-started.md)
+- 🏠 [Dashboard Overview](docs/user-guide/dashboard.md)
+- 🔍 [Repository Scanning](docs/user-guide/repository-scanning.md)
+- 👥 [User Management](docs/user-guide/user-management.md)
 
-### Regular Maintenance
-- [ ] Weekly security updates
-- [ ] Monthly database backups
-- [ ] Quarterly performance reviews
+### API Documentation
+- 🔌 [API Overview](docs/api/overview.md)
+- 🔐 [Authentication](docs/api/authentication.md)
+- 📋 [Endpoints Reference](docs/api/endpoints.md)
+- ⚠️ [Error Handling](docs/api/error-handling.md)
 
-## ⚠️ Troubleshooting
+### Deployment Documentation
+- ⚡ [Quick Start](docs/deployment/quick-start.md)
+- 🔧 [Environment Configuration](docs/deployment/environment-configuration.md)
+- 🚀 [Production Setup](docs/deployment/production-setup.md)
+- 🔧 [Troubleshooting](docs/deployment/troubleshooting.md)
 
-### Common Issues
+### Development Documentation
+- 🛠️ [Development Setup](docs/development/setup.md)
+- 📝 [Code Standards](docs/development/code-standards.md)
+- 🧪 [Testing Guide](docs/development/testing.md)
+- 🤝 [Contributing](docs/development/contributing.md)
 
-**Services won't start?**
-```bash
-# Check Docker is running
-docker --version
-docker-compose --version
+## 🔧 Management Commands
 
-# Check logs
-docker-compose logs -f
-```
-
-**Frontend can't reach backend?**
-- Verify `frontend/.env` has correct `REACT_APP_API_URL=http://localhost:8000`
-- Check backend is running: `docker-compose ps`
-
-**Port conflicts?**
-- Modify ports in `docker-compose.yml`
-- Check port usage: `netstat -tulpn | grep :8000`
-
-**Permission errors?**
-```bash
-chmod +x deploy.sh
-```
-
-**Database connection issues?**
-```bash
-# Check database status
-docker-compose ps db
-
-# View database logs
-docker-compose logs db
-
-# Restart database
-docker-compose restart db
-```
-
-**Memory issues?**
-```bash
-# Check resource usage
-docker stats
-
-# Clean up Docker
-docker system prune -f
-```
-
-### Useful Commands
+### Service Management
 ```bash
 # View service status
 docker-compose ps
@@ -292,90 +452,98 @@ docker-compose restart
 # Stop services
 docker-compose down
 
-# Access backend shell
-docker-compose exec backend bash
+# Update and redeploy
+git pull && ./deploy-linux.sh
+```
 
+### Database Management
+```bash
 # Access database
 docker-compose exec db psql -U postgres -d versionintel
 
-# Rebuild and deploy
-deploy.sh  # Linux/Mac
-# OR
-deploy.bat # Windows
+# Backup database
+docker-compose exec db pg_dump -U postgres versionintel > backup.sql
+
+# Restore database
+docker-compose exec -T db psql -U postgres versionintel < backup.sql
+
+# Run migrations
+docker-compose exec backend alembic upgrade head
 ```
 
-## 🔐 Security Notes
+### User Management
+```bash
+# Access backend container
+docker-compose exec backend bash
 
-- **Change default credentials** after first login
-- **Update JWT secrets** in production
-- **Enable HTTPS** for production deployments
-- **Regular security updates** recommended
-- **Set up proper firewall rules**
-- **Use strong passwords** for all services
+# List users
+python scripts/list_users.py
 
-## 📚 API Documentation
-
-Once the application is running, you can access:
-- **Interactive API Docs**: http://localhost:8000/apidocs/
-- **OpenAPI Schema**: http://localhost:8000/apispec_1.json
-- **Complete RBAC Guide**: [RBAC_API_DOCUMENTATION.md](./RBAC_API_DOCUMENTATION.md)
-
-### Authentication
-**GitHub OAuth (Primary)**
-```http
-# Step 1: Initiate OAuth
-GET /auth/github/login?redirect_uri=http://localhost:3000/auth/callback
-
-# Step 2: Handle callback (returns JWT tokens)
-GET /auth/github/callback?code=oauth_code
-```
-
-**Legacy Login (Deprecated)**
-```http
-POST /auth/login
-Content-Type: application/json
-
-{
-  "username": "admin",
-  "password": "Admin@1234"
-}
-```
-
-### Using Authentication
-```http
-Authorization: Bearer <your-jwt-token>
+# Reset admin password (if using legacy auth)
+python scripts/reset_admin_password.py
 ```
 
 ## 🤝 Contributing
 
+We welcome contributions! Please see our [Contributing Guide](docs/development/contributing.md) for details.
+
+### Development Setup
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+2. Clone your fork
+3. Set up development environment
+4. Create feature branch
+5. Make changes and add tests
+6. Submit pull request
+
+### Code Standards
+- **Backend**: Follow PEP 8, use Black formatter
+- **Frontend**: ESLint with Prettier formatting
+- **Testing**: Maintain 80%+ test coverage
+- **Documentation**: Update docs for new features
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-For issues:
-1. Check service logs: `docker-compose logs -f`
-2. Verify prerequisites are installed
-3. Ensure ports are available
-4. Review troubleshooting section above
-5. Check the health endpoints
+### Getting Help
+- 📖 **Documentation**: Comprehensive guides available in `/docs`
+- 🐛 **Issues**: Report bugs via GitHub Issues
+- 💬 **Discussions**: Join community discussions
+- 📧 **Contact**: Reach out for enterprise support
 
-## 🎯 Production Checklist
+### Troubleshooting
+- ⚡ [Quick Start Issues](docs/deployment/quick-start.md#troubleshooting)
+- 🔧 [Deployment Problems](docs/deployment/troubleshooting.md)
+- 🔑 [Authentication Issues](docs/api/authentication.md#troubleshooting)
+- 🗄️ [Database Problems](docs/deployment/troubleshooting.md#database-issues)
 
-- [ ] Update all default passwords
-- [ ] Configure SSL/TLS certificates
-- [ ] Set up firewall rules
-- [ ] Create backup procedures
-- [ ] Test all functionality
-- [ ] Monitor resource usage
-- [ ] Document access procedures
-- [ ] Set up monitoring and alerting
-- [ ] Configure log rotation
-- [ ] Test disaster recovery procedures 
+## 🎯 Roadmap
+
+### Current Version (v1.0)
+- ✅ Core platform functionality
+- ✅ GitHub OAuth authentication
+- ✅ Basic AI integration
+- ✅ RESTful API with documentation
+- ✅ Docker deployment
+
+### Upcoming Features (v1.1)
+- 🔄 Real-time notifications
+- 📊 Advanced analytics dashboard
+- 🔌 Webhook integrations
+- 📱 Mobile-responsive improvements
+- ⚡ Performance optimizations
+
+### Future Enhancements (v2.0)
+- 🤖 Enhanced AI capabilities
+- 🔌 Plugin architecture
+- 📈 Reporting and compliance
+- 🌐 Multi-tenant support
+- 🔒 Advanced security features
+
+---
+
+**Built with ❤️ by the VersionIntel Team**
+
+*Empowering security through intelligent version detection and vulnerability analysis.*
