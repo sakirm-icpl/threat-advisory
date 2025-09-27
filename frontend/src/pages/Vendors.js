@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { useAuth } from '../hooks/useAuth';
+import { 
+  BuildingOfficeIcon, 
+  PlusIcon, 
+  PencilIcon, 
+  TrashIcon,
+  UserIcon,
+  ShieldCheckIcon
+} from '@heroicons/react/24/outline';
 
 export default function Vendors() {
   const [vendors, setVendors] = useState([]);
@@ -65,118 +73,274 @@ export default function Vendors() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Vendors</h1>
-          <p className="text-gray-600">Manage your vendor catalog for product association</p>
-        </div>
-        {/* Allow both admin and contributor to add vendors */}
-        <button
-          onClick={() => setEditingId(editingId === 'add' ? null : 'add')}
-          className="btn btn-primary"
-        >
-          {editingId === 'add' ? 'Cancel' : '+ Add Vendor'}
-        </button>
-      </div>
-      {/* Allow both admin and contributor to see the add form */}
-      {editingId === 'add' && (
-        <form onSubmit={addVendor} className="bg-white p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
-          <label className="block text-sm font-medium mb-2">Vendor Name *</label>
-          <div className="flex items-end gap-4">
-            <input
-              className="flex-1 border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Vendor name"
-              required
-            />
-            <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" type="submit">Add Vendor</button>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="hero-section rounded-2xl p-8 text-white shadow-cyber border border-cyber-600/30 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute inset-0 scan-line"></div>
+        
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="glass-effect p-4 rounded-xl border border-cyber-600/30">
+              <BuildingOfficeIcon className="h-12 w-12 text-cyber-400" />
+            </div>
+            <div>
+              <h1 className="hero-title text-3xl lg:text-4xl mb-2">
+                <span className="gradient-text">Security Vendors</span>
+              </h1>
+              <p className="hero-subtitle mb-4">
+                Manage your trusted cybersecurity partner ecosystem
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-cyber-400 rounded-full animate-pulse"></div>
+                  {vendors.length} Active Partners
+                </div>
+                <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-security-success rounded-full animate-pulse delay-300"></div>
+                  Enterprise Security
+                </div>
+                <div className="glass-effect px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-matrix-green rounded-full animate-pulse delay-600"></div>
+                  Real-time Monitoring
+                </div>
+              </div>
+            </div>
           </div>
-        </form>
+          <button
+            onClick={() => setEditingId(editingId === 'add' ? null : 'add')}
+            className="btn-primary flex items-center gap-3 text-lg px-8 py-4"
+          >
+            <PlusIcon className="h-6 w-6" />
+            {editingId === 'add' ? 'Cancel Operation' : 'Add Security Vendor'}
+          </button>
+        </div>
+      </div>
+      {/* Add Vendor Form */}
+      {editingId === 'add' && (
+        <div className="card-cyber">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="bg-cyber-500/20 border border-cyber-500/30 rounded-xl p-3 shadow-glow">
+              <PlusIcon className="h-6 w-6 text-cyber-400" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-100">Add New Security Vendor</h2>
+              <p className="text-gray-400">Onboard a new cybersecurity technology partner</p>
+            </div>
+          </div>
+          <form onSubmit={addVendor} className="form-group">
+            <div>
+              <label className="label">Security Vendor Name *</label>
+              <input
+                className="input"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="e.g., CrowdStrike, Palo Alto Networks, Fortinet, SentinelOne"
+                required
+              />
+              <p className="text-sm text-gray-400 mt-2">
+                Enter the official name of the cybersecurity vendor or technology provider
+              </p>
+            </div>
+            <div className="flex gap-4 pt-6">
+              <button className="btn-primary flex items-center gap-2" type="submit">
+                <ShieldCheckIcon className="h-5 w-5" />
+                Deploy Security Vendor
+              </button>
+              <button 
+                type="button"
+                onClick={() => setEditingId(null)}
+                className="btn-secondary"
+              >
+                Cancel Operation
+              </button>
+            </div>
+          </form>
+        </div>
       )}
-      {error && <div className="text-red-600 mb-2 p-2 bg-red-50 rounded border">{error}</div>}
+      {/* Error Alert */}
+      {error && (
+        <div className="alert-error">
+          <div className="flex items-center gap-3">
+            <div className="bg-security-critical/20 rounded-full p-2 border border-security-critical/30">
+              <svg className="h-5 w-5 text-security-critical" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-security-critical">Security Operation Failed</h3>
+              <p className="text-security-critical/80">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading State */}
       {loading ? (
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading vendors...</p>
+        <div className="card-cyber text-center py-16">
+          <div className="loading-spinner mx-auto mb-6"></div>
+          <h3 className="text-xl font-semibold text-gray-100 mb-2">Scanning Security Vendors</h3>
+          <p className="text-gray-400">Analyzing your cybersecurity partner ecosystem...</p>
+          <div className="mt-4 flex justify-center">
+            <div className="terminal text-xs">
+              <div className="text-matrix-green">$ nmap -sV security-vendors.db</div>
+              <div className="text-cyber-400">Scanning... Please wait</div>
+            </div>
+          </div>
         </div>
       ) : vendors.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
+        /* Empty State */
+        <div className="card-cyber text-center py-20">
+          <div className="bg-cyber-500/20 border border-cyber-500/30 rounded-full p-6 w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-glow">
+            <BuildingOfficeIcon className="h-10 w-10 text-cyber-400" />
           </div>
-          <p className="text-gray-500 font-medium text-lg">No vendors found</p>
-          <p className="text-gray-400 text-sm mt-2">Add your first vendor using the button above</p>
+          <h3 className="text-2xl font-bold text-gray-100 mb-2">No Security Vendors Detected</h3>
+          <p className="text-gray-400 mb-6 max-w-md mx-auto">
+            Initialize your cybersecurity ecosystem by deploying trusted technology vendors and security partners
+          </p>
+          <button
+            onClick={() => setEditingId('add')}
+            className="btn-primary flex items-center gap-2 mx-auto"
+          >
+            <PlusIcon className="h-5 w-5" />
+            Deploy First Security Vendor
+          </button>
         </div>
       ) : (
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-lg">
-          <div className="overflow-x-auto">
+        /* Security Vendors Table */
+        <div className="table-modern">
+          <div className="overflow-x-auto scrollbar-cyber">
             <table className="w-full">
               <thead>
-                <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Name</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Created By</th>
-                  <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
+                <tr className="table-header">
+                  <th className="table-cell text-left">
+                    <div className="flex items-center gap-2">
+                      <BuildingOfficeIcon className="h-5 w-5 text-cyber-400" />
+                      <span className="gradient-text">Security Vendor</span>
+                    </div>
+                  </th>
+                  <th className="table-cell text-left">
+                    <div className="flex items-center gap-2">
+                      <UserIcon className="h-5 w-5 text-cyber-400" />
+                      <span className="gradient-text">Security Analyst</span>
+                    </div>
+                  </th>
+                  <th className="table-cell text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <ShieldCheckIcon className="h-5 w-5 text-cyber-400" />
+                      <span className="gradient-text">Operations</span>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {vendors.map(v => (
-                  <tr key={v.id} className="border-t align-top">
-                    <td className="p-4 font-medium">
+                  <tr key={v.id} className="table-row-hover border-b border-slate-700 last:border-b-0">
+                    <td className="table-cell">
                       {editingId === v.id ? (
-                        <input
-                          className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          value={editingName}
-                          onChange={e => setEditingName(e.target.value)}
-                        />
+                        <div className="flex items-center gap-3">
+                          <div className="bg-cyber-500/20 border border-cyber-500/30 rounded-xl p-2 shadow-glow">
+                            <PencilIcon className="h-4 w-4 text-cyber-400" />
+                          </div>
+                          <input
+                            className="input flex-1"
+                            value={editingName}
+                            onChange={e => setEditingName(e.target.value)}
+                            placeholder="Enter security vendor name"
+                          />
+                        </div>
                       ) : (
-                        v.name
+                        <div className="flex items-center gap-3">
+                          <div className="bg-gradient-to-br from-cyber-500/20 to-cyber-600/20 border border-cyber-500/30 rounded-xl p-2 shadow-glow">
+                            <BuildingOfficeIcon className="h-4 w-4 text-cyber-400" />
+                          </div>
+                          <div>
+                            <div className="font-semibold text-gray-200">{v.name}</div>
+                            <div className="text-xs text-gray-400">Cybersecurity Technology Partner</div>
+                          </div>
+                        </div>
                       )}
                     </td>
-                    <td className="p-4 text-sm text-gray-600">
+                    <td className="table-cell">
                       {v.creator ? (
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-3">
                           {v.creator.avatar_url ? (
                             <img 
                               src={v.creator.avatar_url} 
                               alt={v.creator.github_username || v.creator.username}
-                              className="h-6 w-6 rounded-full mr-2"
+                              className="h-8 w-8 rounded-xl border-2 border-cyber-600/30 shadow-glow"
                             />
                           ) : (
-                            <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center mr-2 text-xs font-semibold">
+                            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-cyber-500 to-cyber-600 flex items-center justify-center text-white text-sm font-semibold shadow-glow">
                               {(v.creator.github_username || v.creator.username || '?').charAt(0).toUpperCase()}
                             </div>
                           )}
-                          {v.creator.github_username || v.creator.username}
+                          <div>
+                            <div className="font-medium text-gray-200">
+                              {v.creator.github_username || v.creator.username}
+                            </div>
+                            <div className="text-xs text-cyber-400">Security Researcher</div>
+                          </div>
                         </div>
                       ) : (
-                        'Unknown'
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-xl bg-dark-700 border border-dark-600 flex items-center justify-center">
+                            <UserIcon className="h-4 w-4 text-gray-500" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-slate-400">Unknown</div>
+                            <div className="text-xs text-slate-500">System User</div>
+                          </div>
+                        </div>
                       )}
                     </td>
-                    <td className="p-4 flex gap-2 justify-center">
-                      {editingId === v.id ? (
-                        <>
-                          <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onClick={() => saveEdit(v.id)}>Save</button>
-                          <button className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500" onClick={() => setEditingId(null)}>Cancel</button>
-                        </>
-                      ) : (
-                        <>
-                          {/* Allow edit/delete if user is admin OR owns the record */}
-                          {(user?.role === 'admin' || v.created_by === user?.id) && (
-                            <>
-                              <button className="btn btn-warning btn-sm" onClick={() => startEdit(v)}>Edit</button>
-                              <button className="btn btn-danger btn-sm" onClick={() => deleteVendor(v.id)}>Delete</button>
-                            </>
-                          )}
-                          {/* Show view-only indicator for records user doesn't own */}
-                          {user?.role === 'contributor' && v.created_by !== user?.id && (
-                            <span className="text-xs text-gray-500 italic">View Only</span>
-                          )}
-                        </>
-                      )}
+                    <td className="table-cell">
+                      <div className="flex gap-2 justify-center">
+                        {editingId === v.id ? (
+                          <>
+                            <button 
+                              className="btn-success btn-sm flex items-center gap-1" 
+                              onClick={() => saveEdit(v.id)}
+                            >
+                              <ShieldCheckIcon className="h-4 w-4" />
+                              Deploy
+                            </button>
+                            <button 
+                              className="btn-secondary btn-sm" 
+                              onClick={() => setEditingId(null)}
+                            >
+                              Abort
+                            </button>
+                          </>
+                        ) : (
+                          <div className="flex gap-2">
+                            {(user?.role === 'admin' || v.created_by === user?.id) && (
+                              <>
+                                <button 
+                                  className="btn-outline btn-sm flex items-center gap-1 text-cyber-400 border-cyber-500/50 hover:bg-cyber-500 hover:text-white" 
+                                  onClick={() => startEdit(v)}
+                                >
+                                  <PencilIcon className="h-4 w-4" />
+                                  Modify
+                                </button>
+                                <button 
+                                  className="btn-outline btn-sm flex items-center gap-1 text-security-critical border-security-critical/50 hover:bg-security-critical hover:text-white" 
+                                  onClick={() => deleteVendor(v.id)}
+                                >
+                                  <TrashIcon className="h-4 w-4" />
+                                  Remove
+                                </button>
+                              </>
+                            )}
+                            {user?.role === 'contributor' && v.created_by !== user?.id && (
+                              <div className="status-info">
+                                🔒 Read-Only Access
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -187,4 +351,4 @@ export default function Vendors() {
       )}
     </div>
   );
-} 
+}

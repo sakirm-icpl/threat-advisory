@@ -10,6 +10,7 @@ import {
   EyeSlashIcon,
   CheckIcon,
   XMarkIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../hooks/useAuth';
 
@@ -186,9 +187,9 @@ export default function Users() {
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'contributor': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'admin': return 'bg-red-500/20 text-red-300 border border-red-500/30';
+      case 'contributor': return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
+      default: return 'bg-slate-500/20 text-slate-300 border border-slate-500/30';
     }
   };
 
@@ -201,26 +202,38 @@ export default function Users() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold text-gray-900">Users</h1>
-          <p className="mt-2 text-sm text-gray-700">
-            Manage user accounts, roles, and permissions
-          </p>
-        </div>
-        {user?.role === 'admin' && (
-            <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-              <button
-                type="button"
-                onClick={() => setShowAddForm(true)}
-                className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
-              >
-                <UserPlusIcon className="-ml-1 mr-2 h-5 w-5" />
-                Add User
-              </button>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="hero-section rounded-2xl p-8 text-white shadow-cyber border border-slate-700 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute inset-0 scan-line"></div>
+        
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="glass-effect p-4 rounded-xl border border-slate-600">
+              <UserGroupIcon className="h-12 w-12 text-blue-400" />
             </div>
-        )}
+            <div>
+              <h1 className="hero-title text-3xl lg:text-4xl mb-2">
+                <span className="gradient-text">User Management</span>
+              </h1>
+              <p className="hero-subtitle">
+                Manage security analyst accounts, roles, and permissions
+              </p>
+            </div>
+          </div>
+          {user?.role === 'admin' && (
+            <button
+              type="button"
+              onClick={() => setShowAddForm(true)}
+              className="btn-primary flex items-center gap-3 text-lg px-8 py-4"
+            >
+              <UserPlusIcon className="h-6 w-6" />
+              Add Security Analyst
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Success Message */}
@@ -263,12 +276,12 @@ export default function Users() {
       )}
 
       {user?.role === 'admin' && showAddForm && (
-        <div className="mt-6 bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Add New User</h3>
+        <div className="mt-6 card-cyber p-6">
+          <h3 className="text-lg font-medium text-slate-100 mb-4">Add New Security Analyst</h3>
           
           {/* User Type Selection */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">User Type</label>
+            <label className="label mb-2">User Type</label>
             <div className="flex space-x-4">
               <label className="flex items-center">
                 <input
@@ -279,7 +292,7 @@ export default function Users() {
                   onChange={handleInputChange}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                 />
-                <span className="ml-2 text-sm text-gray-700">GitHub OAuth User (Recommended)</span>
+                <span className="ml-2 text-sm text-slate-300">GitHub OAuth User (Recommended)</span>
               </label>
               <label className="flex items-center">
                 <input
@@ -290,7 +303,7 @@ export default function Users() {
                   onChange={handleInputChange}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                 />
-                <span className="ml-2 text-sm text-gray-700">Legacy User (Username/Password)</span>
+                <span className="ml-2 text-sm text-slate-300">Legacy User (Username/Password)</span>
               </label>
             </div>
           </div>
@@ -300,13 +313,13 @@ export default function Users() {
               {formData.userType === 'github' ? (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">GitHub Username</label>
+                    <label className="label">GitHub Username</label>
                     <input
                       type="text"
                       name="github_username"
                       value={formData.github_username}
                       onChange={handleInputChange}
-                      className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.github_username ? 'border-red-300' : ''}`}
+                      className={`input ${errors.github_username ? 'border-red-500' : ''}`}
                       placeholder="Enter GitHub username"
                     />
                     {errors.github_username && <p className="mt-1 text-sm text-red-600">{errors.github_username}</p>}
@@ -407,7 +420,7 @@ export default function Users() {
                   setFormData({ github_username: '', username: '', email: '', password: '', role: '', userType: 'github' });
                   setErrors({});
                 }}
-                className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="btn-secondary"
               >
                 Cancel
               </button>
@@ -429,18 +442,18 @@ export default function Users() {
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
               <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
+                <thead className="bg-slate-800/50 border-b border-slate-700">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       User
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Role
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Created
                     </th>
                     <th className="relative px-6 py-3">
@@ -448,10 +461,10 @@ export default function Users() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-slate-800 divide-y divide-slate-700">
                   {users.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-gray-400">
+                      <td colSpan={5} className="text-center py-8 text-slate-400">
                         No users found.
                       </td>
                     </tr>
@@ -461,14 +474,14 @@ export default function Users() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
-                              <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                <span className="text-sm font-medium text-gray-700">
+                              <div className="h-10 w-10 rounded-full bg-slate-600 flex items-center justify-center border border-slate-500">
+                                <span className="text-sm font-medium text-slate-200">
                                   {(userRow.github_username || userRow.username).charAt(0).toUpperCase()}
                                 </span>
                               </div>
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-slate-200">
                                 {editingUser?.id === userRow.id ? (
                                   <input
                                     type="text"
@@ -480,7 +493,7 @@ export default function Users() {
                                   userRow.github_username || userRow.username
                                 )}
                               </div>
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-slate-400">
                                 {editingUser?.id === userRow.id ? (
                                   <input
                                     type="email"
@@ -586,9 +599,9 @@ export default function Users() {
       {/* Password Reset Modal */}
       {user?.role === 'admin' && showPasswordReset && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 border border-slate-600 w-96 shadow-lg rounded-md bg-slate-800">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Reset Password</h3>
+              <h3 className="text-lg font-medium text-slate-100 mb-4">Reset Password</h3>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">New Password</label>
                 <input

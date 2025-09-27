@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models.detection_method import DetectionMethod
+from app.models.detection_method import DetectionMethod, CodeSnippet
 from app.models.product import Product
 from app.services.rbac import get_current_user
 from app import db
@@ -17,25 +17,44 @@ def add_method():
             return jsonify({'error': 'Authentication required'}), 401
         
         data = request.json
-        if not data or 'product_id' not in data or 'name' not in data or 'technique' not in data:
-            return jsonify({'error': 'product_id, name, and technique are required'}), 400
+        if not data or 'product_id' not in data or 'name' not in data or 'protocol' not in data:
+            return jsonify({'error': 'product_id, name, and protocol are required'}), 400
         
         # Check if product exists
         product = Product.query.get(data['product_id'])
         if not product:
             return jsonify({'error': 'Product not found'}), 404
         
+        # Create the detection method
         method = DetectionMethod(
             product_id=data['product_id'],
             name=data['name'],
-            technique=data['technique'],
-            regex_python=data.get('regex_python'),
-            regex_ruby=data.get('regex_ruby'),
-            curl_command=data.get('curl_command'),
+            protocol=data['protocol'],
             expected_response=data.get('expected_response'),
             requires_auth=data.get('requires_auth', False),
             created_by=current_user.id  # Set the creator
         )
+        
+        # Handle code snippets
+        if 'code_snippets' in data and isinstance(data['code_snippets'], list):
+            for snippet_data in data['code_snippets']:
+                if snippet_data.get('code_language') and snippet_data.get('code_content'):
+                    snippet = CodeSnippet(
+                        code_language=snippet_data['code_language'],
+                        code_content=snippet_data['code_content']
+                    )
+                    method.code_snippets.append(snippet)
+        # For backward compatibility
+        elif data.get('code_language') and data.get('code_content'):
+            method.code_language = data['code_language']
+            method.code_content = data['code_content']
+            # Also create a snippet
+            snippet = CodeSnippet(
+                code_language=data['code_language'],
+                code_content=data['code_content']
+            )
+            method.code_snippets.append(snippet)
+        
         db.session.add(method)
         db.session.commit()
         return jsonify(method.to_dict()), 201
@@ -97,18 +116,43 @@ def update_method(method_id):
         # Update fields
         if 'name' in data:
             method.name = data['name']
-        if 'technique' in data:
-            method.technique = data['technique']
-        if 'regex_python' in data:
-            method.regex_python = data['regex_python']
-        if 'regex_ruby' in data:
-            method.regex_ruby = data['regex_ruby']
-        if 'curl_command' in data:
-            method.curl_command = data['curl_command']
+        if 'protocol' in data:
+            method.protocol = data['protocol']
         if 'expected_response' in data:
             method.expected_response = data['expected_response']
         if 'requires_auth' in data:
             method.requires_auth = data['requires_auth']
+        
+        # Handle code snippets
+        if 'code_snippets' in data and isinstance(data['code_snippets'], list):
+            # Remove existing snippets
+            for snippet in method.code_snippets:
+                db.session.delete(snippet)
+            
+            # Add new snippets
+            for snippet_data in data['code_snippets']:
+                if snippet_data.get('code_language') and snippet_data.get('code_content'):
+                    snippet = CodeSnippet(
+                        code_language=snippet_data['code_language'],
+                        code_content=snippet_data['code_content']
+                    )
+                    method.code_snippets.append(snippet)
+        # For backward compatibility
+        elif 'code_language' in data and 'code_content' in data:
+            method.code_language = data['code_language']
+            method.code_content = data['code_content']
+            
+            # Update or create a snippet
+            if not method.code_snippets:
+                snippet = CodeSnippet(
+                    code_language=data['code_language'],
+                    code_content=data['code_content']
+                )
+                method.code_snippets.append(snippet)
+            else:
+                # Update the first snippet
+                method.code_snippets[0].code_language = data['code_language']
+                method.code_snippets[0].code_content = data['code_content']
         
         db.session.commit()
         return jsonify(method.to_dict())

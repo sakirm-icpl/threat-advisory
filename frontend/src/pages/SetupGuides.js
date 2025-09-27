@@ -4,6 +4,7 @@ import MarkdownRenderer from "../components/MarkdownRenderer";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
 import Modal from "../components/Modal";
+import { DocumentTextIcon } from "@heroicons/react/24/outline";
 
 export default function SetupGuides() {
   const [guides, setGuides] = useState([]);
@@ -15,6 +16,7 @@ export default function SetupGuides() {
   const [filterProduct, setFilterProduct] = useState("");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState({});
+  const [expandedProducts, setExpandedProducts] = useState(new Set());
   const [modalContent, setModalContent] = useState({ isOpen: false, title: '', content: '' });
   const [showAddForm, setShowAddForm] = useState(false);
   const { user } = useAuth();
@@ -61,11 +63,19 @@ export default function SetupGuides() {
     try {
       await api.post("/setup-guides", form);
       setForm({ product_id: "", instructions: "" });
+      setShowAddForm(false);
       setSuccess("Setup guide added!");
       fetchGuides();
     } catch (e) {
       setError("Failed to add setup guide");
     }
+  };
+
+  const resetForm = () => {
+    setForm({ product_id: "", instructions: "" });
+    setShowAddForm(false);
+    setError("");
+    setSuccess("");
   };
 
   const deleteGuide = async (id) => {
@@ -87,201 +97,371 @@ export default function SetupGuides() {
     return productMatch && searchMatch;
   });
 
+  // Group guides by product
+  const groupedGuides = filteredGuides.reduce((acc, guide) => {
+    const productId = guide.product_id;
+    if (!acc[productId]) {
+      acc[productId] = {
+        product_id: productId,
+        product_name: products.find(p => p.id === productId)?.name || "Unknown Product",
+        product_info: products.find(p => p.id === productId) || {},
+        guides: []
+      };
+    }
+    acc[productId].guides.push(guide);
+    return acc;
+  }, {});
+
   const getProduct = (id) => products.find(p => p.id === id) || {};
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Setup Guides</h1>
-          <p className="text-gray-600">Manage your setup guides for product configuration and onboarding</p>
-        </div>
-        {/* Allow both admin and contributor to add setup guides */}
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="btn btn-primary"
-        >
-          {showAddForm ? 'Cancel' : '+ Add Setup Guide'}
-        </button>
-      </div>
-      {/* Allow both admin and contributor to see the add form */}
-      {showAddForm && (
-        <form onSubmit={addGuide} className="bg-white p-8 rounded-2xl mb-8 w-full shadow-xl border border-blue-100">
-          <div className="flex justify-between items-start mb-6">
-            <div className="font-semibold text-lg">Add Setup Guide</div>
-            <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" type="submit">Add Setup Guide</button>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="hero-section rounded-2xl p-8 text-white shadow-cyber border border-slate-700 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute inset-0 scan-line"></div>
+
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="glass-effect p-4 rounded-xl border border-slate-600">
+              <DocumentTextIcon className="h-12 w-12 text-blue-400" />
+            </div>
+            <div>
+              <h1 className="hero-title text-3xl lg:text-4xl mb-2">
+                <span className="gradient-text">Setup Guides</span>
+              </h1>
+              <p className="hero-subtitle">
+                Implementation guides for cybersecurity product configuration
+              </p>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Product *</label>
-                <select
-                  className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  name="product_id"
-                  value={form.product_id}
-                  onChange={handleFormChange}
-                  required
-                >
-                  <option value="">Select product</option>
-                  {products.map(p => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Instructions * (Markdown supported)</label>
-                <textarea
-                  className="w-full border px-3 py-2 rounded h-40 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  name="instructions"
-                  value={form.instructions}
-                  onChange={handleFormChange}
-                  placeholder={`Setup instructions (markdown supported)
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="btn-primary flex items-center gap-3 text-lg px-8 py-4"
+          >
+            <DocumentTextIcon className="h-6 w-6" />
+            {showAddForm ? 'Cancel Operation' : 'Add Setup Guide'}
+          </button>
+        </div>
+      </div>
+      {/* Add Setup Guide Form */}
+      {showAddForm && (
+        <div className="card-cyber">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="bg-blue-500/20 border border-blue-500/30 rounded-xl p-3 shadow-glow">
+              <DocumentTextIcon className="h-6 w-6 text-blue-400" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-slate-100">Add Implementation Guide</h2>
+              <p className="text-slate-400">Create a new cybersecurity setup guide</p>
+            </div>
+          </div>
+          <form onSubmit={addGuide} className="form-group">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="label">Security Product *</label>
+                  <select
+                    className="input"
+                    name="product_id"
+                    value={form.product_id}
+                    onChange={handleFormChange}
+                    required
+                  >
+                    <option value="">Select security product</option>
+                    {products.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Implementation Instructions * (Markdown supported)</label>
+                  <textarea
+                    className="input h-60 font-mono text-sm resize-none"
+                    name="instructions"
+                    value={form.instructions}
+                    onChange={handleFormChange}
+                    placeholder={`Security implementation instructions (markdown supported)
 
 Example:
-# Setup Steps
-1. Install dependencies
-2. Configure settings
-3. Run the application
+# Security Setup Steps
+1. Install security dependencies
+2. Configure security settings
+3. Deploy security measures
+4. Verify security implementation
 
-**Important:** Make sure to...`}
-                  required
-                />
+**Critical:** Ensure all security protocols are followed...`}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="card-glass p-4 h-full overflow-auto border border-slate-600">
+                <div className="text-xs text-blue-400 mb-1 font-semibold">Security Guide Preview:</div>
+                <div className="prose prose-sm max-w-none text-slate-300">
+                  <MarkdownRenderer content={form.instructions || 'Nothing to preview yet.'} />
+                </div>
               </div>
             </div>
-            <div className="bg-gray-50 rounded border p-4 h-full overflow-auto">
-              <div className="text-xs text-gray-500 mb-1 font-semibold">Live Preview:</div>
-              <div className="prose prose-sm max-w-none">
-                <MarkdownRenderer content={form.instructions || 'Nothing to preview yet.'} />
-              </div>
+            <div className="flex gap-4 pt-6">
+              <button className="btn-primary flex items-center gap-2" type="submit">
+                <DocumentTextIcon className="h-5 w-5" />
+                Deploy Setup Guide
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={resetForm}
+              >
+                Cancel Operation
+              </button>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       )}
-      <div className="flex flex-col md:flex-row gap-2 mb-6">
-        <select
-          className="border px-3 py-2 rounded"
-          value={filterProduct}
-          onChange={e => setFilterProduct(e.target.value)}
-        >
-          <option value="">All Products</option>
-          {products.map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
-        <input
-          className="border px-3 py-2 rounded flex-1"
-          placeholder="Search instructions..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-      </div>
-      {error && <div className="text-red-600 mb-2 p-2 bg-red-50 rounded border">{error}</div>}
-      {success && <div className="text-green-700 mb-2 p-2 bg-green-50 rounded border">{success}</div>}
-      {loading ? (
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading setup guides...</p>
-        </div>
-      ) : filteredGuides.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
+
+      {/* Filters and Search */}
+      {!showAddForm && (
+        <>
+          <div className="card-cyber mb-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="bg-slate-500/20 border border-slate-500/30 rounded-xl p-3 shadow-glow">
+                <svg className="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-100">Filter & Search</h2>
+                <p className="text-slate-400">Locate specific security guides</p>
+              </div>
+            </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <select
+                className="input flex-1"
+                value={filterProduct}
+                onChange={e => setFilterProduct(e.target.value)}
+              >
+                <option value="">All Security Products</option>
+                {products.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+              <input
+                className="input flex-1"
+                placeholder="Search implementation guides..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
           </div>
-          <p className="text-gray-500 font-medium text-lg">No setup guides found</p>
-          <p className="text-gray-400 text-sm mt-2">Add your first setup guide using the button above</p>
-        </div>
-      ) : (
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-lg">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Product</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Category</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Description</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Instructions</th>
-                  <th className="p-4 text-left font-semibold text-gray-700 uppercase tracking-wide text-sm">Created By</th>
-                  <th className="p-4 text-center font-semibold text-gray-700 uppercase tracking-wide text-sm">Actions</th>
-                </tr>
-              </thead>
+          {error && (
+            <div className="alert-error mb-6">
+              <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="alert-success mb-6">
+              <svg className="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {success}
+            </div>
+          )}
+          {loading ? (
+            <div className="card-cyber text-center py-16">
+              <div className="loading-spinner mx-auto mb-6"></div>
+              <p className="text-slate-300 font-medium text-lg">Loading security guides...</p>
+              <p className="text-slate-500 text-sm mt-2">Scanning implementation database</p>
+            </div>
+          ) : Object.keys(groupedGuides).length === 0 ? (
+            <div className="card-cyber text-center py-16">
+              <div className="glass-effect p-6 rounded-2xl w-24 h-24 mx-auto mb-6 flex items-center justify-center border border-slate-600">
+                <svg className="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <p className="text-slate-300 font-medium text-xl mb-2">No Security Guides Found</p>
+              <p className="text-slate-500 mb-6">Deploy your first implementation guide to get started</p>
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Create First Guide
+              </button>
+            </div>
+          ) : (
+            <div className="card-cyber overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-slate-800/50 border-b border-slate-700">
+                      <th className="p-6 text-left font-semibold text-slate-300 uppercase tracking-wide text-sm">Security Product</th>
+                      <th className="p-6 text-left font-semibold text-slate-300 uppercase tracking-wide text-sm">Implementation Guides</th>
+                    </tr>
+                  </thead>
               <tbody>
-                {filteredGuides.map(g => {
-                  const product = getProduct(g.product_id);
-                  const isExpanded = expanded[g.id];
+                {Object.values(groupedGuides).map(productGroup => {
+                  const isExpanded = expandedProducts.has(productGroup.product_id);
+                  const displayGuides = isExpanded ? productGroup.guides : productGroup.guides.slice(0, 2);
+                  const hiddenGuidesCount = productGroup.guides.length - displayGuides.length;
+
                   return (
-                    <tr key={g.id} className="border-t align-top">
-                      <td className="p-4 font-medium">{product.name || "-"}</td>
-                      <td className="p-4">{product.category || <span className="text-gray-400">-</span>}</td>
-                      <td className="p-4 max-w-xs">
-                        {product.description ? (
-                          <span className="text-xs text-gray-700">{product.description.length > 60 ? product.description.slice(0, 60) + "..." : product.description}</span>
-                        ) : <span className="text-gray-400 text-xs">-</span>}
-                      </td>
-                      <td className="p-4 max-w-md">
-                        <div>
-                          <MarkdownRenderer 
-                            content={g.instructions.length < 200 && !isExpanded
-                              ? g.instructions
-                              : g.instructions.slice(0, 200) + '...'}
-                          />
-                        </div>
-                        {g.instructions.length > 200 && (
-                          <button
-                            className="text-blue-600 text-xs mt-1 underline"
-                            onClick={() => setModalContent({
-                              isOpen: true,
-                              title: `${product.name || ''} - Full Instructions`,
-                              content: g.instructions
-                            })}
-                          >
-                            Show More
-                          </button>
-                        )}
-                      </td>
-                      <td className="p-4 text-sm text-gray-600">
-                        {g.creator ? (
-                          <div className="flex items-center">
-                            {g.creator.avatar_url ? (
-                              <img 
-                                src={g.creator.avatar_url} 
-                                alt={g.creator.github_username || g.creator.username}
-                                className="h-6 w-6 rounded-full mr-2"
-                              />
-                            ) : (
-                              <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center mr-2 text-xs font-semibold">
-                                {(g.creator.github_username || g.creator.username || '?').charAt(0).toUpperCase()}
-                              </div>
-                            )}
-                            {g.creator.github_username || g.creator.username}
-                          </div>
-                        ) : (
-                          'Unknown'
-                        )}
-                      </td>
-                      <td className="p-4 text-center">
-                        <div className="flex gap-2 justify-center">
-                          {/* Allow edit/delete if user is admin OR owns the record */}
-                          {(user?.role === 'admin' || g.created_by === user?.id) && (
-                            <>
-                              <button 
-                                className="btn btn-warning btn-sm" 
-                                onClick={() => navigate(`/setup-guides/${g.id}/edit`)}
-                              >
-                                Edit
-                              </button>
-                              <button 
-                                className="btn btn-danger btn-sm" 
-                                onClick={() => deleteGuide(g.id)}
-                              >
-                                Delete
-                              </button>
-                            </>
+                    <tr key={productGroup.product_id} className="border-b border-slate-700 hover:bg-slate-800/30 transition-colors">
+                      <td className="p-6 font-medium align-top">
+                        <div className="flex flex-col">
+                          <span className="text-lg font-semibold text-slate-200">{productGroup.product_name}</span>
+                          <span className="text-sm text-blue-400 font-medium">
+                            {productGroup.guides.length} guide{productGroup.guides.length !== 1 ? 's' : ''}
+                          </span>
+                          {productGroup.product_info.category && (
+                            <span className="text-xs text-slate-500 mt-1 px-2 py-1 bg-slate-700/50 rounded-md inline-block w-fit">
+                              {productGroup.product_info.category}
+                            </span>
                           )}
-                          {/* Show view-only indicator for records user doesn't own */}
-                          {user?.role === 'contributor' && g.created_by !== user?.id && (
-                            <span className="text-xs text-gray-500 italic">View Only</span>
+                        </div>
+                      </td>
+                      <td className="p-6 align-top">
+                        <div className="space-y-3">
+                          {displayGuides.map((guide, idx) => (
+                            <div key={guide.id} className="card-glass border border-slate-600 rounded-xl p-6 shadow-cyber">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex-1">
+                                  <div className="text-base font-semibold text-blue-400 mb-3 flex items-center gap-2">
+                                    <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded-md text-xs font-bold">
+                                      GUIDE #{idx + 1}
+                                    </span>
+                                  </div>
+                                  <div className="prose prose-sm max-w-none text-slate-300">
+                                    <MarkdownRenderer
+                                      content={guide.instructions.length > 150
+                                        ? guide.instructions.slice(0, 150) + '...'
+                                        : guide.instructions
+                                      }
+                                    />
+                                  </div>
+                                  {guide.instructions.length > 150 && (
+                                    <button
+                                      className="text-blue-400 text-sm mt-3 hover:text-blue-300 transition-colors flex items-center gap-1 font-medium"
+                                      onClick={() => setModalContent({
+                                        isOpen: true,
+                                        title: `${productGroup.product_name} - Setup Guide #${idx + 1}`,
+                                        content: guide.instructions
+                                      })}
+                                    >
+                                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                      </svg>
+                                      View Complete Guide
+                                    </button>
+                                  )}
+                                </div>
+                                <div className="flex gap-2 ml-4">
+                                  {/* Allow edit/delete if user is admin OR owns the record */}
+                                  {(user?.role === 'admin' || guide.created_by === user?.id) && (
+                                    <>
+                                      <button
+                                        className="btn-secondary-sm flex items-center gap-1"
+                                        onClick={() => navigate(`/setup-guides/${guide.id}/edit`)}
+                                      >
+                                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        Edit
+                                      </button>
+                                      <button
+                                        className="btn-danger-sm flex items-center gap-1"
+                                        onClick={() => deleteGuide(guide.id)}
+                                      >
+                                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        Delete
+                                      </button>
+                                    </>
+                                  )}
+                                  {/* Show view-only indicator for records user doesn't own */}
+                                  {user?.role === 'contributor' && guide.created_by !== user?.id && (
+                                    <span className="text-xs text-slate-500 italic bg-slate-700/30 px-2 py-1 rounded">View Only</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Created By Information */}
+                              <div className="mt-4 pt-4 border-t border-slate-600 text-sm text-slate-400 flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <span className="text-slate-500">Created by: </span>
+                                  {guide.creator ? (
+                                    <div className="flex items-center ml-2">
+                                      {guide.creator.avatar_url ? (
+                                        <img
+                                          src={guide.creator.avatar_url}
+                                          alt={guide.creator.github_username || guide.creator.username}
+                                          className="h-5 w-5 rounded-full mr-2 border border-slate-600"
+                                        />
+                                      ) : (
+                                        <div className="h-5 w-5 rounded-full bg-slate-600 flex items-center justify-center mr-2 text-xs font-semibold text-slate-300">
+                                          {(guide.creator.github_username || guide.creator.username || '?').charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                      <span className="font-medium text-slate-300">
+                                        {guide.creator.github_username || guide.creator.username}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="font-medium text-slate-400">Unknown</span>
+                                  )}
+                                </div>
+                                <div className="text-xs text-slate-500">
+                                  {new Date(guide.created_at).toLocaleDateString()}
+                                  {guide.updated_at && guide.updated_at !== guide.created_at && (
+                                    <span className="ml-2">• Updated: {new Date(guide.updated_at).toLocaleDateString()}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+
+                          {hiddenGuidesCount > 0 && (
+                            <div className="text-center">
+                              <button
+                                className="btn-secondary-sm flex items-center gap-2 mx-auto"
+                                onClick={() => {
+                                  const newExpanded = new Set(expandedProducts);
+                                  newExpanded.add(productGroup.product_id);
+                                  setExpandedProducts(newExpanded);
+                                }}
+                              >
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                                Show {hiddenGuidesCount} more guide{hiddenGuidesCount !== 1 ? 's' : ''}
+                              </button>
+                            </div>
+                          )}
+
+                          {isExpanded && productGroup.guides.length > 2 && (
+                            <div className="text-center">
+                              <button
+                                className="btn-secondary-sm flex items-center gap-2 mx-auto"
+                                onClick={() => {
+                                  const newExpanded = new Set(expandedProducts);
+                                  newExpanded.delete(productGroup.product_id);
+                                  setExpandedProducts(newExpanded);
+                                }}
+                              >
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                </svg>
+                                Show less
+                              </button>
+                            </div>
                           )}
                         </div>
                       </td>
@@ -293,13 +473,18 @@ Example:
           </div>
         </div>
       )}
-      <Modal
-        isOpen={modalContent.isOpen}
-        onClose={() => setModalContent({ isOpen: false, title: '', content: '' })}
-        title={modalContent.title}
-      >
-        <MarkdownRenderer content={modalContent.content} />
-      </Modal>
+    </>
+  )}
+
+  <Modal
+    isOpen={modalContent.isOpen}
+    onClose={() => setModalContent({ isOpen: false, title: '', content: '' })}
+    title={modalContent.title}
+  >
+    <div className="prose prose-sm max-w-none text-slate-300">
+      <MarkdownRenderer content={modalContent.content} />
     </div>
-  );
-} 
+  </Modal>
+</div>
+);
+}

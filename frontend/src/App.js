@@ -25,8 +25,22 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-cyber relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute inset-0 scan-line"></div>
+        
+        <div className="relative text-center">
+          <div className="loading-spinner mx-auto mb-6 h-16 w-16"></div>
+          <h3 className="text-2xl font-bold text-gray-100 mb-2">Initializing Security Platform</h3>
+          <p className="text-gray-400">Loading cybersecurity intelligence...</p>
+          <div className="mt-4 flex justify-center">
+            <div className="terminal text-xs">
+              <div className="text-matrix-green">$ systemctl start version-intel</div>
+              <div className="text-cyber-400">Loading... Please wait</div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

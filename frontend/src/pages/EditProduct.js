@@ -62,14 +62,19 @@ export default function EditProduct() {
   if (loading) return <div className="p-4">Loading...</div>;
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">Edit Product</h2>
-      <form onSubmit={handleSubmit} className="bg-gray-50 p-4 rounded-lg mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
+          <p className="text-gray-600">Update your product information and configuration</p>
+        </div>
+      </div>
+      <form onSubmit={handleSubmit} className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div>
-            <label className="block text-sm font-medium mb-1">Product Name *</label>
+            <label className="label">Product Name *</label>
             <input
-              className="w-full border px-3 py-2 rounded"
+              className="input"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Product name"
@@ -77,18 +82,18 @@ export default function EditProduct() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Category</label>
+            <label className="label">Category</label>
             <input
-              className="w-full border px-3 py-2 rounded"
+              className="input"
               value={category}
               onChange={e => setCategory(e.target.value)}
               placeholder="e.g., Web Application, Service, OS"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Vendor *</label>
+            <label className="label">Vendor *</label>
             <select
-              className="w-full border px-3 py-2 rounded"
+              className="input"
               value={vendorId}
               onChange={e => setVendorId(e.target.value)}
               required
@@ -99,26 +104,36 @@ export default function EditProduct() {
               ))}
             </select>
           </div>
+          <div className="flex items-end">
+            <button className="btn btn-primary w-full" type="submit">Save Changes</button>
+          </div>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Description (Markdown supported)</label>
+          <label className="label">Description (Markdown supported)</label>
           <textarea
-            className="w-full border px-3 py-2 rounded h-32 font-mono text-sm"
+            className="input h-48 font-mono text-sm resize-none"
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder={`Describe what this product does, its features, etc.\n\nYou can use Markdown formatting:\n**Bold text**\n*Italic text*\n- Bullet points\n1. Numbered lists\n\`\`\`code blocks\`\`\`\n[Links](https://example.com)`}
+            placeholder={`Describe what this product does, its features, etc.
+
+You can use Markdown formatting:
+**Bold text**
+*Italic text*
+- Bullet points
+1. Numbered lists
+\`\`\`code blocks\`\`\`
+[Links](https://example.com)`}
           />
           {description && (
-            <div className="mt-2 p-3 bg-gray-50 rounded border">
-              <div className="text-xs text-gray-500 mb-2">Preview:</div>
+            <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Preview:</div>
               <MarkdownRenderer content={description} />
             </div>
           )}
         </div>
-        {error && <div className="text-red-600 mb-2 p-3 bg-red-50 rounded border">{error}</div>}
-        <div className="mt-4 flex gap-2">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" type="submit">Save</button>
-          <button type="button" className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500" onClick={() => navigate("/products")}>Cancel</button>
+        {error && <div className="text-red-600 mb-4 p-3 bg-red-50 rounded border">{error}</div>}
+        <div className="flex gap-2 mt-4 justify-end">
+          <button className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600" type="button" onClick={() => navigate("/products")}>Cancel</button>
         </div>
       </form>
     </div>

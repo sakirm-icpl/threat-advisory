@@ -107,26 +107,36 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-          <ShieldCheckIcon className="h-8 w-8 mr-3 text-red-600" />
-          Admin Panel
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Manage users and roles in the RBAC system
-        </p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="hero-section rounded-2xl p-8 text-white shadow-cyber border border-slate-700 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute inset-0 scan-line"></div>
+        
+        <div className="relative flex items-center gap-6">
+          <div className="glass-effect p-4 rounded-xl border border-slate-600">
+            <ShieldCheckIcon className="h-12 w-12 text-red-400" />
+          </div>
+          <div>
+            <h1 className="hero-title text-3xl lg:text-4xl mb-2">
+              <span className="gradient-text">Admin Control Panel</span>
+            </h1>
+            <p className="hero-subtitle">
+              Advanced user management and role-based access control
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Users Table */}
-      <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900 flex items-center">
-            <UserGroupIcon className="h-5 w-5 mr-2" />
-            User Management
+      <div className="table-modern">
+        <div className="px-6 py-4 border-b border-slate-700 bg-gradient-to-r from-slate-900 to-slate-800">
+          <h3 className="text-lg font-medium text-slate-100 flex items-center">
+            <UserGroupIcon className="h-5 w-5 mr-2 text-blue-400" />
+            Security Analyst Management
           </h3>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-slate-300">
             Promote contributors to admin or demote admins to contributors
           </p>
         </div>

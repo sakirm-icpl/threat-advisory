@@ -59,9 +59,16 @@ export default function EditSetupGuide() {
   if (loading) return <div className="p-4">Loading...</div>;
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">Edit Setup Guide</h2>
-      <form onSubmit={handleSubmit} className="bg-gray-50 p-4 rounded-lg mb-4 flex flex-col gap-6">
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Edit Setup Guide</h1>
+          <p className="text-gray-600">Update your setup guide instructions and configuration</p>
+        </div>
+      </div>
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl mb-8 w-full shadow-xl border border-blue-100">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex flex-col gap-4">
         <div>
           <label className="block text-sm font-medium mb-1">Product *</label>
           <select
@@ -77,28 +84,38 @@ export default function EditSetupGuide() {
             ))}
           </select>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Instructions * (Markdown supported)</label>
-          <textarea
-            className="w-full border px-3 py-2 rounded h-56 font-mono text-sm resize-vertical"
-            name="instructions"
-            value={form.instructions}
-            onChange={handleChange}
-            placeholder={`Setup instructions (markdown supported)\n\nExample:\n# Setup Steps\n1. Install dependencies\n2. Configure settings\n3. Run the application\n\n**Important:** Make sure to...`}
-            required
-          />
-          {form.instructions && (
-            <div className="mt-2 p-2 bg-gray-50 rounded border">
-              <div className="text-xs text-gray-500 mb-1">Preview:</div>
-              <MarkdownRenderer content={form.instructions} />
+            <div>
+              <label className="block text-sm font-medium mb-1">Instructions * (Markdown supported)</label>
+              <textarea
+                className="w-full border px-3 py-2 rounded h-60 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                name="instructions"
+                value={form.instructions}
+                onChange={handleChange}
+                placeholder={`Setup instructions (markdown supported)
+
+Example:
+# Setup Steps
+1. Install dependencies
+2. Configure settings
+3. Run the application
+
+**Important:** Make sure to...`}
+                required
+              />
             </div>
-          )}
+          </div>
+          <div className="bg-gray-50 rounded border p-4 h-full overflow-auto">
+            <div className="text-xs text-gray-500 mb-1 font-semibold">Live Preview:</div>
+            <div className="prose prose-sm max-w-none">
+              <MarkdownRenderer content={form.instructions || 'Nothing to preview yet.'} />
+            </div>
+          </div>
         </div>
-        <div className="flex gap-2 justify-end">
-          <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" type="submit">Save</button>
-          <button type="button" className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500" onClick={() => navigate("/setup-guides")}>Cancel</button>
+        {error && <div className="text-red-600 mb-4 p-3 bg-red-50 rounded border">{error}</div>}
+        <div className="flex gap-2 justify-end mt-6">
+          <button className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700" type="submit">Save Changes</button>
+          <button type="button" className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600" onClick={() => navigate("/setup-guides")}>Cancel</button>
         </div>
-        {error && <div className="text-red-600 mb-2 p-2 bg-red-50 rounded border">{error}</div>}
       </form>
     </div>
   );
