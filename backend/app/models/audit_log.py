@@ -16,6 +16,8 @@ class AuditAction(Enum):
     PASSWORD_RESET = 'PASSWORD_RESET'
     PROMOTE_USER = 'PROMOTE_USER'
     DEMOTE_USER = 'DEMOTE_USER'
+    ACTIVATE_USER = 'ACTIVATE_USER'
+    DEACTIVATE_USER = 'DEACTIVATE_USER'
 
 class AuditLog(db.Model):
     """Audit log model for tracking all CRUD operations and role changes"""
