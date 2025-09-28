@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { XMarkIcon, UserPlusIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 
-const InviteFriendModal = ({ isOpen, onClose }) => {
+const InviteFriendModal = ({ isOpen, onClose, currentUserRole }) => {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('contributor');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [corporateMode, setCorporateMode] = useState(false);
 
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -25,6 +24,12 @@ const InviteFriendModal = ({ isOpen, onClose }) => {
       return;
     }
 
+    // Check role permissions
+    if (role === 'admin' && currentUserRole !== 'admin') {
+      setError('Only administrators can invite other administrators');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccess('');
@@ -36,8 +41,9 @@ const InviteFriendModal = ({ isOpen, onClose }) => {
         return;
       }
 
-      const endpoint = corporateMode ? '/api/invites/send-corporate' : '/api/invites/send';
+      const endpoint = '/api/invites/send';
       
+      // Set a reasonable timeout for the request (10 seconds)
       const response = await axios.post(
         `${API_BASE_URL}${endpoint}`,
         {
@@ -48,18 +54,15 @@ const InviteFriendModal = ({ isOpen, onClose }) => {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 10000 // 10 second timeout
         }
       );
 
       if (response.data.success) {
-        const message = corporateMode 
-          ? 'Corporate-friendly invitation sent successfully!' 
-          : 'Invitation sent successfully!';
-        setSuccess(message);
+        setSuccess('Invitation sent successfully!');
         setEmail('');
         setRole('contributor');
-        setCorporateMode(false);
         // Close modal after 2 seconds
         setTimeout(() => {
           onClose();
@@ -70,7 +73,18 @@ const InviteFriendModal = ({ isOpen, onClose }) => {
       }
     } catch (error) {
       console.error('Error sending invitation:', error);
-      if (error.response?.data?.error) {
+      
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        setError('Request timed out. Please check your connection and try again.');
+      } else if (error.response?.status === 403) {
+        if (error.response.data?.error?.includes('admin')) {
+          setError('Only administrators can invite other administrators');
+        } else {
+          setError('You do not have permission to send invitations');
+        }
+      } else if (error.response?.status === 400) {
+        setError(error.response.data.error || 'Invalid request. Please check your input.');
+      } else if (error.response?.data?.error) {
         setError(error.response.data.error);
       } else {
         setError('Failed to send invitation. Please try again.');
@@ -84,7 +98,6 @@ const InviteFriendModal = ({ isOpen, onClose }) => {
     if (!loading) {
       setEmail('');
       setRole('contributor');
-      setCorporateMode(false);
       setError('');
       setSuccess('');
       onClose();
@@ -145,30 +158,18 @@ const InviteFriendModal = ({ isOpen, onClose }) => {
               disabled={loading}
             >
               <option value="contributor">Contributor</option>
-              <option value="admin">Admin</option>
+              <option value="admin" disabled={currentUserRole !== 'admin'}>
+                Admin {currentUserRole !== 'admin' ? '(Admin only)' : ''}
+              </option>
             </select>
             <p className="text-xs text-slate-400 mt-1">
               Contributors can read all data and manage their own records. Admins have full access.
+              {currentUserRole !== 'admin' && (
+                <span className="block text-yellow-400 mt-1">
+                  Only administrators can invite other administrators.
+                </span>
+              )}
             </p>
-          </div>
-
-          {/* Corporate Mode Toggle */}
-          <div>
-            <label className="flex items-center gap-3 glass-effect hover:bg-cyber-600/20 px-4 py-3 rounded-lg transition-colors duration-200 cursor-pointer border border-cyber-600/30">
-              <input
-                type="checkbox"
-                checked={corporateMode}
-                onChange={(e) => setCorporateMode(e.target.checked)}
-                className="checkbox"
-                disabled={loading}
-              />
-              <div>
-                <span className="text-sm font-medium text-gray-300">Corporate Email Mode</span>
-                <p className="text-xs text-slate-400 mt-1">
-                  Use corporate-friendly email format for better delivery to business email addresses
-                </p>
-              </div>
-            </label>
           </div>
 
           {/* Error Message */}

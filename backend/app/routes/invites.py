@@ -51,6 +51,10 @@ def send_invite():
         if not validate_role(role):
             return jsonify({'error': 'Invalid role. Must be admin or contributor'}), 400
         
+        # Check role permissions - only admins can invite other admins
+        if role == 'admin' and current_user.role != UserRole.ADMIN:
+            return jsonify({'error': 'Only administrators can invite other administrators'}), 403
+        
         # Check if user already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
@@ -375,6 +379,10 @@ def send_corporate_invite():
         
         if not validate_role(role):
             return jsonify({'error': 'Invalid role. Must be admin or contributor'}), 400
+        
+        # Check role permissions - only admins can invite other admins
+        if role == 'admin' and current_user.role != UserRole.ADMIN:
+            return jsonify({'error': 'Only administrators can invite other administrators'}), 403
         
         # Check if user already exists
         existing_user = User.query.filter_by(email=email).first()
