@@ -51,6 +51,7 @@ def create_app():
     from .routes.search import bp as search_bp
     from .routes.bulk import bp as bulk_bp
     from .routes.cve import bp as cve_bp
+    from .routes.invites import bp as invites_bp
     from .routes import bp as dashboard_bp
 
     app.register_blueprint(vendors_bp)
@@ -62,6 +63,7 @@ def create_app():
     app.register_blueprint(search_bp)
     app.register_blueprint(bulk_bp)
     app.register_blueprint(cve_bp)
+    app.register_blueprint(invites_bp)
     app.register_blueprint(dashboard_bp)
 
     # Monitoring

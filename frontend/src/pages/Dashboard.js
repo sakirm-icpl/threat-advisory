@@ -14,10 +14,12 @@ import {
   EyeIcon,
   CogIcon,
   UserIcon,
+  UserPlusIcon,
 } from '@heroicons/react/24/outline';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LabelList } from 'recharts';
 import { PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
 import { useAuth } from '../hooks/useAuth';
+import InviteFriendModal from '../components/InviteFriendModal';
 
 function formatDate(dateString) {
   if (!dateString) return '';
@@ -41,6 +43,7 @@ function getInitialWidgetPrefs() {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const { data: summary } = useQuery(
     'dashboard-summary',
     endpoints.getDashboardSummary,
@@ -324,7 +327,14 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-          <div className="hidden lg:block">
+          <div className="hidden lg:flex lg:items-center lg:gap-4">
+            <button
+              onClick={() => setInviteModalOpen(true)}
+              className="btn-primary flex items-center gap-2 hover:shadow-cyber-lg transition-all duration-300"
+            >
+              <UserPlusIcon className="h-5 w-5" />
+              Invite Friend
+            </button>
             <div className="w-32 h-32 card-glass flex items-center justify-center border border-cyber-600/30">
               <ChartBarIcon className="h-16 w-16 text-cyber-400" />
             </div>
@@ -662,6 +672,12 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Invite Friend Modal */}
+      <InviteFriendModal 
+        isOpen={inviteModalOpen} 
+        onClose={() => setInviteModalOpen(false)} 
+      />
     </div>
   );
 }

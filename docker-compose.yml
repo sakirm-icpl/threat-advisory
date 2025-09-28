@@ -44,6 +44,14 @@ services:
       - AI_PROVIDER=${AI_PROVIDER:-gemini}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - GOOGLE_MODEL=${GOOGLE_MODEL:-gemini-1.5-flash}
+      # Email Configuration
+      - SMTP_SERVER=${SMTP_SERVER:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - FROM_EMAIL=${FROM_EMAIL}
+      - FROM_NAME=${FROM_NAME:-VersionIntel}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
     ports:
       - "${BACKEND_PORT:-8000}:5000"
     restart: unless-stopped
