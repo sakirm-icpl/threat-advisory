@@ -6,6 +6,8 @@ import {
   InformationCircleIcon,
   ExclamationTriangleIcon,
   ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   ArrowTopRightOnSquareIcon,
   ArrowPathIcon,
   CheckIcon,
@@ -318,12 +320,17 @@ const CVESearch = () => {
   };
 
   const getSeverityColor = (severity) => {
-    switch (severity?.toUpperCase()) {
-      case 'CRITICAL': return 'bg-red-100 text-red-800';
-      case 'HIGH': return 'bg-orange-100 text-orange-800';
-      case 'MEDIUM': return 'bg-yellow-100 text-yellow-800';
-      case 'LOW': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+    switch (severity?.toLowerCase()) {
+      case 'critical':
+        return 'bg-red-500/20 text-red-300 border border-red-500/30';
+      case 'high':
+        return 'bg-orange-500/20 text-orange-300 border border-orange-500/30';
+      case 'medium':
+        return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
+      case 'low':
+        return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
+      default:
+        return 'bg-slate-500/20 text-slate-300 border border-slate-500/30';
     }
   };
 
@@ -457,67 +464,63 @@ const CVESearch = () => {
     if (totalPages <= 1) return null;
 
     return (
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
-        <div className="flex justify-between flex-1 sm:hidden">
+      <div className="flex items-center justify-between px-4 py-3 bg-slate-800 border-t border-slate-700 sm:px-6">
+        <div className="flex flex-1 justify-between sm:hidden">
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-300 bg-slate-700 border border-slate-600 rounded-md hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-slate-300 bg-slate-700 border border-slate-600 rounded-md hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
           </button>
         </div>
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">{(currentPage - 1) * resultsPerPage + 1}</span> to{' '}
-              <span className="font-medium">
-                {Math.min(currentPage * resultsPerPage, totalResults)}
-              </span>{' '}
-              of <span className="font-medium">{totalResults}</span> results
+            <p className="text-sm text-slate-400">
+              Showing <span className="font-medium">{((currentPage - 1) * resultsPerPage) + 1}</span> to <span className="font-medium">{Math.min(currentPage * resultsPerPage, totalResults)}</span> of{' '}
+              <span className="font-medium">{totalResults}</span> results
             </p>
           </div>
           <div>
-            <nav className="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+            <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
               <button
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-600 rounded-l-md hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="sr-only">Previous</span>
-                <ChevronDownIcon className="h-5 w-5 transform rotate-90" aria-hidden="true" />
+                <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
               </button>
-
               {getVisiblePages().map((page, index) => (
                 <button
                   key={index}
                   onClick={() => typeof page === 'number' ? onPageChange(page) : null}
                   disabled={page === '...'}
-                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${page === currentPage
-                    ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                    : page === '...'
-                      ? 'bg-white border-gray-300 text-gray-700 cursor-default'
-                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                    }`}
+                  className={`relative inline-flex items-center px-4 py-2 text-sm font-medium ${
+                    page === currentPage
+                      ? 'z-10 bg-cyber-500 text-slate-100 border border-cyber-500/30'
+                      : page === '...'
+                        ? 'bg-slate-800 border border-slate-700 text-slate-400 cursor-default'
+                        : 'bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700'
+                  }`}
                 >
                   {page}
                 </button>
               ))}
-
               <button
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-600 rounded-r-md hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="sr-only">Next</span>
-                <ChevronDownIcon className="h-5 w-5 transform -rotate-90" aria-hidden="true" />
+                <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
               </button>
             </nav>
           </div>
@@ -576,11 +579,11 @@ const CVESearch = () => {
                       )}
                     </div>
 
-                    <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                    <p className="text-sm text-slate-300 mb-2 line-clamp-2">
                       {cve.description || 'No description available'}
                     </p>
 
-                    <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
                       <span>Published: {formatDate(cve.published_date)}</span>
                       <span>Modified: {formatDate(cve.last_modified_date)}</span>
                     </div>
@@ -588,7 +591,7 @@ const CVESearch = () => {
                     {cve.vendors_products && cve.vendors_products.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
                         {cve.vendors_products.slice(0, 3).map((vp, idx) => (
-                          <span key={idx} className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                          <span key={idx} className="inline-flex items-center px-2 py-1 rounded text-xs bg-slate-700/50 text-slate-300 border border-slate-600">
                             <BuildingOfficeIcon className="h-3 w-3 mr-1" />
                             {vp.vendor}
                             {vp.product && (
@@ -600,7 +603,7 @@ const CVESearch = () => {
                           </span>
                         ))}
                         {cve.vendors_products.length > 3 && (
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-slate-400">
                             +{cve.vendors_products.length - 3} more
                           </span>
                         )}
@@ -628,20 +631,20 @@ const CVESearch = () => {
 
         {databaseResults.length === 0 ? (
           <div className="text-center py-8">
-            <ShieldExclamationIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No CVEs found</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <ShieldExclamationIcon className="mx-auto h-12 w-12 text-slate-400" />
+            <h3 className="mt-2 text-sm font-medium text-slate-200">No CVEs found</h3>
+            <p className="mt-1 text-sm text-slate-400">
               Try selecting a different vendor or product combination.
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             {databaseResults.map((cve, index) => (
-              <div key={cve.id || index} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+              <div key={cve.id || index} className="border border-slate-700 rounded-lg p-4 hover:bg-slate-700/50">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
-                      <h4 className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                      <h4 className="text-sm font-medium text-blue-400 hover:text-blue-300">
                         <a
                           href={`https://nvd.nist.gov/vuln/detail/${cve.id}`}
                           target="_blank"
@@ -657,11 +660,11 @@ const CVESearch = () => {
                       </span>
                     </div>
 
-                    <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                    <p className="text-sm text-slate-300 mb-2 line-clamp-2">
                       {cve.description || 'No description available'}
                     </p>
 
-                    <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
                       <span>Published: {formatDate(cve.published_date)}</span>
                       <span>Modified: {formatDate(cve.last_modified_date)}</span>
                     </div>
@@ -968,7 +971,7 @@ const CVESearch = () => {
         {activeTab === 3 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">Recent CVEs</h3>
+              <h3 className="text-lg font-medium text-slate-100">Recent CVEs</h3>
               <div className="flex items-center space-x-2">
                 <select
                   value={recentPerPage}
@@ -978,7 +981,7 @@ const CVESearch = () => {
                     setRecentPage(1);
                     loadRecentCves(recentDays, 1, newSize);
                   }}
-                  className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="px-3 py-1 border border-slate-600 rounded-md text-sm bg-slate-800 text-slate-200 focus:outline-none focus:ring-cyber-500 focus:border-cyber-500"
                 >
                   <option value={10}>10 / page</option>
                   <option value={20}>20 / page</option>
@@ -992,7 +995,7 @@ const CVESearch = () => {
                     setRecentPage(1);
                     loadRecentCves(newDays, 1);
                   }}
-                  className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="px-3 py-1 border border-slate-600 rounded-md text-sm bg-slate-800 text-slate-200 focus:outline-none focus:ring-cyber-500 focus:border-cyber-500"
                 >
                   <option value={1}>Last 24 hours</option>
                   <option value={7}>Last 7 days</option>
@@ -1000,7 +1003,7 @@ const CVESearch = () => {
                 </select>
                 <button
                   onClick={() => loadRecentCves()}
-                  className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  className="inline-flex items-center px-3 py-1 border border-slate-600 text-sm font-medium rounded-md text-slate-300 bg-slate-800 hover:bg-slate-700"
                 >
                   <ArrowPathIcon className="h-4 w-4" />
                 </button>
@@ -1018,36 +1021,36 @@ const CVESearch = () => {
 
         {activeTab === 4 && (
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">CVE Statistics</h3>
+            <h3 className="text-lg font-medium text-slate-100">CVE Statistics</h3>
 
             {stats ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-blue-800">Total Count of CVEs reported in last 30 days</h4>
-                  <p className="text-2xl font-bold text-blue-900">{stats.total_recent_cves}</p>
+                <div className="bg-blue-900/20 border border-blue-800/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-blue-300">Total Count of CVEs reported in last 30 days</h4>
+                  <p className="text-2xl font-bold text-blue-200">{stats.total_recent_cves}</p>
                 </div>
 
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-green-800">Severity Distribution</h4>
+                <div className="bg-green-900/20 border border-green-800/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-green-300">Severity Distribution</h4>
                   <div className="space-y-1 mt-2">
                     {Object.entries(stats.severity_distribution || {}).map(([severity, count]) => (
                       <div key={severity} className="flex justify-between text-sm">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(severity)}`}>
                           {severity}
                         </span>
-                        <span className="font-medium">{count}</span>
+                        <span className="font-medium text-slate-200">{count}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-purple-800">Top Vendors</h4>
+                <div className="bg-purple-900/20 border border-purple-800/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-purple-300">Top Vendors</h4>
                   <div className="space-y-1 mt-2">
                     {(stats.top_vendors || []).slice(0, 5).map(([vendor, count]) => (
                       <div key={vendor} className="flex justify-between text-sm">
-                        <span className="truncate">{vendor}</span>
-                        <span className="font-medium">{count}</span>
+                        <span className="truncate text-slate-200">{vendor}</span>
+                        <span className="font-medium text-slate-200">{count}</span>
                       </div>
                     ))}
                   </div>
@@ -1055,9 +1058,9 @@ const CVESearch = () => {
               </div>
             ) : (
               <div className="text-center py-8">
-                <InformationCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No statistics available</h3>
-                <p className="mt-1 text-sm text-gray-500">
+                <InformationCircleIcon className="mx-auto h-12 w-12 text-slate-400" />
+                <h3 className="mt-2 text-sm font-medium text-slate-200">No statistics available</h3>
+                <p className="mt-1 text-sm text-slate-400">
                   Statistics will be available after performing searches.
                 </p>
               </div>
@@ -1067,24 +1070,24 @@ const CVESearch = () => {
 
         {activeTab === 5 && (
           <div className="space-y-6">
-            <div className="bg-white shadow rounded-lg">
+            <div className="card-cyber">
               <div className="px-4 py-5 sm:p-6 space-y-4">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">AI Remediation & Patching Guidance</h3>
+                <h3 className="text-lg leading-6 font-medium text-slate-100">AI Remediation & Patching Guidance</h3>
                 <div className="flex gap-3 items-end">
                   <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">CVE ID</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-1">CVE ID</label>
                     <input
                       type="text"
                       value={aiCveId}
                       onChange={(e) => setAiCveId(e.target.value)}
                       placeholder="e.g., CVE-2021-44228"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-cyber-500 focus:border-cyber-500 bg-slate-800 text-slate-200"
                     />
                   </div>
                   <button
                     onClick={handleAiRemediation}
                     disabled={loading || !aiCveId}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                    className="inline-flex items-center px-4 py-2 border border-cyber-500/50 text-sm font-medium rounded-md text-slate-200 bg-cyber-500/20 hover:bg-cyber-500/30 focus:outline-none"
                   >
                     Generate Guidance
                   </button>
@@ -1093,15 +1096,15 @@ const CVESearch = () => {
                 {aiResult && (
                   <div className="mt-4 space-y-6">
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex flex-wrap items-center gap-3">
-                      <div className="text-lg font-semibold text-gray-900">{aiResult.cve_id || aiCveId}</div>
+                    <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-800/30 rounded-xl p-4 flex flex-wrap items-center gap-3">
+                      <div className="text-lg font-semibold text-slate-100">{aiResult.cve_id || aiCveId}</div>
                       {aiResult.severity && (
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSeverityColor(aiResult.severity)}`}>
                           {aiResult.severity}
                         </span>
                       )}
                       {aiResult.cvss_score && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-700 text-slate-300 border border-slate-600">
                           CVSS: {aiResult.cvss_score}
                         </span>
                       )}
@@ -1109,17 +1112,17 @@ const CVESearch = () => {
 
                     {/* Impact */}
                     {aiResult.impact && (
-                      <div className="card">
-                        <h4 className="text-sm font-semibold text-gray-800 mb-2">Impact</h4>
-                        <p className="text-sm text-gray-700">{aiResult.impact}</p>
+                      <div className="card-glass border border-slate-600">
+                        <h4 className="text-sm font-semibold text-slate-200 mb-2">Impact</h4>
+                        <p className="text-sm text-slate-300">{aiResult.impact}</p>
                       </div>
                     )}
 
                     {/* Affected systems */}
                     {Array.isArray(aiResult.affected_systems) && aiResult.affected_systems.length > 0 && (
-                      <div className="card">
-                        <h4 className="text-sm font-semibold text-gray-800 mb-2">Affected Systems</h4>
-                        <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                      <div className="card-glass border border-slate-600">
+                        <h4 className="text-sm font-semibold text-slate-200 mb-2">Affected Systems</h4>
+                        <ul className="list-disc list-inside text-sm text-slate-300 space-y-1">
                           {aiResult.affected_systems.map((s, idx) => (
                             <li key={idx}>{s}</li>
                           ))}
@@ -1129,9 +1132,9 @@ const CVESearch = () => {
 
                     {/* Patching steps */}
                     {Array.isArray(aiResult.patching_steps) && aiResult.patching_steps.length > 0 && (
-                      <div className="card">
-                        <h4 className="text-sm font-semibold text-gray-800 mb-2">Patching Steps</h4>
-                        <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
+                      <div className="card-glass border border-slate-600">
+                        <h4 className="text-sm font-semibold text-slate-200 mb-2">Patching Steps</h4>
+                        <ol className="list-decimal list-inside text-sm text-slate-300 space-y-1">
                           {aiResult.patching_steps.map((s, idx) => (
                             <li key={idx}>{normalizeStepText(s)}</li>
                           ))}
@@ -1141,18 +1144,18 @@ const CVESearch = () => {
 
                     {/* Remediation guide */}
                     {aiResult.remediation_guide && (
-                      <div className="card space-y-4">
-                        <h4 className="text-sm font-semibold text-gray-800">Remediation Guide</h4>
+                      <div className="card-glass border border-slate-600 space-y-4">
+                        <h4 className="text-sm font-semibold text-slate-200">Remediation Guide</h4>
                         {aiResult.remediation_guide.prerequisites && (
                           <div>
-                            <div className="text-xs font-semibold text-gray-600 mb-1">Prerequisites</div>
-                            <p className="text-sm text-gray-700">{aiResult.remediation_guide.prerequisites}</p>
+                            <div className="text-xs font-semibold text-slate-400 mb-1">Prerequisites</div>
+                            <p className="text-sm text-slate-300">{aiResult.remediation_guide.prerequisites}</p>
                           </div>
                         )}
                         {Array.isArray(aiResult.remediation_guide.steps) && aiResult.remediation_guide.steps.length > 0 && (
                           <div>
-                            <div className="text-xs font-semibold text-gray-600 mb-1">Steps</div>
-                            <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
+                            <div className="text-xs font-semibold text-slate-400 mb-1">Steps</div>
+                            <ol className="list-decimal list-inside text-sm text-slate-300 space-y-1">
                               {aiResult.remediation_guide.steps.map((s, idx) => (
                                 <li key={idx}>{normalizeStepText(s)}</li>
                               ))}
@@ -1161,14 +1164,14 @@ const CVESearch = () => {
                         )}
                         {aiResult.remediation_guide.verification && (
                           <div>
-                            <div className="text-xs font-semibold text-gray-600 mb-1">Verification</div>
-                            <p className="text-sm text-gray-700">{aiResult.remediation_guide.verification}</p>
+                            <div className="text-xs font-semibold text-slate-400 mb-1">Verification</div>
+                            <p className="text-sm text-slate-300">{aiResult.remediation_guide.verification}</p>
                           </div>
                         )}
                         {aiResult.remediation_guide.rollback && (
                           <div>
-                            <div className="text-xs font-semibold text-gray-600 mb-1">Rollback</div>
-                            <p className="text-sm text-gray-700">{aiResult.remediation_guide.rollback}</p>
+                            <div className="text-xs font-semibold text-slate-400 mb-1">Rollback</div>
+                            <p className="text-sm text-slate-300">{aiResult.remediation_guide.rollback}</p>
                           </div>
                         )}
                       </div>
@@ -1176,8 +1179,8 @@ const CVESearch = () => {
 
                     {/* Additional resources */}
                     {Array.isArray(aiResult.additional_resources) && aiResult.additional_resources.length > 0 && (
-                      <div className="card">
-                        <h4 className="text-sm font-semibold text-gray-800 mb-2">Additional Resources</h4>
+                      <div className="card-glass border border-slate-600">
+                        <h4 className="text-sm font-semibold text-slate-200 mb-2">Additional Resources</h4>
                         <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
                           {aiResult.additional_resources.map((u, idx) => (
                             <li key={idx}>
@@ -1190,24 +1193,24 @@ const CVESearch = () => {
 
                     {/* Notes */}
                     {aiResult.notes && (
-                      <div className="card">
-                        <h4 className="text-sm font-semibold text-gray-800 mb-2">Notes</h4>
-                        <p className="text-sm text-gray-700">{aiResult.notes}</p>
+                      <div className="card-glass border border-slate-600">
+                        <h4 className="text-sm font-semibold text-slate-200 mb-2">Notes</h4>
+                        <p className="text-sm text-slate-300">{aiResult.notes}</p>
                       </div>
                     )}
 
                     {/* CLI Commands */}
                     {aiResult.cli_commands && (
-                      <div className="card space-y-3">
-                        <h4 className="text-sm font-semibold text-gray-800">CLI Commands</h4>
+                      <div className="card-glass space-y-3">
+                        <h4 className="text-sm font-semibold text-slate-200">CLI Commands</h4>
                         {Object.entries(aiResult.cli_commands).map(([section, list]) => (
                           Array.isArray(list) && list.length > 0 ? (
                             <div key={section}>
-                              <div className="text-xs font-semibold text-gray-600 mb-1 capitalize">{section}</div>
+                              <div className="text-xs font-semibold text-slate-400 mb-1 capitalize">{section}</div>
                               <div className="space-y-2">
                                 {list.map((cmd, i) => (
-                                  <div key={`${section}-${i}`} className="bg-gray-100 rounded border px-3 py-2 flex items-center justify-between gap-3">
-                                    <code className="text-xs text-gray-800 break-all">{cmd}</code>
+                                  <div key={`${section}-${i}`} className="bg-slate-800 rounded border px-3 py-2 flex items-center justify-between gap-3 border-slate-700">
+                                    <code className="text-xs text-slate-200 break-all">{cmd}</code>
                                     <button
                                       onClick={() => navigator.clipboard.writeText(cmd)}
                                       className="btn btn-sm btn-outline"
@@ -1225,17 +1228,17 @@ const CVESearch = () => {
                     )}
 
                     {/* Raw JSON (toggle) */}
-                    <details className="bg-gray-50 border rounded p-3">
-                      <summary className="cursor-pointer text-sm text-gray-700">Show raw JSON</summary>
+                    <details className="bg-slate-800/50 border rounded p-3 border-slate-700">
+                      <summary className="cursor-pointer text-sm text-slate-300">Show raw JSON</summary>
                       <div className="overflow-auto text-xs mt-3">
-                        <pre className="whitespace-pre-wrap">{JSON.stringify(aiResult, null, 2)}</pre>
+                        <pre className="whitespace-pre-wrap text-slate-300">{JSON.stringify(aiResult, null, 2)}</pre>
                       </div>
                     </details>
                   </div>
                 )}
 
                 {!aiResult && (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-slate-400">
                     Enter a CVE ID and click Generate Guidance to get remediation steps, patching instructions, verification and rollback guidance.
                   </div>
                 )}

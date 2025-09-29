@@ -32,8 +32,8 @@ function AppContent() {
         
         <div className="relative text-center">
           <div className="loading-spinner mx-auto mb-6 h-16 w-16"></div>
-          <h3 className="text-2xl font-bold text-gray-100 mb-2">Initializing Security Platform</h3>
-          <p className="text-gray-400">Loading cybersecurity intelligence...</p>
+          <h3 className="text-2xl font-bold text-slate-100 mb-2">Initializing Security Platform</h3>
+          <p className="text-slate-400">Loading cybersecurity intelligence...</p>
           <div className="mt-4 flex justify-center">
             <div className="terminal text-xs">
               <div className="text-matrix-green">$ systemctl start version-intel</div>

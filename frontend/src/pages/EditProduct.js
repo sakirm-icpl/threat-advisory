@@ -65,11 +65,11 @@ export default function EditProduct() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
-          <p className="text-gray-600">Update your product information and configuration</p>
+          <h1 className="text-3xl font-bold text-slate-100">Edit Product</h1>
+          <p className="text-slate-400">Update your product information and configuration</p>
         </div>
       </div>
-      <form onSubmit={handleSubmit} className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-2xl mb-8 w-full flex flex-col gap-6 shadow-xl border border-blue-100">
+      <form onSubmit={handleSubmit} className="card-cyber p-8 rounded-2xl mb-8 w-full flex flex-col gap-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div>
             <label className="label">Product Name *</label>
@@ -105,7 +105,7 @@ export default function EditProduct() {
             </select>
           </div>
           <div className="flex items-end">
-            <button className="btn btn-primary w-full" type="submit">Save Changes</button>
+            <button className="btn-primary w-full" type="submit">Save Changes</button>
           </div>
         </div>
         <div>
@@ -125,17 +125,17 @@ You can use Markdown formatting:
 [Links](https://example.com)`}
           />
           {description && (
-            <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-              <div className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Preview:</div>
+            <div className="mt-4 card-glass p-4 rounded-xl border border-slate-600">
+              <div className="text-xs font-semibold text-cyber-400 mb-3 uppercase tracking-wide">Preview:</div>
               <MarkdownRenderer content={description} />
             </div>
           )}
         </div>
-        {error && <div className="text-red-600 mb-4 p-3 bg-red-50 rounded border">{error}</div>}
+        {error && <div className="text-red-400 mb-4 p-3 bg-red-900/20 rounded border border-red-800/30">{error}</div>}
         <div className="flex gap-2 mt-4 justify-end">
-          <button className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600" type="button" onClick={() => navigate("/products")}>Cancel</button>
+          <button className="btn-secondary" type="button" onClick={() => navigate("/products")}>Cancel</button>
         </div>
       </form>
     </div>
   );
-} 
+}

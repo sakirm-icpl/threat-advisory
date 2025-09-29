@@ -256,8 +256,8 @@ export default function Vendors() {
                             <BuildingOfficeIcon className="h-4 w-4 text-cyber-400" />
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-200">{v.name}</div>
-                            <div className="text-xs text-gray-400">Cybersecurity Technology Partner</div>
+                            <div className="font-semibold text-slate-200">{v.name}</div>
+                            <div className="text-xs text-slate-400">Cybersecurity Technology Partner</div>
                           </div>
                         </div>
                       )}
@@ -277,7 +277,7 @@ export default function Vendors() {
                             </div>
                           )}
                           <div>
-                            <div className="font-medium text-gray-200">
+                            <div className="font-medium text-slate-200">
                               {v.creator.github_username || v.creator.username}
                             </div>
                             <div className="text-xs text-cyber-400">Security Researcher</div>
@@ -285,8 +285,8 @@ export default function Vendors() {
                         </div>
                       ) : (
                         <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-xl bg-dark-700 border border-dark-600 flex items-center justify-center">
-                            <UserIcon className="h-4 w-4 text-gray-500" />
+                          <div className="h-8 w-8 rounded-xl bg-slate-700 border border-slate-600 flex items-center justify-center">
+                            <UserIcon className="h-4 w-4 text-slate-400" />
                           </div>
                           <div>
                             <div className="font-medium text-slate-400">Unknown</div>

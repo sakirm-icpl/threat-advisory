@@ -80,9 +80,9 @@ export default function GitHubLogin() {
             {/* Logo content with actual Infopercept branding */}
             <div className="relative z-10 flex flex-col items-center">
               <img 
-                src="/Infopercept_idJrlnvSvX_2.svg" 
+                src="/infologo.png" 
                 alt="Infopercept Logo" 
-                className="h-16 w-auto mb-4 filter brightness-0 invert"
+                className="h-20 w-auto mb-2"
                 onError={(e) => {
                   // Fallback to text logo if image fails
                   e.target.style.display = 'none';
@@ -95,10 +95,10 @@ export default function GitHubLogin() {
                 </div>
               </div>
               <div className="text-center mt-2">
-                <div className="gradient-text text-xl font-bold tracking-wider">
-                  VERSION INTEL
+                <div className="gradient-text text-2xl font-bold tracking-wider">
+                  Threat Advisory
                 </div>
-                <div className="text-xs text-gray-400 mt-2 font-medium">
+                <div className="text-sm text-slate-400 mt-2 font-medium">
                   Cybersecurity Research Platform
                 </div>
               </div>
@@ -110,10 +110,10 @@ export default function GitHubLogin() {
             <h1 className="hero-title text-4xl font-display">
               <span className="gradient-text">Secure</span> Access Portal
             </h1>
-            <p className="text-lg text-gray-300 font-light max-w-md">
+            <p className="text-lg text-slate-300 font-light max-w-md">
               Advanced version detection and vulnerability research platform
             </p>
-            <div className="flex items-center justify-center gap-4 text-sm text-gray-400">
+            <div className="flex items-center justify-center gap-4 text-sm text-slate-400">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-security-success rounded-full animate-pulse"></div>
                 <span>Secure</span>
@@ -135,7 +135,7 @@ export default function GitHubLogin() {
           <button
             onClick={loginWithGitHub}
             disabled={loading}
-            className="group relative w-full flex justify-center items-center py-4 px-8 bg-gradient-to-r from-dark-800 to-dark-700 border border-cyber-600/50 text-lg font-semibold rounded-lg text-gray-100 hover:from-cyber-600 hover:to-cyber-700 hover:border-cyber-500 focus:outline-none focus:ring-2 focus:ring-cyber-500 focus:ring-offset-2 focus:ring-offset-dark-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-cyber hover:shadow-cyber-lg"
+            className="group relative w-full flex justify-center items-center py-4 px-8 bg-gradient-to-r from-dark-800 to-dark-700 border border-cyber-600/50 text-lg font-semibold rounded-lg text-slate-100 hover:from-cyber-600 hover:to-cyber-700 hover:border-cyber-500 focus:outline-none focus:ring-2 focus:ring-cyber-500 focus:ring-offset-2 focus:ring-offset-dark-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-cyber hover:shadow-cyber-lg"
           >
             <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />
@@ -150,61 +150,15 @@ export default function GitHubLogin() {
             )}
           </button>
           
-          {/* Security Information */}
-          <div className="text-center">
-            <div className="card-glass p-4 border border-cyber-600/30">
-              <div className="flex items-center justify-center mb-3">
-                <div className="flex items-center gap-2 text-security-success">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                  <span className="font-semibold">Enterprise Security</span>
-                </div>
-              </div>
-              <p className="text-sm text-gray-400 mb-2">
-                OAuth 2.0 secure authentication with GitHub
-              </p>
-              <p className="text-xs text-gray-500">
-                Your credentials are never stored. We only access your public profile for identification.
-              </p>
-            </div>
-          </div>
-
           {/* Features Preview */}
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="card-glass p-3 border border-cyber-600/20">
-              <div className="text-cyber-400 mb-2">
-                <svg className="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <p className="text-xs text-gray-400 font-medium">CVE Research</p>
-            </div>
-            <div className="card-glass p-3 border border-cyber-600/20">
-              <div className="text-matrix-green mb-2">
-                <svg className="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-              </div>
-              <p className="text-xs text-gray-400 font-medium">Version Detection</p>
-            </div>
-            <div className="card-glass p-3 border border-cyber-600/20">
-              <div className="text-security-info mb-2">
-                <svg className="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <p className="text-xs text-gray-400 font-medium">Threat Intel</p>
-            </div>
-          </div>
         </div>
         
         <div className="text-center mt-8 space-y-4">
-          <p className="text-sm text-gray-400 font-medium">
+          <p className="text-sm text-slate-400 font-medium">
             By signing in, you agree to collaborate on cybersecurity research and contribute to the open-source security community
           </p>
           
-          <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
+          <div className="flex items-center justify-center gap-6 text-xs text-slate-500">
             <span>🔒 End-to-End Encrypted</span>
             <span>🛡️ SOC 2 Compliant</span>
             <span>⚡ Real-time Updates</span>
@@ -213,10 +167,10 @@ export default function GitHubLogin() {
 
         <div className="mt-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="text-xs text-gray-500">Powered by</span>
+            <span className="text-xs text-slate-500">Powered by</span>
             <span className="infopercept-brand text-sm">Infopercept</span>
           </div>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-slate-500">
             &copy; {new Date().getFullYear()} Infopercept Consulting Pvt. Ltd. All rights reserved.
           </p>
         </div>

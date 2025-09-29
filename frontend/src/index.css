@@ -64,8 +64,12 @@
     @apply bg-gradient-to-r from-security-success to-green-600 hover:from-green-600 hover:to-green-700 text-white focus:ring-security-success shadow-lg hover:shadow-xl border border-security-success/30;
   }
 
+  .btn-warning {
+    @apply bg-gradient-to-r from-security-medium to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white focus:ring-security-medium shadow-lg hover:shadow-xl border border-security-medium/30;
+  }
+
   .btn-sm {
-    @apply py-2 px-4 text-sm;
+    @apply py-2.5 px-5 text-sm;
   }
   
   /* Professional Cybersecurity Inputs */

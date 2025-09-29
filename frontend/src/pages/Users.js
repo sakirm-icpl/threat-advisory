@@ -238,12 +238,12 @@ export default function Users() {
 
       {/* Success Message */}
       {successMessage && (
-        <div className="mt-4 bg-green-50 border border-green-200 rounded-md p-4">
+        <div className="mt-4 bg-green-900/30 border border-green-800/50 rounded-md p-4">
           <div className="flex">
             <CheckIcon className="h-5 w-5 text-green-400" />
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-800">Success</h3>
-              <div className="mt-2 text-sm text-green-700">{successMessage}</div>
+              <h3 className="text-sm font-medium text-green-300">Success</h3>
+              <div className="mt-2 text-sm text-green-400">{successMessage}</div>
             </div>
           </div>
         </div>
@@ -251,12 +251,12 @@ export default function Users() {
 
       {/* Error Display */}
       {error && (
-        <div className="mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="mt-4 bg-red-900/30 border border-red-800/50 rounded-md p-4">
           <div className="flex">
             <XMarkIcon className="h-5 w-5 text-red-400" />
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error loading users</h3>
-              <div className="mt-2 text-sm text-red-700">{error}</div>
+              <h3 className="text-sm font-medium text-red-300">Error loading users</h3>
+              <div className="mt-2 text-sm text-red-400">{error}</div>
             </div>
           </div>
         </div>
@@ -264,12 +264,12 @@ export default function Users() {
 
       {/* General Error Display */}
       {errors.general && (
-        <div className="mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="mt-4 bg-red-900/30 border border-red-800/50 rounded-md p-4">
           <div className="flex">
             <XMarkIcon className="h-5 w-5 text-red-400" />
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error</h3>
-              <div className="mt-2 text-sm text-red-700">{errors.general}</div>
+              <h3 className="text-sm font-medium text-red-300">Error</h3>
+              <div className="mt-2 text-sm text-red-400">{errors.general}</div>
             </div>
           </div>
         </div>
@@ -290,7 +290,7 @@ export default function Users() {
                   value="github"
                   checked={formData.userType === 'github'}
                   onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  className="h-4 w-4 text-blue-400 focus:ring-blue-500 border-slate-600 bg-slate-800"
                 />
                 <span className="ml-2 text-sm text-slate-300">GitHub OAuth User (Recommended)</span>
               </label>
@@ -301,7 +301,7 @@ export default function Users() {
                   value="legacy"
                   checked={formData.userType === 'legacy'}
                   onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  className="h-4 w-4 text-blue-400 focus:ring-blue-500 border-slate-600 bg-slate-800"
                 />
                 <span className="ml-2 text-sm text-slate-300">Legacy User (Username/Password)</span>
               </label>
@@ -322,46 +322,46 @@ export default function Users() {
                       className={`input ${errors.github_username ? 'border-red-500' : ''}`}
                       placeholder="Enter GitHub username"
                     />
-                    {errors.github_username && <p className="mt-1 text-sm text-red-600">{errors.github_username}</p>}
+                    {errors.github_username && <p className="mt-1 text-sm text-red-400">{errors.github_username}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <label className="label">Email</label>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.email ? 'border-red-300' : ''}`}
+                      className={`input ${errors.email ? 'border-red-500' : ''}`}
                       placeholder="Enter email address"
                     />
-                    {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                    {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
                   </div>
                 </>
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Username</label>
+                    <label className="label">Username</label>
                     <input
                       type="text"
                       name="username"
                       value={formData.username}
                       onChange={handleInputChange}
-                      className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.username ? 'border-red-300' : ''}`}
+                      className={`input ${errors.username ? 'border-red-500' : ''}`}
                       placeholder="Enter username"
                     />
-                    {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
+                    {errors.username && <p className="mt-1 text-sm text-red-400">{errors.username}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <label className="label">Email</label>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.email ? 'border-red-300' : ''}`}
+                      className={`input ${errors.email ? 'border-red-500' : ''}`}
                       placeholder="Enter email address"
                     />
-                    {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                    {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
                   </div>
                 </>
               )}
@@ -369,47 +369,47 @@ export default function Users() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {formData.userType === 'legacy' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Password</label>
+                  <label className="label">Password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm pr-12 ${errors.password ? 'border-red-300' : ''}`}
+                      className={`input pr-12 ${errors.password ? 'border-red-500' : ''}`}
                       placeholder="Enter password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 flex items-center px-3 focus:outline-none hover:bg-gray-100 rounded transition"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 focus:outline-none hover:bg-slate-700 rounded transition"
                       style={{ minWidth: 40, height: 44 }}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? (
-                        <EyeSlashIcon className="h-6 w-6 text-gray-400 hover:text-gray-600 transition" />
+                        <EyeSlashIcon className="h-6 w-6 text-slate-400 hover:text-slate-300 transition" />
                       ) : (
-                        <EyeIcon className="h-6 w-6 text-gray-400 hover:text-gray-600 transition" />
+                        <EyeIcon className="h-6 w-6 text-slate-400 hover:text-slate-300 transition" />
                       )}
                     </button>
                   </div>
-                  {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+                  {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Role</label>
+                <label className="label">Role</label>
                 <select
                   name="role"
                   value={formData.role}
                   onChange={handleInputChange}
-                  className={`mt-1 w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${errors.role ? 'border-red-300' : ''}`}
+                  className={`input ${errors.role ? 'border-red-500' : ''}`}
                   required
                 >
                   <option value="" disabled>Select the role</option>
                   <option value="admin">Admin</option>
                   <option value="contributor">Contributor</option>
                 </select>
-                {errors.role && <p className="mt-1 text-sm text-red-600">{errors.role}</p>}
+                {errors.role && <p className="mt-1 text-sm text-red-400">{errors.role}</p>}
               </div>
             </div>
             <div className="flex justify-end space-x-3">
@@ -427,7 +427,7 @@ export default function Users() {
               <button
                 type="submit"
                 disabled={createUserMutation.isLoading}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="inline-flex justify-center py-2 px-4 border border-cyber-500/50 shadow-sm text-sm font-medium rounded-md text-slate-200 bg-cyber-500/20 hover:bg-cyber-500/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyber-500 disabled:opacity-50 transition-colors duration-200"
               >
                 {createUserMutation.isLoading ? 'Adding...' : 'Add User'}
               </button>
@@ -441,7 +441,7 @@ export default function Users() {
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-              <table className="min-w-full divide-y divide-gray-300">
+              <table className="min-w-full divide-y divide-slate-700">
                 <thead className="bg-slate-800/50 border-b border-slate-700">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
@@ -487,7 +487,7 @@ export default function Users() {
                                     type="text"
                                     value={editingUser.github_username || editingUser.username}
                                     onChange={(e) => setEditingUser({...editingUser, username: e.target.value})}
-                                    className="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                    className="input"
                                   />
                                 ) : (
                                   userRow.github_username || userRow.username
@@ -499,7 +499,7 @@ export default function Users() {
                                     type="email"
                                     value={editingUser.email}
                                     onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
-                                    className="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                    className="input"
                                   />
                                 ) : (
                                   userRow.email
@@ -513,7 +513,7 @@ export default function Users() {
                             <select
                               value={editingUser.role}
                               onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
-                              className="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                              className="input"
                             >
                               <option value="contributor">Contributor</option>
                               <option value="admin">Admin</option>
@@ -529,20 +529,20 @@ export default function Users() {
                             <select
                               value={editingUser.is_active ? 'true' : 'false'}
                               onChange={(e) => setEditingUser({...editingUser, is_active: e.target.value === 'true'})}
-                              className="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                              className="input"
                             >
                               <option value="true">Active</option>
                               <option value="false">Inactive</option>
                             </select>
                           ) : (
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              userRow.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              userRow.is_active ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'
                             }`}>
                               {userRow.is_active ? 'Active' : 'Inactive'}
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
                           {new Date(userRow.created_at).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -551,13 +551,13 @@ export default function Users() {
                               <div className="flex space-x-2">
                                 <button
                                   onClick={() => handleUpdate(editingUser)}
-                                  className="text-green-600 hover:text-green-900"
+                                  className="text-green-400 hover:text-green-300 p-1 rounded hover:bg-green-500/20 transition-colors"
                                 >
                                   <CheckIcon className="h-5 w-5" />
                                 </button>
                                 <button
                                   onClick={() => setEditingUser(null)}
-                                  className="text-gray-600 hover:text-gray-900"
+                                  className="text-slate-400 hover:text-slate-300 p-1 rounded hover:bg-slate-500/20 transition-colors"
                                 >
                                   <XMarkIcon className="h-5 w-5" />
                                 </button>
@@ -566,19 +566,19 @@ export default function Users() {
                               <div className="flex space-x-2">
                                 <button
                                   onClick={() => setEditingUser(userRow)}
-                                  className="text-blue-600 hover:text-blue-900"
+                                  className="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-500/20 transition-colors"
                                 >
                                   <PencilIcon className="h-5 w-5" />
                                 </button>
                                 <button
                                   onClick={() => setShowPasswordReset(userRow.id)}
-                                  className="text-yellow-600 hover:text-yellow-900"
+                                  className="text-yellow-400 hover:text-yellow-300 p-1 rounded hover:bg-yellow-500/20 transition-colors"
                                 >
                                   <KeyIcon className="h-5 w-5" />
                                 </button>
                                 <button
                                   onClick={() => handleDelete(userRow.id)}
-                                  className="text-red-600 hover:text-red-900"
+                                  className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-500/20 transition-colors"
                                 >
                                   <TrashIcon className="h-5 w-5" />
                                 </button>
@@ -620,13 +620,13 @@ export default function Users() {
                     setResetPassword('');
                     setErrors({});
                   }}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-400"
+                  className="btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handlePasswordReset(showPasswordReset)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+                  className="btn-primary"
                 >
                   Reset Password
                 </button>

@@ -420,33 +420,33 @@ export default function BulkOperations() {
       {/* Import Tab */}
       {activeTab === 'import' && (
         <div className="flex flex-col items-center w-full">
-          <div className="card p-6 w-[70%] mx-auto">
+          <div className="card-cyber p-6 w-[70%] mx-auto">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
+              <h2 className="text-lg font-semibold flex items-center gap-2 text-slate-100">
               <DocumentArrowUpIcon className="h-5 w-5" />
               Import Data
               </h2>
               <div className="flex items-center gap-3">
               <button
-                  className="btn btn-outline btn-sm"
+                  className="btn-outline btn-sm"
                 onClick={() => setSampleModalOpen(true)}
                   type="button"
               >
                 Sample JSON
               </button>
                 <button
-                  className="p-1 rounded-full hover:bg-gray-200 focus:outline-none"
+                  className="p-1 rounded-full hover:bg-slate-700 focus:outline-none"
                   style={{ minWidth: 32, minHeight: 32 }}
                   onClick={() => setShowUserGuide(true)}
                   type="button"
                   title="Show Import User Guide"
                 >
-                  <InformationCircleIcon className="h-6 w-6 text-blue-500" />
+                  <InformationCircleIcon className="h-6 w-6 text-blue-400" />
                 </button>
               </div>
             </div>
             <div className="space-y-4">
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+              <div className="bg-yellow-900/30 border-l-4 border-yellow-800/50 p-4 mb-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
                     <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -454,7 +454,7 @@ export default function BulkOperations() {
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm text-yellow-700">
+                    <p className="text-sm text-yellow-300">
                       Note: The sample JSON has been updated to use the new detection method format with <strong>code_snippets</strong> array instead of single code fields. Setup guides now use <strong>instructions</strong> field directly.
                     </p>
                   </div>
@@ -548,8 +548,8 @@ export default function BulkOperations() {
               {/* Show raw JSON preview if file is selected */}
               {importFileJson && (
                 <div className="mt-4">
-                  <h3 className="font-semibold mb-2">Selected File Preview</h3>
-                  <pre ref={importJsonRef} className="bg-gray-100 rounded p-4 max-h-96 overflow-auto text-xs mb-4">{importFileRaw}</pre>
+                  <h3 className="font-semibold mb-2 text-slate-200">Selected File Preview</h3>
+                  <pre ref={importJsonRef} className="bg-slate-800 rounded p-4 max-h-96 overflow-auto text-xs mb-4 border border-slate-700 text-slate-300">{importFileRaw}</pre>
                   
                   {/* Show Add/Replace buttons if no error */}
                   {!importError && (
@@ -558,7 +558,7 @@ export default function BulkOperations() {
                         <>
                           {importCompareResult.can_add && (
                     <button
-                      className="btn btn-primary"
+                      className="btn-primary btn-sm"
                               onClick={() => confirmImport('add')}
                       disabled={importing}
                             >
@@ -567,7 +567,7 @@ export default function BulkOperations() {
                           )}
                           {importCompareResult.can_replace && (
                     <button
-                      className="btn btn-warning"
+                      className="btn-warning btn-sm"
                                 onClick={() => confirmImport('replace')}
                       disabled={importing}
                               >
@@ -583,9 +583,9 @@ export default function BulkOperations() {
 
               {/* Show import result message */}
               {importResult && (
-                <div className="card bg-green-50 p-4">
-                  <h3 className="font-semibold mb-2 text-green-800">Import Complete</h3>
-                  <div className="text-sm text-green-700">{importResult}</div>
+                <div className="card-glass bg-green-900/20 p-4 border border-green-800/30">
+                  <h3 className="font-semibold mb-2 text-green-300">Import Complete</h3>
+                  <div className="text-sm text-green-400">{importResult}</div>
                 </div>
               )}
             </div>
@@ -613,35 +613,35 @@ export default function BulkOperations() {
       {/* User Guide Modal */}
       {showUserGuide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-8 relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-slate-800 rounded-lg shadow-lg max-w-3xl w-full p-8 relative max-h-[90vh] overflow-y-auto border border-slate-700">
               <button 
-              className="absolute top-3 right-3 btn btn-sm btn-circle btn-ghost text-2xl"
+              className="absolute top-3 right-3 btn btn-sm btn-circle btn-ghost text-2xl text-slate-400 hover:text-slate-200"
               onClick={() => setShowUserGuide(false)}
               aria-label="Close"
             >
               &times;
               </button>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <InformationCircleIcon className="h-7 w-7 text-blue-500" />
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-slate-100">
+              <InformationCircleIcon className="h-7 w-7 text-blue-400" />
               Import User Guide
             </h2>
             <div className="prose max-w-none text-base">
-              <h3 className="mt-4 mb-2 text-lg font-semibold">Add Mode</h3>
-              <ul className="mb-4 text-sm space-y-1 list-disc pl-5">
+              <h3 className="mt-4 mb-2 text-lg font-semibold text-slate-200">Add Mode</h3>
+              <ul className="mb-4 text-sm space-y-1 list-disc pl-5 text-slate-300">
                 <li><b>If vendor doesn't exist:</b> Create vendor + all products + all methods + all guides</li>
                 <li><b>If vendor exists but product doesn't:</b> Create product + all methods + all guides</li>
-                <li><b>If vendor and product exist:</b> Only add new methods/guides <span className="italic">(don't overwrite existing)</span></li>
+                <li><b>If vendor and product exist:</b> Only add new methods/guides <span className="italic text-slate-400">(don't overwrite existing)</span></li>
               </ul>
-              <h3 className="mt-4 mb-2 text-lg font-semibold">Replace Mode</h3>
-              <ul className="mb-4 text-sm space-y-1 list-disc pl-5">
-                <li><b>If vendor doesn't exist:</b> <code>Error "Cannot replace because vendor does not exist"</code></li>
-                <li><b>If vendor exists but product doesn't exist:</b> <code>Error "Cannot replace because product does not exist"</code></li>
+              <h3 className="mt-4 mb-2 text-lg font-semibold text-slate-200">Replace Mode</h3>
+              <ul className="mb-4 text-sm space-y-1 list-disc pl-5 text-slate-300">
+                <li><b>If vendor doesn't exist:</b> <code className="bg-slate-700 text-slate-300 px-1 py-0.5 rounded">Error "Cannot replace because vendor does not exist"</code></li>
+                <li><b>If vendor exists but product doesn't exist:</b> <code className="bg-slate-700 text-slate-300 px-1 py-0.5 rounded">Error "Cannot replace because product does not exist"</code></li>
                 <li><b>If vendor and product exist:</b> Replace all methods and guides with new ones</li>
               </ul>
-              <h3 className="mt-4 mb-2 text-lg font-semibold">Preview Logic</h3>
-              <ul className="mb-4 text-sm space-y-1 list-disc pl-5">
-                <li>If <b>ALL</b> data exists and matches exactly: <code>Show "Data already exists" error</code></li>
-                <li>If <b>ANY</b> data is new or different: <code>Show preview with Add/Replace options</code></li>
+              <h3 className="mt-4 mb-2 text-lg font-semibold text-slate-200">Preview Logic</h3>
+              <ul className="mb-4 text-sm space-y-1 list-disc pl-5 text-slate-300">
+                <li>If <b>ALL</b> data exists and matches exactly: <code className="bg-slate-700 text-slate-300 px-1 py-0.5 rounded">Show "Data already exists" error</code></li>
+                <li>If <b>ANY</b> data is new or different: <code className="bg-slate-700 text-slate-300 px-1 py-0.5 rounded">Show preview with Add/Replace options</code></li>
                 <li><b>Replace</b> button only enabled if vendor+product exist <b>AND</b> there are actual differences</li>
               </ul>
             </div>

@@ -389,7 +389,7 @@ You can use Markdown formatting:
                                   
                                   {/* Description Preview */}
                                   {product.description ? (
-                                    <div className="text-xs text-gray-300">
+                                    <div className="text-xs text-slate-400">
                                       <MarkdownRenderer 
                                         content={product.description.length > 150 
                                           ? product.description.substring(0, 150) + "..." 
@@ -412,11 +412,11 @@ You can use Markdown formatting:
                                       )}
                                     </div>
                                   ) : (
-                                    <span className="text-gray-500 text-xs italic">No security intelligence available</span>
+                                    <span className="text-slate-400 text-xs italic">No security intelligence available</span>
                                   )}
                                   
                                   {/* Created By Information */}
-                                  <div className="mt-2 pt-2 border-t border-cyber-600/30 text-xs text-gray-400 flex items-center">
+                                  <div className="mt-2 pt-2 border-t border-cyber-600/30 text-xs text-slate-400 flex items-center">
                                     <span>Security Analyst: </span>
                                     {product.creator ? (
                                       <div className="flex items-center ml-1">
@@ -436,7 +436,7 @@ You can use Markdown formatting:
                                         </span>
                                       </div>
                                     ) : (
-                                      <span className="font-medium text-gray-500">System User</span>
+                                      <span className="font-medium text-slate-400">System User</span>
                                     )}
                                   </div>
                                 </div>
@@ -460,7 +460,7 @@ You can use Markdown formatting:
                               {isExpanded && vendorGroup.products.length > 2 && (
                                 <div className="text-center">
                                   <button 
-                                    className="text-xs text-gray-400 hover:text-gray-300 bg-dark-700/50 hover:bg-dark-700 border border-dark-600 px-3 py-1 rounded-lg transition-colors"
+                                    className="text-xs text-slate-400 hover:text-slate-300 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 px-3 py-1 rounded-lg transition-colors"
                                     onClick={() => {
                                       const newExpanded = new Set(expandedVendors);
                                       newExpanded.delete(vendorGroup.vendor_id);
@@ -484,8 +484,8 @@ You can use Markdown formatting:
                   <div className="bg-cyber-500/20 border border-cyber-500/30 rounded-full p-6 w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-glow">
                     <ShieldCheckIcon className="h-10 w-10 text-cyber-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-100 mb-2">No Security Products Detected</h3>
-                  <p className="text-gray-400 mb-6 max-w-md mx-auto">
+                  <h3 className="text-2xl font-bold text-slate-100 mb-2">No Security Products Detected</h3>
+                  <p className="text-slate-400 mb-6 max-w-md mx-auto">
                     Initialize your cybersecurity product catalog by registering security solutions for version detection
                   </p>
                   <button

@@ -172,7 +172,7 @@ export default function Profile() {
           <button type="submit" className="btn-primary w-full" disabled={pwLoading}>
             {pwLoading ? 'Saving...' : 'Change Password'}
           </button>
-          {pwMsg && <div className={`mt-2 text-sm ${pwMsg.includes('success') ? 'text-green-700' : 'text-red-600'}`}>{pwMsg}</div>}
+          {pwMsg && <div className={`mt-2 text-sm ${pwMsg.includes('success') ? 'text-green-400' : 'text-red-400'}`}>{pwMsg}</div>}
         </form>
       </Modal>
     </div>
