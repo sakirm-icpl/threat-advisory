@@ -34,7 +34,7 @@ There are many ways to contribute to VersionIntel:
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/your-username/versionintel.git`
+2. Clone your fork: `git clone https://github.com/sakirm-icpl/versionintel.git`
 3. Create a new branch for your contribution: `git checkout -b feature/your-feature-name`
 4. Follow the [Development Setup Guide](docs/development/setup.md) to set up your environment
 

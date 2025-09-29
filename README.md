@@ -1,9 +1,9 @@
 # VersionIntel Data Repository
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Issues](https://img.shields.io/github/issues/your-username/versionintel.svg)](https://github.com/your-username/versionintel/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/your-username/versionintel.svg)](https://github.com/your-username/versionintel/pulls)
-[![Contributors](https://img.shields.io/github/contributors/your-username/versionintel.svg)](https://github.com/your-username/versionintel/graphs/contributors)
+[![GitHub Issues](https://img.shields.io/github/issues/sakirm-icpl/versionintel.svg)](https://github.com/sakirm-icpl/versionintel/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/sakirm-icpl/versionintel.svg)](https://github.com/sakirm-icpl/versionintel/pulls)
+[![Contributors](https://img.shields.io/github/contributors/sakirm-icpl/versionintel.svg)](https://github.com/sakirm-icpl/versionintel/graphs/contributors)
 [![Data Count](https://img.shields.io/badge/Data%20Entries-17-blue.svg)](data/)
 
 **VersionIntel Data Repository** is an open-source collection of service detection patterns, vendor/product information, vulnerability mappings, and AI research data designed to help security researchers and developers identify software versions and detect vulnerabilities.
@@ -89,12 +89,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Getting Help
 
 - 📖 **Documentation**: Comprehensive guides available in [data/](data/) and [docs/](docs/)
-- 🐛 **Issues**: Report issues via [GitHub Issues](https://github.com/your-username/versionintel/issues)
-- 💬 **Discussions**: Join community discussions on [GitHub Discussions](https://github.com/your-username/versionintel/discussions)
+- 🐛 **Issues**: Report issues via [GitHub Issues](https://github.com/sakirm-icpl/versionintel/issues)
+- 💬 **Discussions**: Join community discussions on [GitHub Discussions](https://github.com/sakirm-icpl/versionintel/discussions)
 
 ### Community
 
-- **Contributors**: [See our contributors](https://github.com/your-username/versionintel/graphs/contributors)
+- **Contributors**: [See our contributors](https://github.com/sakirm-icpl/versionintel/graphs/contributors)
 - **Code of Conduct**: [Read our Code of Conduct](CODE_OF_CONDUCT.md)
 - **Contributing Guide**: [Learn how to contribute](CONTRIBUTING.md)
 
@@ -104,4 +104,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 *Empowering security through community-driven data contributions.*
 
-[Project Website](docs/index.html) | [Data Documentation](data/) | [Contributing](CONTRIBUTING.md) | [License](LICENSE)
+[Project Website](https://sakirm-icpl.github.io/versionintel/) | [Data Documentation](data/) | [Contributing](CONTRIBUTING.md) | [License](LICENSE)

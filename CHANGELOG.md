@@ -48,8 +48,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security enhancements
 - Performance optimizations
 
-[Unreleased]: https://github.com/your-username/versionintel/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/your-username/versionintel/releases/tag/v1.0.0
+[Unreleased]: https://github.com/sakirm-icpl/versionintel/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/sakirm-icpl/versionintel/releases/tag/v1.0.0
 
 ## [0.9.0] - Previous Versions
 

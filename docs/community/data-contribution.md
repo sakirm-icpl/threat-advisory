@@ -56,7 +56,7 @@ Improving AI capabilities through:
 
 ### Pattern File Structure
 
-Service detection patterns are stored in JSON files in the [data/service-patterns/](../../data/service-patterns/) directory:
+Service detection patterns are stored in JSON files in the [data/service-patterns/](https://github.com/sakirm-icpl/versionintel/tree/main/data/service-patterns) directory:
 
 ```json
 {
@@ -169,7 +169,7 @@ AI research data helps improve our machine learning models:
 ### 1. Fork and Clone
 
 ```bash
-git clone https://github.com/your-username/versionintel.git
+git clone https://github.com/sakirm-icpl/versionintel.git
 cd versionintel
 ```
 
@@ -181,7 +181,7 @@ git checkout -b data/new-service-patterns
 
 ### 3. Add Your Data
 
-- Place pattern files in the appropriate directory under [data/service-patterns/](../../data/service-patterns/)
+- Place pattern files in the appropriate directory under [data/service-patterns/](https://github.com/sakirm-icpl/versionintel/tree/main/data/service-patterns)
 - Follow the formats described above
 - Include comprehensive examples
 
@@ -227,7 +227,7 @@ Submit a pull request with:
 If you need help with your data contribution:
 
 1. Check existing patterns for examples
-2. Review the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide
+2. Review the [CONTRIBUTING.md](https://github.com/sakirm-icpl/versionintel/blob/main/CONTRIBUTING.md) guide
 3. Ask questions in GitHub Discussions
 4. Contact maintainers for complex contributions
 
