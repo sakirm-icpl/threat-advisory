@@ -45,17 +45,17 @@ export default function AuthCallback() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-        <div className="max-w-md w-full space-y-8 text-center bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/30 mx-4">
+        <div className="max-w-md w-full space-y-8 text-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-3xl border border-slate-700 mx-4">
           <div className="flex justify-center">
             <svg className="h-16 w-16 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-white">Authentication Error</h2>
-          <p className="text-gray-300">{error}</p>
+          <h2 className="text-2xl font-bold text-slate-100">Authentication Error</h2>
+          <p className="text-slate-300">{error}</p>
           <button
             onClick={() => navigate('/login', { replace: true })}
-            className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium"
+            className="w-full bg-cyber-500/20 text-slate-200 px-6 py-3 rounded-xl hover:bg-cyber-500/30 border border-cyber-500/30 transition-colors font-medium"
           >
             Try Again
           </button>
@@ -66,14 +66,14 @@ export default function AuthCallback() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-      <div className="text-center bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/30">
+      <div className="text-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-3xl border border-slate-700">
         <div className="flex justify-center mb-6">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-400"></div>
         </div>
-        <h2 className="text-xl font-semibold text-white mb-2">
+        <h2 className="text-xl font-semibold text-slate-100 mb-2">
           Completing authentication...
         </h2>
-        <p className="text-gray-300">
+        <p className="text-slate-300">
           Please wait while we verify your GitHub account
         </p>
       </div>

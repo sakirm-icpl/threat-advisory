@@ -538,14 +538,14 @@ export default function Methods() {
                                 <div key={method.id} className="card-glass border border-slate-600 rounded-xl p-4 shadow-cyber hover:border-cyber-500/50 transition-all duration-200">
                                   <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-2">
-                                      <span className="font-medium text-sm text-gray-900">{method.name}</span>
-                                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                                      <span className="font-medium text-sm text-slate-200">{method.name}</span>
+                                      <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs border border-blue-500/30">
                                         {method.protocol}
                                       </span>
-                                      <span className={`px-2 py-1 rounded text-xs ${
+                                      <span className={`px-2 py-1 rounded text-xs border ${
                                         method.requires_auth 
-                                          ? "bg-red-100 text-red-800" 
-                                          : "bg-green-100 text-green-800"
+                                          ? "bg-red-500/20 text-red-300 border-red-500/30" 
+                                          : "bg-green-500/20 text-green-300 border-green-500/30"
                                       }`}>
                                         {method.requires_auth ? "Auth Required" : "No Auth"}
                                       </span>
@@ -555,28 +555,30 @@ export default function Methods() {
                                       {(user?.role === 'admin' || method.created_by === user?.id) && (
                                         <>
                                           <button 
-                                            className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200 transition-colors" 
+                                            className="btn-outline btn-sm flex items-center gap-1 text-cyber-400 border-cyber-500/50 hover:bg-cyber-500 hover:text-white" 
                                             onClick={() => navigate(`/methods/${method.id}/edit`)}
                                           >
-                                            Edit
+                                            <PencilIcon className="h-3 w-3" />
+                                            Modify
                                           </button>
                                           <button 
-                                            className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 transition-colors" 
+                                            className="btn-outline btn-sm flex items-center gap-1 text-security-critical border-security-critical/50 hover:bg-security-critical hover:text-white" 
                                             onClick={() => deleteMethod(method.id)}
                                           >
-                                            Delete
+                                            <TrashIcon className="h-3 w-3" />
+                                            Remove
                                           </button>
                                         </>
                                       )}
                                       {/* Show view-only indicator for records user doesn't own */}
                                       {user?.role === 'contributor' && method.created_by !== user?.id && (
-                                        <span className="text-xs text-gray-500 italic">View Only</span>
+                                        <span className="text-xs text-slate-500 italic">View Only</span>
                                       )}
                                     </div>
                                   </div>
                                   
                                   {/* Created By Information */}
-                                  <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 flex items-center">
+                                  <div className="mt-2 pt-2 border-t border-slate-600 text-xs text-slate-400 flex items-center">
                                     <span>Created by: </span>
                                     {method.creator ? (
                                       <div className="flex items-center ml-1">
@@ -584,56 +586,56 @@ export default function Methods() {
                                           <img 
                                             src={method.creator.avatar_url} 
                                             alt={method.creator.github_username || method.creator.username}
-                                            className="h-4 w-4 rounded-full mr-1"
+                                            className="h-4 w-4 rounded-full mr-1 border border-slate-600"
                                           />
                                         ) : (
-                                          <div className="h-4 w-4 rounded-full bg-gray-300 flex items-center justify-center mr-1 text-[8px] font-semibold">
+                                          <div className="h-4 w-4 rounded-full bg-slate-700 flex items-center justify-center mr-1 text-[8px] font-semibold text-slate-300 border border-slate-600">
                                             {(method.creator.github_username || method.creator.username || '?').charAt(0).toUpperCase()}
                                           </div>
                                         )}
-                                        <span className="font-medium">
+                                        <span className="font-medium text-cyber-400">
                                           {method.creator.github_username || method.creator.username}
                                         </span>
                                       </div>
                                     ) : (
-                                      <span className="font-medium">Unknown</span>
+                                      <span className="font-medium text-slate-500">Unknown</span>
                                     )}
                                   </div>
                                   
                                   {/* Code Snippets Preview */}
-                                  <div className="text-xs text-gray-600 mt-2">
+                                  <div className="text-xs text-slate-400 mt-2">
                                     {method.code_snippets && method.code_snippets.length > 0 ? (
                                       <div className="flex flex-wrap gap-1">
-                                        <span className="text-gray-500">Languages:</span>
+                                        <span className="text-slate-500">Languages:</span>
                                         {method.code_snippets.slice(0, 3).map((snippet, snippetIdx) => (
-                                          <span key={snippetIdx} className="bg-green-100 text-green-800 px-1 py-0.5 rounded">
+                                          <span key={snippetIdx} className="bg-green-500/20 text-green-300 px-1 py-0.5 rounded border border-green-500/30">
                                             {snippet.code_language || "Unknown"}
                                           </span>
                                         ))}
                                         {method.code_snippets.length > 3 && (
-                                          <span className="text-gray-500">+{method.code_snippets.length - 3} more</span>
+                                          <span className="text-slate-500">+{method.code_snippets.length - 3} more</span>
                                         )}
                                       </div>
                                     ) : method.code_language ? (
                                       <div className="flex items-center gap-1">
-                                        <span className="text-gray-500">Language:</span>
-                                        <span className="bg-green-100 text-green-800 px-1 py-0.5 rounded">
+                                        <span className="text-slate-500">Language:</span>
+                                        <span className="bg-green-500/20 text-green-300 px-1 py-0.5 rounded border border-green-500/30">
                                           {method.code_language}
                                         </span>
-                                        <span className="bg-yellow-100 text-yellow-800 px-1 py-0.5 rounded">
+                                        <span className="bg-yellow-500/20 text-yellow-300 px-1 py-0.5 rounded border border-yellow-500/30">
                                           Legacy
                                         </span>
                                       </div>
                                     ) : (
-                                      <span className="text-gray-400">No code snippets</span>
+                                      <span className="text-slate-400">No code snippets</span>
                                     )}
                                   </div>
                                   
                                   {/* Expected Response Preview */}
                                   {method.expected_response && (
                                     <div className="mt-2 text-xs">
-                                      <span className="text-gray-500">Expected: </span>
-                                      <span className="bg-gray-100 px-1 py-0.5 rounded font-mono">
+                                      <span className="text-slate-500">Expected: </span>
+                                      <span className="bg-slate-700 px-1 py-0.5 rounded font-mono text-slate-300 border border-slate-600">
                                         {method.expected_response.length > 40 
                                           ? method.expected_response.substring(0, 40) + "..." 
                                           : method.expected_response
@@ -647,7 +649,7 @@ export default function Methods() {
                               {hiddenMethodsCount > 0 && (
                                 <div className="text-center">
                                   <button 
-                                    className="text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition-colors"
+                                    className="text-xs text-cyber-400 hover:text-cyber-300 bg-cyber-500/20 hover:bg-cyber-500/30 border border-cyber-500/30 px-3 py-1 rounded-lg transition-colors"
                                     onClick={() => {
                                       const newExpanded = new Set(expandedProducts);
                                       newExpanded.add(productGroup.product_id);
@@ -662,7 +664,7 @@ export default function Methods() {
                               {isExpanded && productGroup.methods.length > 2 && (
                                 <div className="text-center">
                                   <button 
-                                    className="text-xs text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded transition-colors"
+                                    className="text-xs text-slate-400 hover:text-slate-300 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 px-3 py-1 rounded-lg transition-colors"
                                     onClick={() => {
                                       const newExpanded = new Set(expandedProducts);
                                       newExpanded.delete(productGroup.product_id);

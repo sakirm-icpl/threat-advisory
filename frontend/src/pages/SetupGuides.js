@@ -367,22 +367,22 @@ Example:
                                   {(user?.role === 'admin' || guide.created_by === user?.id) && (
                                     <>
                                       <button
-                                        className="btn-secondary-sm flex items-center gap-1"
+                                        className="btn-outline btn-sm flex items-center gap-1 text-cyber-400 border-cyber-500/50 hover:bg-cyber-500 hover:text-white"
                                         onClick={() => navigate(`/setup-guides/${guide.id}/edit`)}
                                       >
                                         <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
-                                        Edit
+                                        Modify
                                       </button>
                                       <button
-                                        className="btn-danger-sm flex items-center gap-1"
+                                        className="btn-outline btn-sm flex items-center gap-1 text-security-critical border-security-critical/50 hover:bg-security-critical hover:text-white"
                                         onClick={() => deleteGuide(guide.id)}
                                       >
                                         <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
-                                        Delete
+                                        Remove
                                       </button>
                                     </>
                                   )}
@@ -431,7 +431,7 @@ Example:
                           {hiddenGuidesCount > 0 && (
                             <div className="text-center">
                               <button
-                                className="btn-secondary-sm flex items-center gap-2 mx-auto"
+                                className="btn-secondary btn-sm flex items-center gap-2 mx-auto"
                                 onClick={() => {
                                   const newExpanded = new Set(expandedProducts);
                                   newExpanded.add(productGroup.product_id);
@@ -449,7 +449,7 @@ Example:
                           {isExpanded && productGroup.guides.length > 2 && (
                             <div className="text-center">
                               <button
-                                className="btn-secondary-sm flex items-center gap-2 mx-auto"
+                                className="btn-secondary btn-sm flex items-center gap-2 mx-auto"
                                 onClick={() => {
                                   const newExpanded = new Set(expandedProducts);
                                   newExpanded.delete(productGroup.product_id);

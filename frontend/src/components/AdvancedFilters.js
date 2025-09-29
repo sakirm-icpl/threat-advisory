@@ -47,7 +47,7 @@ export default function AdvancedFilters({
           <select
             value={value}
             onChange={(e) => handleFilterChange(filter.key, e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-600 rounded-lg focus:ring-2 focus:ring-cyber-500 focus:border-transparent bg-slate-800 text-slate-200"
           >
             <option value="">All {filter.label}</option>
             {filter.options.map(option => (
@@ -73,9 +73,9 @@ export default function AdvancedFilters({
                       : currentValues.filter(v => v !== option.value);
                     handleFilterChange(filter.key, newValues);
                   }}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-slate-600 text-cyber-500 focus:ring-cyber-500 bg-slate-800"
                 />
-                <span className="ml-2 text-sm text-gray-700">{option.label}</span>
+                <span className="ml-2 text-sm text-slate-300">{option.label}</span>
               </label>
             ))}
           </div>
@@ -87,7 +87,7 @@ export default function AdvancedFilters({
             type="date"
             value={value}
             onChange={(e) => handleFilterChange(filter.key, e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-600 rounded-lg focus:ring-2 focus:ring-cyber-500 focus:border-transparent bg-slate-800 text-slate-200"
           />
         );
 
@@ -99,14 +99,14 @@ export default function AdvancedFilters({
               placeholder="From"
               value={value.from || ''}
               onChange={(e) => handleFilterChange(filter.key, { ...value, from: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-slate-600 rounded-lg focus:ring-2 focus:ring-cyber-500 focus:border-transparent bg-slate-800 text-slate-200"
             />
             <input
               type="date"
               placeholder="To"
               value={value.to || ''}
               onChange={(e) => handleFilterChange(filter.key, { ...value, to: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-slate-600 rounded-lg focus:ring-2 focus:ring-cyber-500 focus:border-transparent bg-slate-800 text-slate-200"
             />
           </div>
         );
@@ -118,7 +118,7 @@ export default function AdvancedFilters({
             value={value}
             onChange={(e) => handleFilterChange(filter.key, e.target.value)}
             placeholder={filter.placeholder}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-600 rounded-lg focus:ring-2 focus:ring-cyber-500 focus:border-transparent bg-slate-800 text-slate-200"
           />
         );
 
@@ -129,7 +129,7 @@ export default function AdvancedFilters({
             value={value}
             onChange={(e) => handleFilterChange(filter.key, e.target.value)}
             placeholder={filter.placeholder}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-600 rounded-lg focus:ring-2 focus:ring-cyber-500 focus:border-transparent bg-slate-800 text-slate-200"
           />
         );
     }
@@ -141,32 +141,32 @@ export default function AdvancedFilters({
         onClick={() => setIsOpen(!isOpen)}
         className="btn btn-outline flex items-center space-x-2"
       >
-        <FunnelIcon className="h-5 w-5 text-gray-500" />
-        <span className="text-sm font-medium text-gray-700">Filters</span>
+        <FunnelIcon className="h-5 w-5 text-slate-400" />
+        <span className="text-sm font-medium text-slate-300">Filters</span>
         {getActiveFilterCount() > 0 && (
-          <span className="bg-blue-600 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+          <span className="bg-cyber-500 text-slate-100 text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
             {getActiveFilterCount()}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+        <div className="absolute top-full left-0 mt-2 w-80 bg-slate-800 rounded-lg shadow-xl border border-slate-700 z-50">
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Filters</h3>
+              <h3 className="text-lg font-medium text-slate-100">Filters</h3>
               <div className="flex items-center space-x-2">
                 {getActiveFilterCount() > 0 && (
                   <button
                     onClick={clearAllFilters}
-                    className="text-sm text-blue-600 hover:text-blue-800"
+                    className="text-sm text-cyber-400 hover:text-cyber-300"
                   >
                     Clear all
                   </button>
                 )}
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-300"
                 >
                   <XMarkIcon className="h-5 w-5" />
                 </button>
@@ -176,7 +176,7 @@ export default function AdvancedFilters({
             <div className="space-y-4">
               {availableFilters.map(filter => (
                 <div key={filter.key}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     {filter.label}
                   </label>
                   {renderFilterInput(filter)}

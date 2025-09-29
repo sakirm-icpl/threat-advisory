@@ -295,9 +295,9 @@ export default function Dashboard() {
           <div className="flex-1">
             <div className="flex items-center gap-4 mb-4">
               <img 
-                src="/Infopercept_idJrlnvSvX_2.svg" 
+                src="/green_logo.ico" 
                 alt="Infopercept" 
-                className="h-12 w-auto filter brightness-0 invert"
+                className="h-12 w-auto"
                 onError={(e) => {
                   e.target.style.display = 'none';
                 }}
@@ -343,12 +343,12 @@ export default function Dashboard() {
       </div>
       {/* Widget Controls */}
       <div className="card-cyber">
-        <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
           <CogIcon className="h-5 w-5 text-cyber-400" />
           <span className="gradient-text">Analytics Configuration</span>
         </h3>
         <div className="flex flex-wrap gap-4 items-center">
-          <span className="font-medium text-gray-300">Intelligence Modules:</span>
+          <span className="font-medium text-slate-300">Intelligence Modules:</span>
           {WIDGETS.map(w => (
             <label key={w.key} className="flex items-center gap-2 glass-effect hover:bg-cyber-600/20 px-3 py-2 rounded-lg transition-colors duration-200 cursor-pointer border border-cyber-600/30">
               <input
@@ -357,14 +357,14 @@ export default function Dashboard() {
                 onChange={() => handleWidgetToggle(w.key)}
                 className="checkbox"
               />
-              <span className="text-sm font-medium text-gray-300">{w.label}</span>
+              <span className="text-sm font-medium text-slate-300">{w.label}</span>
             </label>
           ))}
         </div>
       </div>
       {/* Security Metrics */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-100 mb-6 flex items-center gap-3">
+        <h2 className="text-2xl font-bold text-slate-100 mb-6 flex items-center gap-3">
           <BoltIcon className="h-8 w-8 text-cyber-400" />
           <span className="gradient-text">Threat Intelligence Dashboard</span>
         </h2>
@@ -385,11 +385,11 @@ export default function Dashboard() {
                 </div>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-200 group-hover:text-cyber-400 transition-colors duration-200">
+                <h3 className="font-semibold text-slate-200 group-hover:text-cyber-400 transition-colors duration-200">
                   {stat.name}
                 </h3>
-                <p className="text-sm text-gray-400 mt-1">{stat.description}</p>
-                <div className="w-full bg-dark-700 rounded-full h-2 mt-3">
+                <p className="text-sm text-slate-400 mt-1">{stat.description}</p>
+                <div className="w-full bg-slate-700 rounded-full h-2 mt-3">
                   <div 
                     className={`bg-${stat.color} h-2 rounded-full transition-all duration-500 shadow-glow`}
                     style={{ width: `${Math.min(100, (stat.value / 10) * 100)}%` }}
@@ -577,7 +577,7 @@ export default function Dashboard() {
 
       {/* Security Operations Center */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-100 mb-6 flex items-center gap-3">
+        <h2 className="text-2xl font-bold text-slate-100 mb-6 flex items-center gap-3">
           <BoltIcon className="h-8 w-8 text-cyber-400" />
           <span className="gradient-text">Security Operations Center</span>
         </h2>
@@ -592,15 +592,15 @@ export default function Dashboard() {
                 <div className={`bg-${action.color}/20 border border-${action.color}/30 rounded-xl p-4 shadow-glow group-hover:shadow-cyber transition-all duration-300 mb-4`}>
                   <action.icon className={`h-8 w-8 text-${action.color}`} />
                 </div>
-                <h3 className="font-semibold text-gray-200 group-hover:text-cyber-400 transition-colors duration-200 mb-2">
+                <h3 className="font-semibold text-slate-200 group-hover:text-cyber-400 transition-colors duration-200 mb-2">
                   {action.name}
                 </h3>
-                <p className="text-sm text-gray-400 mb-3">{action.description}</p>
+                <p className="text-sm text-slate-400 mb-3">{action.description}</p>
                 <div className={`status-${action.status.toLowerCase()} mb-4`}>
                   {action.status}
                 </div>
                 <div className="w-full">
-                  <div className="bg-dark-700 hover:bg-cyber-500 rounded-lg px-4 py-2 text-xs font-medium text-gray-400 group-hover:text-white transition-all duration-200 border border-dark-600 group-hover:border-cyber-500">
+                  <div className="bg-slate-700 hover:bg-cyber-500 rounded-lg px-4 py-2 text-xs font-medium text-slate-400 group-hover:text-white transition-all duration-200 border border-slate-600 group-hover:border-cyber-500">
                     Execute Operation →
                   </div>
                 </div>

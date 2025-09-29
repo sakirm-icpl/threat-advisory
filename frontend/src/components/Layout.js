@@ -74,17 +74,28 @@ export default function Layout({ children }) {
         <div className={`fixed inset-y-0 left-0 flex w-80 flex-col sidebar-bg transform transition-transform duration-500 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="sidebar-header">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-infopercept-light to-infopercept-secondary/20 rounded-xl flex items-center justify-center">
-                <ChartBarIcon className="h-6 w-6 text-infopercept-primary" />
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/green_logo.ico" 
+                  alt="Infopercept" 
+                  className="h-8 w-auto"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="w-10 h-10 bg-gradient-to-br from-infopercept-secondary to-cyber-600 rounded-xl flex items-center justify-center shadow-lg hidden">
+                  <ChartBarIcon className="h-6 w-6 text-white" />
+                </div>
               </div>
               <div>
                 <h1 className="text-xl font-bold">VersionIntel</h1>
-                <p className="text-xs text-white/70">Security Intelligence Platform</p>
+                <p className="text-xs text-slate-400">Security Intelligence Platform</p>
               </div>
             </div>
             <button
               onClick={() => setSidebarOpen((o) => !o)}
-              className="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-all duration-200"
+              className="text-slate-300 hover:text-slate-100 p-2 rounded-xl hover:bg-slate-700/50 transition-all duration-200"
               aria-label="Toggle sidebar"
             >
               <XMarkIcon className="h-6 w-6" />
@@ -103,7 +114,7 @@ export default function Layout({ children }) {
                   <item.icon className="mr-4 h-6 w-6 flex-shrink-0" />
                   <div className="flex-1">
                     <div className="font-medium">{item.name}</div>
-                    <div className={`text-xs ${isActive ? 'text-infopercept-blue/70' : 'text-white/50'} group-hover:text-white/70`}>
+                    <div className={`text-xs ${isActive ? 'text-infopercept-blue/70' : 'text-slate-500'} group-hover:text-slate-400`}>
                       {item.description}
                     </div>
                   </div>
@@ -112,8 +123,8 @@ export default function Layout({ children }) {
             })}
             {user?.role === 'admin' && (
               <>
-                <div className="border-t border-white/10 my-4"></div>
-                <div className="px-3 py-2 text-xs font-semibold text-white/60 uppercase tracking-wider">
+                <div className="border-t border-slate-700/50 my-4"></div>
+                <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Administration
                 </div>
                 {adminNavigation.map((item) => {
@@ -128,7 +139,7 @@ export default function Layout({ children }) {
                       <item.icon className="mr-4 h-6 w-6 flex-shrink-0" />
                       <div className="flex-1">
                         <div className="font-medium">{item.name}</div>
-                        <div className={`text-xs ${isActive ? 'text-infopercept-blue/70' : 'text-white/50'} group-hover:text-white/70`}>
+                        <div className={`text-xs ${isActive ? 'text-infopercept-blue/70' : 'text-slate-500'} group-hover:text-slate-400`}>
                           {item.description}
                         </div>
                       </div>
@@ -148,9 +159,9 @@ export default function Layout({ children }) {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-3">
                 <img 
-                  src="/Infopercept_idJrlnvSvX_2.svg" 
+                  src="/green_logo.ico" 
                   alt="Infopercept" 
-                  className="h-8 w-auto filter brightness-0 invert"
+                  className="h-8 w-auto"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextElementSibling.style.display = 'flex';
@@ -161,13 +172,13 @@ export default function Layout({ children }) {
                 </div>
               </div>
               <div>
-                <h1 className="text-xl font-bold gradient-text">VersionIntel</h1>
-                <p className="text-xs text-text-muted">Cybersecurity Research Platform</p>
+                <h1 className="text-xl font-bold gradient-text">Threat Advisory</h1>
+                <p className="text-xs text-slate-400">Cybersecurity Research Platform</p>
               </div>
             </div>
             <button
               onClick={() => setSidebarOpen((o) => !o)}
-              className="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-all duration-200"
+              className="text-slate-300 hover:text-slate-100 p-2 rounded-xl hover:bg-slate-700/50 transition-all duration-200"
               aria-label="Toggle sidebar"
             >
               <Bars3Icon className="h-6 w-6" />
@@ -185,7 +196,7 @@ export default function Layout({ children }) {
                   <item.icon className="mr-4 h-6 w-6 flex-shrink-0" />
                   <div className="flex-1">
                     <div className="font-medium">{item.name}</div>
-                    <div className={`text-xs ${isActive ? 'text-infopercept-blue/70' : 'text-white/50'} group-hover:text-white/70`}>
+                    <div className={`text-xs ${isActive ? 'text-infopercept-blue/70' : 'text-slate-500'} group-hover:text-slate-400`}>
                       {item.description}
                     </div>
                   </div>
@@ -194,8 +205,8 @@ export default function Layout({ children }) {
             })}
             {user?.role === 'admin' && (
               <>
-                <div className="border-t border-white/10 my-6"></div>
-                <div className="px-3 py-2 text-xs font-semibold text-white/60 uppercase tracking-wider">
+                <div className="border-t border-slate-700/50 my-6"></div>
+                <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Administration
                 </div>
                 {adminNavigation.map((item) => {
@@ -209,7 +220,7 @@ export default function Layout({ children }) {
                       <item.icon className="mr-4 h-6 w-6 flex-shrink-0" />
                       <div className="flex-1">
                         <div className="font-medium">{item.name}</div>
-                        <div className={`text-xs ${isActive ? 'text-infopercept-blue/70' : 'text-white/50'} group-hover:text-white/70`}>
+                        <div className={`text-xs ${isActive ? 'text-infopercept-blue/70' : 'text-slate-500'} group-hover:text-slate-400`}>
                           {item.description}
                         </div>
                       </div>
@@ -230,7 +241,7 @@ export default function Layout({ children }) {
           {!sidebarOpen && (
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-xl p-3 text-text-muted hover:bg-dark-700 hover:text-infopercept-secondary focus:outline-none transition-all duration-200"
+              className="inline-flex items-center justify-center rounded-xl p-3 text-slate-400 hover:bg-slate-700 hover:text-infopercept-secondary focus:outline-none transition-all duration-200"
               onClick={() => setSidebarOpen(true)}
               aria-label="Open sidebar"
             >
@@ -241,7 +252,7 @@ export default function Layout({ children }) {
           {/* Breadcrumb or page title */}
           <div className="flex-1">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-semibold text-text-primary capitalize">
+              <h1 className="text-xl font-semibold text-slate-100 capitalize">
                 {location.pathname.split('/').pop() || 'Dashboard'}
               </h1>
               <div className="status-info">
@@ -264,7 +275,7 @@ export default function Layout({ children }) {
             )}
             
             {user?.github_username && (
-              <span className="text-base font-medium text-text-secondary mr-2 hidden sm:inline">
+              <span className="text-base font-medium text-slate-300 mr-2 hidden sm:inline">
                 {user.github_username || user.username}
               </span>
             )}
@@ -280,7 +291,7 @@ export default function Layout({ children }) {
                   className="h-12 w-12 rounded-2xl border-2 border-border-secondary group-hover:border-infopercept-secondary transition-all duration-200 shadow-md"
                 />
               ) : (
-                <div className="h-12 w-12 rounded-2xl bg-gradient-infopercept flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:shadow-lg transition-all duration-200">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-infopercept-secondary to-cyber-600 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:shadow-lg transition-all duration-200">
                   {(user?.github_username || user?.username || '?').charAt(0).toUpperCase()}
                 </div>
               )}
@@ -288,8 +299,8 @@ export default function Layout({ children }) {
             
             {/* Dropdown menu */}
             {profileOpen && (
-              <div className="absolute right-0 top-full mt-3 w-56 bg-dark-800 border border-border-primary rounded-2xl shadow-2xl z-50 overflow-hidden">
-                <div className="p-4 bg-gradient-infopercept text-white">
+              <div className="absolute right-0 top-full mt-3 w-56 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                <div className="p-4 bg-gradient-to-br from-infopercept-secondary to-cyber-600 text-white">
                   <div className="flex items-center gap-3">
                     {user?.avatar_url ? (
                       <img 
@@ -311,7 +322,7 @@ export default function Layout({ children }) {
                 <div className="p-2">
                   <Link 
                     to="/profile" 
-                    className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-dark-700 rounded-xl transition-all duration-200"
+                    className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 rounded-xl transition-all duration-200"
                     onClick={() => setProfileOpen(false)}
                   >
                     <UserIcon className="h-5 w-5" />
@@ -319,7 +330,7 @@ export default function Layout({ children }) {
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-security-critical/10 hover:text-security-critical rounded-xl transition-all duration-200"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-security-critical/10 hover:text-security-critical rounded-xl transition-all duration-200"
                   >
                     <ArrowRightOnRectangleIcon className="h-5 w-5" />
                     Sign Out

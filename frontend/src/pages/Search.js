@@ -343,19 +343,19 @@ export default function Search() {
           
           {/* Detection Methods not under matched products */}
           {data.methods && data.methods.length > 0 && (
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-6 shadow-lg">
+            <div className="card-cyber rounded-2xl p-6 shadow-cyber">
               <div className="flex items-center mb-6">
-                <BeakerIcon className="h-6 w-6 text-purple-600 mr-3" />
-                <h2 className="text-xl font-bold text-gray-900">Detection Methods ({data.methods.length})</h2>
+                <BeakerIcon className="h-6 w-6 text-purple-400 mr-3" />
+                <h2 className="text-xl font-bold text-slate-100">Detection Methods ({data.methods.length})</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {data.methods.map(m => (
-                  <div key={m.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-200">
+                  <div key={m.id} className="card-glass rounded-xl border border-slate-600 p-4 shadow-cyber hover:shadow-glow transition-all duration-200">
                     <div className="flex items-center mb-2">
-                      <BeakerIcon className="h-4 w-4 text-purple-600 mr-2" />
-                      <span className="font-medium text-gray-900">{m.name}</span>
+                      <BeakerIcon className="h-4 w-4 text-purple-400 mr-2" />
+                      <span className="font-medium text-slate-200">{m.name}</span>
                     </div>
-                    <span className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                    <span className="inline-flex items-center px-2 py-1 bg-purple-500/20 text-purple-300 text-xs font-medium rounded-full border border-purple-500/30">
                       {m.technique}
                     </span>
                   </div>
@@ -366,19 +366,19 @@ export default function Search() {
 
           {/* Setup Guides not under matched products */}
           {data.guides && data.guides.length > 0 && (
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-6 shadow-lg">
+            <div className="card-cyber rounded-2xl p-6 shadow-cyber">
               <div className="flex items-center mb-6">
-                <DocumentTextIcon className="h-6 w-6 text-orange-600 mr-3" />
-                <h2 className="text-xl font-bold text-gray-900">Setup Guides ({data.guides.length})</h2>
+                <DocumentTextIcon className="h-6 w-6 text-orange-400 mr-3" />
+                <h2 className="text-xl font-bold text-slate-100">Setup Guides ({data.guides.length})</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {data.guides.map(g => (
-                  <div key={g.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-200">
+                  <div key={g.id} className="card-glass rounded-xl border border-slate-600 p-4 shadow-cyber hover:shadow-glow transition-all duration-200">
                     <div className="flex items-center mb-2">
-                      <DocumentTextIcon className="h-4 w-4 text-orange-600 mr-2" />
-                      <span className="font-medium text-gray-900">Setup Guide</span>
+                      <DocumentTextIcon className="h-4 w-4 text-orange-400 mr-2" />
+                      <span className="font-medium text-slate-200">Setup Guide</span>
                     </div>
-                    <p className="text-sm text-gray-600">{g.instructions?.slice(0, 100)}...</p>
+                    <p className="text-sm text-slate-400">{g.instructions?.slice(0, 100)}...</p>
                   </div>
                 ))}
               </div>
@@ -387,12 +387,12 @@ export default function Search() {
 
           {/* No results */}
           {(!data.vendors?.length && !data.products?.length && !data.methods?.length && !data.guides?.length) && (
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-12 shadow-lg text-center">
-              <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <MagnifyingGlassIcon className="h-8 w-8 text-gray-400" />
+            <div className="card-cyber rounded-2xl p-12 shadow-cyber text-center">
+              <div className="bg-slate-700/50 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center border border-slate-600">
+                <MagnifyingGlassIcon className="h-8 w-8 text-slate-400" />
               </div>
-              <p className="text-gray-500 font-medium text-lg">No results found</p>
-              <p className="text-gray-400 text-sm mt-2">Try adjusting your search terms or filters</p>
+              <p className="text-slate-300 font-medium text-lg">No results found</p>
+              <p className="text-slate-400 text-sm mt-2">Try adjusting your search terms or filters</p>
             </div>
           )}
         </div>
