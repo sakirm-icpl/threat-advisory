@@ -340,6 +340,10 @@ curl -X POST \
      http://localhost:8000/api/products
 ```
 
+## Detailed Endpoints Reference
+
+For a complete reference of all API endpoints, see the [Endpoints Reference](./endpoints.md) document.
+
 ## Testing the API
 
 ### Health Check

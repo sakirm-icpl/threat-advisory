@@ -394,6 +394,47 @@ def list_users():
         print(f"Error listing users: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@bp.route('/collaborators', methods=['GET'])
+@jwt_required()
+def list_collaborators():
+    """List all collaborators (all authenticated users can view)"""
+    try:
+        # Check if user wants to see inactive users
+        show_inactive = request.args.get('show_inactive', 'false').lower() == 'true'
+        
+        if show_inactive:
+            # Show all users (active and inactive)
+            users = User.query.all()
+        else:
+            # Show only active users (default behavior)
+            users = User.query.filter_by(is_active=True).all()
+            
+        collaborator_list = []
+        for user in users:
+            try:
+                # Only include basic information for collaborators view
+                collaborator_data = {
+                    'id': user.id,
+                    'github_username': user.github_username,
+                    'username': user.username,
+                    'email': user.email,
+                    'name': user.name,
+                    'role': user.role.value if hasattr(user.role, 'value') else str(user.role),
+                    'avatar_url': user.avatar_url,
+                    'is_active': user.is_active,
+                    'created_at': user.created_at.isoformat() if user.created_at else None,
+                    'last_login': user.last_login.isoformat() if user.last_login else None
+                }
+                collaborator_list.append(collaborator_data)
+            except Exception as e:
+                print(f"Error serializing collaborator {user.id}: {str(e)}")
+                # Skip problematic users instead of failing completely
+                continue
+        return jsonify(collaborator_list), 200
+    except Exception as e:
+        print(f"Error listing collaborators: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 @bp.route('/users/<user_id>/promote', methods=['POST'])
 @require_admin
 @swag_from({
@@ -682,6 +723,178 @@ def delete_user(user_id):
     except Exception as e:
         db.session.rollback()
         print(f"Error deleting user {user_id}: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@bp.route('/users/<user_id>/activate', methods=['POST'])
+@require_admin
+@swag_from({
+    'tags': ['Admin'],
+    'summary': 'Activate user account',
+    'description': 'Activates a deactivated user account. Requires admin access.',
+    'security': [{'Bearer': []}],
+    'parameters': [{
+        'name': 'user_id',
+        'in': 'path',
+        'required': True,
+        'type': 'string',
+        'description': 'User ID to activate'
+    }],
+    'responses': {
+        '200': {
+            'description': 'User activated successfully',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'message': {'type': 'string'},
+                    'user': {
+                        'type': 'object',
+                        'properties': {
+                            'id': {'type': 'string'},
+                            'github_username': {'type': 'string'},
+                            'is_active': {'type': 'boolean'}
+                        }
+                    }
+                }
+            }
+        },
+        '400': {'description': 'User is already active'},
+        '403': {'description': 'Admin access required'},
+        '404': {'description': 'User not found'}
+    }
+})
+def activate_user(user_id):
+    """Activate user account (admin only)"""
+    try:
+        current_user = get_current_user()
+        target_user = User.query.get(user_id)
+        
+        if not target_user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        if target_user.is_active:
+            return jsonify({'error': 'User is already active'}), 400
+        
+        # Store old values for audit
+        old_values = target_user.to_dict()
+        
+        # Activate user
+        target_user.is_active = True
+        target_user.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        # Log the activation
+        request_info = get_request_info()
+        AuditLog.log_action(
+            user_id=current_user.id,
+            action=AuditAction.ACTIVATE_USER,
+            resource_type='user',
+            resource_id=target_user.id,
+            description=f"Activated user {target_user.github_username}",
+            old_values=old_values,
+            new_values=target_user.to_dict(),
+            **request_info
+        )
+        
+        current_app.logger.info(f"User {target_user.github_username} activated by {current_user.github_username}")
+        return jsonify({
+            'message': 'User activated successfully',
+            'user': target_user.to_dict()
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error activating user {user_id}: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@bp.route('/users/<user_id>/deactivate', methods=['POST'])
+@require_admin
+@swag_from({
+    'tags': ['Admin'],
+    'summary': 'Deactivate user account',
+    'description': 'Deactivates a user account. Prevents self-deactivation and last admin protection. Requires admin access.',
+    'security': [{'Bearer': []}],
+    'parameters': [{
+        'name': 'user_id',
+        'in': 'path',
+        'required': True,
+        'type': 'string',
+        'description': 'User ID to deactivate'
+    }],
+    'responses': {
+        '200': {
+            'description': 'User deactivated successfully',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'message': {'type': 'string'},
+                    'user': {
+                        'type': 'object',
+                        'properties': {
+                            'id': {'type': 'string'},
+                            'github_username': {'type': 'string'},
+                            'is_active': {'type': 'boolean'}
+                        }
+                    }
+                }
+            }
+        },
+        '400': {'description': 'User is already inactive or cannot deactivate last admin or self-deactivation'},
+        '403': {'description': 'Admin access required'},
+        '404': {'description': 'User not found'}
+    }
+})
+def deactivate_user(user_id):
+    """Deactivate user account (admin only)"""
+    try:
+        current_user = get_current_user()
+        target_user = User.query.get(user_id)
+        
+        if not target_user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        if not target_user.is_active:
+            return jsonify({'error': 'User is already inactive'}), 400
+        
+        # Prevent self-deactivation
+        if target_user.id == current_user.id:
+            return jsonify({'error': 'Cannot deactivate your own account'}), 400
+        
+        # Prevent deactivating the last admin
+        if target_user.role == UserRole.ADMIN:
+            admin_count = User.query.filter_by(role=UserRole.ADMIN, is_active=True).count()
+            if admin_count <= 1:
+                return jsonify({'error': 'Cannot deactivate the last admin user'}), 400
+        
+        # Store old values for audit
+        old_values = target_user.to_dict()
+        
+        # Deactivate user
+        target_user.is_active = False
+        target_user.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        # Log the deactivation
+        request_info = get_request_info()
+        AuditLog.log_action(
+            user_id=current_user.id,
+            action=AuditAction.DEACTIVATE_USER,
+            resource_type='user',
+            resource_id=target_user.id,
+            description=f"Deactivated user {target_user.github_username}",
+            old_values=old_values,
+            new_values=target_user.to_dict(),
+            **request_info
+        )
+        
+        current_app.logger.info(f"User {target_user.github_username} deactivated by {current_user.github_username}")
+        return jsonify({
+            'message': 'User deactivated successfully',
+            'user': target_user.to_dict()
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error deactivating user {user_id}: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/users/<user_id>/reset-password', methods=['POST'])

@@ -16,6 +16,7 @@ import {
   ShieldCheckIcon,
   ChartBarIcon,
   UserIcon,
+  UsersIcon,
 } from '@heroicons/react/24/outline';
 
 const navigation = [
@@ -27,6 +28,7 @@ const navigation = [
   { name: 'Search', href: '/search', icon: MagnifyingGlassIcon, description: 'Global Search' },
   { name: 'CVE Search', href: '/cve-search', icon: ShieldExclamationIcon, description: 'Vulnerability Database' },
   { name: 'Bulk Operations', href: '/bulk', icon: CogIcon, description: 'Batch Processing' },
+  { name: 'Collaborators', href: '/collaborators', icon: UsersIcon, description: 'Team Members' },
 ];
 
 const adminNavigation = [
