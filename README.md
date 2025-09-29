@@ -423,6 +423,7 @@ Our testing suite maintains high coverage standards:
 - 🔐 [Authentication](docs/api/authentication.md)
 - 📋 [Endpoints Reference](docs/api/endpoints.md)
 - ⚠️ [Error Handling](docs/api/error-handling.md)
+- 🚦 [Rate Limiting](docs/api/rate-limiting.md)
 
 ### Deployment Documentation
 - ⚡ [Quick Start](docs/deployment/quick-start.md)
