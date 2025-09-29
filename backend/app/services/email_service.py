@@ -20,7 +20,7 @@ class EmailService:
         self.from_name = os.getenv('FROM_NAME', 'VersionIntel')
         
         # Application URLs
-        self.frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+        self.frontend_url = os.getenv('FRONTEND_URL', 'http://172.17.14.65:3000')
         
     def is_configured(self) -> bool:
         """Check if email service is properly configured"""

@@ -106,7 +106,7 @@ The VersionIntel Team
             msg['To'] = email
             
             # Create login URL
-            login_url = f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/login?invite={invite_token}"
+            login_url = f"{os.getenv('FRONTEND_URL', 'http://172.17.14.65:3000')}/login?invite={invite_token}"
             
             # Corporate-friendly text content
             text_content = f"""

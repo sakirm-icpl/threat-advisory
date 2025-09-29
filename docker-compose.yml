@@ -51,7 +51,7 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - FROM_EMAIL=${FROM_EMAIL}
       - FROM_NAME=${FROM_NAME:-VersionIntel}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - FRONTEND_URL=${FRONTEND_URL:-http://172.17.14.65:3000}
     ports:
       - "${BACKEND_PORT:-8000}:5000"
     restart: unless-stopped
