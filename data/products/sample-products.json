@@ -1,0 +1,49 @@
+{
+  "products": [
+    {
+      "id": "apache-httpd",
+      "name": "Apache HTTP Server",
+      "vendor_id": "apache",
+      "description": "The Apache HTTP Server, colloquially called Apache, is a free and open-source cross-platform web server software.",
+      "categories": ["web-server", "open-source", "http-server"],
+      "website": "https://httpd.apache.org",
+      "first_release": "1995-04-01",
+      "cpe": "cpe:/a:apache:http_server",
+      "metadata": {
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z",
+        "source": "official"
+      }
+    },
+    {
+      "id": "microsoft-iis",
+      "name": "Internet Information Services",
+      "vendor_id": "microsoft",
+      "description": "Internet Information Services (IIS) is an extensible web server software created by Microsoft for use with the Windows NT family.",
+      "categories": ["web-server", "proprietary", "http-server"],
+      "website": "https://www.iis.net",
+      "first_release": "1995-07-01",
+      "cpe": "cpe:/a:microsoft:internet_information_server",
+      "metadata": {
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z",
+        "source": "official"
+      }
+    },
+    {
+      "id": "nginx",
+      "name": "Nginx",
+      "vendor_id": "nginx",
+      "description": "Nginx is a web server that can also be used as a reverse proxy, load balancer, mail proxy and HTTP cache.",
+      "categories": ["web-server", "reverse-proxy", "load-balancer", "open-source"],
+      "website": "https://nginx.org",
+      "first_release": "2004-10-04",
+      "cpe": "cpe:/a:nginx:nginx",
+      "metadata": {
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z",
+        "source": "official"
+      }
+    }
+  ]
+}

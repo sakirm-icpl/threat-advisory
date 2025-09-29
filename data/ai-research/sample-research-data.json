@@ -1,0 +1,33 @@
+{
+  "research_datasets": [
+    {
+      "id": "version-detection-patterns-001",
+      "title": "Version Detection Patterns in Obfuscated Responses",
+      "authors": ["Research Team"],
+      "description": "Dataset of obfuscated service responses and their corresponding version information for training AI models",
+      "methodology": "Collected real-world service responses and manually extracted version information",
+      "findings": "Identified common patterns in obfuscated responses that can be used to improve version detection accuracy",
+      "data_samples": [
+        {
+          "input": "Server: Apache-Coyote/1.1",
+          "expected_output": "Apache Tomcat 7.0.52",
+          "notes": "Obfuscated version information in HTTP server header"
+        },
+        {
+          "input": "X-Powered-By: PHP/5.3.28",
+          "expected_output": "PHP 5.3.28",
+          "notes": "Version information in custom HTTP header"
+        }
+      ],
+      "references": [
+        "https://research-paper-link.com",
+        "https://dataset-source.com"
+      ],
+      "metadata": {
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z",
+        "license": "MIT"
+      }
+    }
+  ]
+}

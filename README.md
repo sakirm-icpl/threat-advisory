@@ -5,11 +5,11 @@
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/your-username/versionintel.svg)](https://github.com/your-username/versionintel/pulls)
 [![Contributors](https://img.shields.io/github/contributors/your-username/versionintel.svg)](https://github.com/your-username/versionintel/graphs/contributors)
 
-**VersionIntel Data Repository** is an open-source collection of service detection patterns and security research data designed to help security researchers and developers identify software versions and detect vulnerabilities.
+**VersionIntel Data Repository** is an open-source collection of service detection patterns, vendor/product information, vulnerability mappings, and AI research data designed to help security researchers and developers identify software versions and detect vulnerabilities.
 
 ## 🌟 About This Repository
 
-This repository contains structured data for the VersionIntel platform, focusing on community contributions of service detection patterns. The data here helps identify software versions through pattern matching and AI analysis.
+This repository contains structured data for the VersionIntel platform, focusing on community contributions of security research data. The data here helps identify software versions through pattern matching and AI analysis.
 
 ## 📂 Repository Structure
 
@@ -19,8 +19,13 @@ versionintel/
 │   ├── service-patterns/   # Service detection patterns organized by type
 │   │   ├── database/       # Database service patterns
 │   │   ├── networking/     # Networking service patterns
-│   │   └── web/            # Web service patterns
-│   └── README.md           # Guide to data structure and contribution
+│   │   ├── web/            # Web service patterns
+│   │   └── application/    # Application-specific patterns
+│   ├── products/           # Vendor and product information
+│   ├── vulnerabilities/    # CVE and vulnerability mappings
+│   ├── ai-research/        # AI training data and research findings
+│   ├── README.md           # Guide to data structure and contribution
+│   └── CONTRIBUTING-PLAYBOOK.md # Step-by-step contribution guide
 ├── docs/                   # Documentation for contributors
 │   ├── community/          # Community contribution guides
 │   └── index.html          # Static website for GitHub Pages
@@ -34,8 +39,8 @@ We welcome contributions from the security research community! Help improve Vers
 ### Types of Data Contributions
 
 1. **Service Detection Patterns** - Regex patterns used to identify services from their responses
-2. **Product/Vendor Information** - Database of software products and their vendors
-3. **Vulnerability Mappings** - Links between products/versions and known vulnerabilities
+2. **Vendor/Product Information** - Database of software vendors and their products
+3. **Vulnerability Mappings** - Links between products/versions and known CVEs
 4. **AI Research Data** - Training data and research findings for AI analysis
 
 ### How to Contribute
@@ -47,21 +52,21 @@ We welcome contributions from the security research community! Help improve Vers
 ### Getting Started
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b data/new-pattern-name`
-3. Add your data following the [Data Contribution Guide](docs/community/data-contribution.md)
-4. Commit your changes: `git commit -am 'Add detection pattern for NewService'`
-5. Push to the branch: `git push origin data/new-pattern-name`
+2. Create a feature branch: `git checkout -b data/new-contribution`
+3. Add your data following the [Contribution Playbook](data/CONTRIBUTING-PLAYBOOK.md)
+4. Commit your changes: `git commit -am 'Add new data contribution'`
+5. Push to the branch: `git push origin data/new-contribution`
 6. Create a new Pull Request
 
 Please read our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) for details.
 
 ## 📖 Documentation
 
-Comprehensive documentation for contributors is available in the [docs/](docs/) directory:
+Comprehensive documentation for contributors is available:
 
-- [Data Contribution Guide](docs/community/data-contribution.md) - How to contribute detection patterns and data
-- [Adding New Data](docs/community/adding-new-data.md) - Detailed instructions for data contributions
-- [Documentation Index](docs/README.md) - Complete documentation structure
+- [Data Repository Guide](data/README.md) - Complete data structure and contribution guidelines
+- [Contribution Playbook](data/CONTRIBUTING-PLAYBOOK.md) - Step-by-step contribution instructions
+- [Community Guides](docs/community/) - Additional contribution resources
 
 ## 📄 License
 
@@ -71,7 +76,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Getting Help
 
-- 📖 **Documentation**: Comprehensive guides available in [docs/](docs/)
+- 📖 **Documentation**: Comprehensive guides available in [data/](data/) and [docs/](docs/)
 - 🐛 **Issues**: Report issues via [GitHub Issues](https://github.com/your-username/versionintel/issues)
 - 💬 **Discussions**: Join community discussions on [GitHub Discussions](https://github.com/your-username/versionintel/discussions)
 
@@ -87,4 +92,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 *Empowering security through community-driven data contributions.*
 
-[Project Website](docs/index.html) | [Documentation](docs/) | [Contributing](CONTRIBUTING.md) | [License](LICENSE)
+[Project Website](docs/index.html) | [Data Documentation](data/) | [Contributing](CONTRIBUTING.md) | [License](LICENSE)
