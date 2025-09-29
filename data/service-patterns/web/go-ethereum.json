@@ -1,0 +1,27 @@
+{
+  "patterns": [
+    {
+      "name": "Go Ethereum",
+      "category": "web",
+      "pattern": "\"result\"\\s*:\\s*\"Geth/v(\\d+\\.\\d+\\.\\d+)",
+      "vendor": "Ethereum",
+      "product": "Go Ethereum",
+      "version_group": 1,
+      "priority": 100,
+      "confidence": 0.95,
+      "metadata": {
+        "author": "Community Contributor",
+        "created_at": "2025-09-29T10:47:34.726190Z",
+        "updated_at": "2025-09-29T10:47:34.726193Z",
+        "description": "Detects Go Ethereum version from web3_clientVersion API call",
+        "tags": ["web", "ethereum", "geth", "blockchain"],
+        "test_cases": [
+          {
+            "input": "{\"result\": \"Geth/v1.13.4-stable-...\"}",
+            "expected_version": "1.13.4"
+          }
+        ]
+      }
+    }
+  ]
+}

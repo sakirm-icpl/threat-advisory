@@ -1,0 +1,173 @@
+{
+  "vendors": [
+    {
+      "id": "karjasoft",
+      "name": "Karjasoft",
+      "website": "http://www.karjasoft.com",
+      "description": "Karjasoft is a software development company known for creating lightweight FTP server software.",
+      "founded": "Unknown",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.794527Z",
+        "updated_at": "2025-09-29T10:22:28.794535Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "apache",
+      "name": "Apache Software Foundation",
+      "website": "https://www.apache.org",
+      "description": "The Apache Software Foundation provides support for the Apache community of open-source software projects.",
+      "founded": "1999-05-01",
+      "country": "US",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.841722Z",
+        "updated_at": "2025-09-29T10:22:28.841726Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "whitsoft-development",
+      "name": "Whitsoft Development",
+      "website": "Unknown",
+      "description": "Whitsoft Development creates software applications, including the SlimFTPd FTP server.",
+      "founded": "Unknown",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.875304Z",
+        "updated_at": "2025-09-29T10:22:28.875309Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "ethereum",
+      "name": "Ethereum",
+      "website": "https://ethereum.org",
+      "description": "Ethereum is a decentralized, open-source blockchain system featuring smart contract functionality.",
+      "founded": "2014",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.896657Z",
+        "updated_at": "2025-09-29T10:22:28.896663Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "elastic",
+      "name": "Elastic",
+      "website": "https://www.elastic.co",
+      "description": "Elastic is a search company that develops the Elastic Stack (Elasticsearch, Logstash, Kibana, Beats).",
+      "founded": "2012",
+      "country": "US",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.905455Z",
+        "updated_at": "2025-09-29T10:22:28.905460Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "argoproj",
+      "name": "Argoproj",
+      "website": "https://argoproj.github.io",
+      "description": "Argoproj is an open source project that provides tools for Kubernetes.",
+      "founded": "Unknown",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.926092Z",
+        "updated_at": "2025-09-29T10:22:28.926096Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "zend",
+      "name": "Zend",
+      "website": "https://www.zend.com",
+      "description": "Zend is a software company that provides PHP development tools and solutions.",
+      "founded": "Unknown",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.949766Z",
+        "updated_at": "2025-09-29T10:22:28.949771Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "zenml",
+      "name": "ZenML",
+      "website": "https://zenml.io",
+      "description": "ZenML is an open source MLOps framework for managing machine learning pipelines.",
+      "founded": "Unknown",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.968678Z",
+        "updated_at": "2025-09-29T10:22:28.968683Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "blackmoon-ftp-server",
+      "name": "Blackmoon FTP Server",
+      "website": "Unknown",
+      "description": "Blackmoon FTP Server is a Windows FTP server application.",
+      "founded": "Unknown",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.989581Z",
+        "updated_at": "2025-09-29T10:22:28.989587Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "apiman",
+      "name": "Apiman",
+      "website": "https://www.apiman.io",
+      "description": "Apiman is an open source API management platform.",
+      "founded": "Unknown",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:47:34.703186Z",
+        "updated_at": "2025-09-29T10:47:34.703189Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "concretecms",
+      "name": "Concrete CMS",
+      "website": "https://www.concretecms.com",
+      "description": "Concrete CMS is an open-source content management system.",
+      "founded": "Unknown",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:47:34.715144Z",
+        "updated_at": "2025-09-29T10:47:34.715147Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "liferay",
+      "name": "Liferay",
+      "website": "https://www.liferay.com",
+      "description": "Liferay is an open source enterprise portal platform.",
+      "founded": "Unknown",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:47:34.731146Z",
+        "updated_at": "2025-09-29T10:47:34.731148Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "couchbase",
+      "name": "Couchbase",
+      "website": "https://www.couchbase.com",
+      "description": "Couchbase is a distributed NoSQL document-oriented database.",
+      "founded": "Unknown",
+      "country": "Unknown",
+      "metadata": {
+        "created_at": "2025-09-29T10:47:34.741153Z",
+        "updated_at": "2025-09-29T10:47:34.741157Z",
+        "source": "export.json"
+      }
+    }
+  ]
+}

@@ -23,7 +23,9 @@ versionintel/
 │   │   ├── database/       # Database service patterns
 │   │   ├── networking/     # Networking service patterns
 │   │   ├── web/            # Web service patterns
-│   │   └── application/    # Application-specific patterns
+│   │   ├── application/    # Application-specific patterns
+│   │   ├── TEMPLATE.md     # Template for service patterns
+│   │   └── CONTRIBUTING-DETECTION-METHODS.md # Guide for detection methods
 │   ├── products/           # Vendor and product information
 │   ├── vulnerabilities/    # CVE and vulnerability mappings
 │   ├── ai-research/        # AI training data and research findings
@@ -41,6 +43,7 @@ For detailed information on contributing different types of data, see:
 
 - [Data Repository Guide](../data/README.md) - Complete data structure and contribution guidelines
 - [Contribution Playbook](../data/CONTRIBUTING-PLAYBOOK.md) - Step-by-step contribution instructions
+- [Detection Methods Guide](../data/service-patterns/CONTRIBUTING-DETECTION-METHODS.md) - How to contribute service detection patterns
 - [Service Patterns Template](../data/service-patterns/TEMPLATE.md) - Template for service detection patterns
 - [Products Template](../data/products/TEMPLATE.md) - Template for vendor/product information
 - [Vulnerabilities Template](../data/vulnerabilities/TEMPLATE.md) - Template for CVE mappings

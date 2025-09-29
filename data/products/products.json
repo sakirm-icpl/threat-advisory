@@ -1,0 +1,259 @@
+{
+  "products": [
+    {
+      "id": "karjasoft-sami-ftp-server",
+      "name": "Sami FTP Server",
+      "vendor_id": "karjasoft",
+      "description": "Karjasoft Sami FTP Server is a lightweight FTP server software used primarily for file sharing and transfer over FTP protocol, supporting easy user account management and server configuration.",
+      "categories": ["service-application", "ftp-server"],
+      "website": "Unknown",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:karjasoft:sami_ftp_server",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.806064Z",
+        "updated_at": "2025-09-29T10:22:28.806071Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "apache-traffic-server",
+      "name": "Traffic Server",
+      "vendor_id": "apache",
+      "description": "Apache Traffic Server (ATS) is a high-performance, scalable caching proxy server designed to improve network speed and reduce bandwidth usage by caching and forwarding web content efficiently.",
+      "categories": ["service-application", "proxy-server"],
+      "website": "https://trafficserver.apache.org",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:apache:traffic_server",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.847726Z",
+        "updated_at": "2025-09-29T10:22:28.847732Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "apache-answer",
+      "name": "Answer",
+      "vendor_id": "apache",
+      "description": "Apache Answer is an open-source Q&A platform designed to facilitate knowledge sharing within teams and communities by enabling users to ask, answer, and vote on questions in an organized manner.",
+      "categories": ["web-application", "qna-platform"],
+      "website": "https://answer.apache.org",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:apache:answer",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.857635Z",
+        "updated_at": "2025-09-29T10:22:28.857640Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "apache-spark",
+      "name": "Spark",
+      "vendor_id": "apache",
+      "description": "Apache Spark is an open-source, distributed computing system designed for big data processing and analytics, enabling fast and efficient handling of large-scale data workloads including batch processing, real-time analytics, machine learning, and graph processing.",
+      "categories": ["service-application", "big-data"],
+      "website": "https://spark.apache.org",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:apache:spark",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.863905Z",
+        "updated_at": "2025-09-29T10:22:28.863910Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "apache-pulsar",
+      "name": "Pulsar",
+      "vendor_id": "apache",
+      "description": "Apache Pulsar is a distributed, open-source messaging and streaming platform designed for high-throughput, low-latency data streaming and event-driven applications, commonly used for real-time analytics, messaging queues, and event sourcing.",
+      "categories": ["service-application", "messaging-platform"],
+      "website": "https://pulsar.apache.org",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:apache:pulsar",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.870223Z",
+        "updated_at": "2025-09-29T10:22:28.870228Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "apache-cxf",
+      "name": "CXF",
+      "vendor_id": "apache",
+      "description": "Apache CXF is an open source web services framework used to develop and expose services using standards-based APIs such as JAX-WS (SOAP) and JAX-RS (RESTful). It enables Java applications to create, publish, and consume SOAP and REST services in enterprise and SOA environments.",
+      "categories": ["library", "web-services"],
+      "website": "https://cxf.apache.org",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:apache:cxf",
+      "metadata": {
+        "created_at": "2025-09-29T10:47:34.698520Z",
+        "updated_at": "2025-09-29T10:47:34.698525Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "whitsoft-development-slimftpd",
+      "name": "Slimftpd",
+      "vendor_id": "whitsoft-development",
+      "description": "SlimFTPd is a small, fully standards-compliant FTP server designed for Windows, providing simple and efficient file transfer services with advanced virtual file system support and minimal resource usage.",
+      "categories": ["service-application", "ftp-server"],
+      "website": "Unknown",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:whitsoft_development:slimftpd",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.879291Z",
+        "updated_at": "2025-09-29T10:22:28.879296Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "ethereum-go-ethereum",
+      "name": "Go Ethereum",
+      "vendor_id": "ethereum",
+      "description": "Go Ethereum (Geth) is a software client that enables interaction with the Ethereum blockchain, allowing operation of a full node, validation of transactions, deployment of smart contracts, and participation in the network's consensus and mining activities.",
+      "categories": ["web-application", "blockchain-client"],
+      "website": "https://geth.ethereum.org",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:ethereum:go_ethereum",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.900765Z",
+        "updated_at": "2025-09-29T10:22:28.900770Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "elastic-kibana",
+      "name": "Kibana",
+      "vendor_id": "elastic",
+      "description": "Kibana is a visualization and analytics platform for Elasticsearch, enabling users to explore, analyze, and visualize data stored in Elasticsearch indices through interactive dashboards and search interfaces.",
+      "categories": ["web-application", "visualization"],
+      "website": "https://www.elastic.co/kibana",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:elastic:kibana",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.909595Z",
+        "updated_at": "2025-09-29T10:22:28.909599Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "argoproj-argocd",
+      "name": "Argocd",
+      "vendor_id": "argoproj",
+      "description": "Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes. It automates the deployment and synchronization of Kubernetes manifests from a Git repository to target clusters.",
+      "categories": ["service-application", "kubernetes"],
+      "website": "https://argo-cd.readthedocs.io",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:argoproj:argocd",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.930475Z",
+        "updated_at": "2025-09-29T10:22:28.930480Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "zend-framework",
+      "name": "Zend Framework",
+      "vendor_id": "zend",
+      "description": "Zend Framework is a PHP web application framework / library suite used to build modular, object-oriented web applications.",
+      "categories": ["web-application", "framework"],
+      "website": "https://framework.zend.com",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:zend:zend_framework",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.954263Z",
+        "updated_at": "2025-09-29T10:22:28.954269Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "zenml-zenml",
+      "name": "ZenML",
+      "vendor_id": "zenml",
+      "description": "ZenML is an open source MLOps framework / metadata layer for managing machine learning pipelines. Its primary use case is to define, version, run, and monitor ML pipelines (steps, artifacts, stacks) in a vendor-agnostic way, with optional server / dashboard components for metadata, visualization, collaboration.",
+      "categories": ["web-server-cli", "mlops"],
+      "website": "https://zenml.io",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:zenml:zenml",
+      "metadata": {
+        "created_at": "2025-09-29T10:22:28.972685Z",
+        "updated_at": "2025-09-29T10:22:28.972689Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "blackmoon-ftp-server-blackmoon-ftp-server",
+      "name": "Blackmoon FTP Server",
+      "vendor_id": "blackmoon-ftp-server",
+      "description": "Blackmoon FTP Server is a native Windows FTP server application designed to provide fast, secure, and reliable file transfer services with features such as virtual directories, user and group accounts, file resuming, passive mode transfers, and remote administration.",
+      "categories": ["service-application", "ftp-server"],
+      "website": "Unknown",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:blackmoon_ftp_server:blackmoon_ftp_server",
+      "metadata": {
+        "created_at": "2025-09-29T10:56:57.234239Z",
+        "updated_at": "2025-09-29T10:56:57.234256Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "apiman-apiman",
+      "name": "Apiman",
+      "vendor_id": "apiman",
+      "description": "Apiman is an open source API management platform that provides features for API design, deployment, and management.",
+      "categories": ["service-application", "api-management"],
+      "website": "https://www.apiman.io",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:apiman:apiman",
+      "metadata": {
+        "created_at": "2025-09-29T10:47:34.705629Z",
+        "updated_at": "2025-09-29T10:47:34.705632Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "concretecms-concrete-cms",
+      "name": "Concrete CMS",
+      "vendor_id": "concretecms",
+      "description": "Concrete CMS is an open-source content management system designed to help users build, manage, and maintain websites with features for content versioning, publishing workflows, permissions, and extensibility through add-ons and themes.",
+      "categories": ["web-application", "cms"],
+      "website": "https://www.concretecms.com",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:concretecms:concrete_cms",
+      "metadata": {
+        "created_at": "2025-09-29T10:47:34.717464Z",
+        "updated_at": "2025-09-29T10:47:34.717467Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "liferay-liferay-portal",
+      "name": "Liferay Portal",
+      "vendor_id": "liferay",
+      "description": "Liferay Portal is an open source enterprise portal platform used to build corporate intranets, extranets, websites, and web applications, providing features for content management, collaboration, and customizable digital experiences for businesses and institutions.",
+      "categories": ["web-application", "portal"],
+      "website": "https://www.liferay.com",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:liferay:liferay_portal",
+      "metadata": {
+        "created_at": "2025-09-29T10:47:34.733162Z",
+        "updated_at": "2025-09-29T10:47:34.733164Z",
+        "source": "export.json"
+      }
+    },
+    {
+      "id": "couchbase-couchbase-server",
+      "name": "Couchbase Server",
+      "vendor_id": "couchbase",
+      "description": "Couchbase Server is a distributed NoSQL document-oriented database designed to provide scalable, high-performance data management with features like key-value storage, querying with SQL++, full-text search, and built-in analytics.",
+      "categories": ["service-application", "database"],
+      "website": "https://www.couchbase.com",
+      "first_release": "Unknown",
+      "cpe": "cpe:/a:couchbase:couchbase_server",
+      "metadata": {
+        "created_at": "2025-09-29T10:47:34.743195Z",
+        "updated_at": "2025-09-29T10:47:34.743197Z",
+        "source": "export.json"
+      }
+    }
+  ]
+}
