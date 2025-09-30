@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pattern Development Guide for Version Detection Pattern Database">
+    <title>Pattern Development Guide - Version Detection Pattern Database</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --accent: #8b5cf6;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --dark: #0f172a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+        
+        main {
+            padding: 2rem 0;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .page-header p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar ul li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .sidebar ul li a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .sidebar ul li a:hover {
+            color: var(--primary-dark);
+        }
+        
+        h2 {
+            color: var(--secondary);
+            margin: 2rem 0 1rem 0;
+        }
+        
+        h3 {
+            color: var(--secondary);
+            margin: 1.5rem 0 1rem 0;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        .step {
+            background: var(--light);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 0.5rem 0;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        footer {
+            background: var(--secondary);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb span {
+            color: var(--gray);
+        }
+        
+        .tip {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+        
+        .tip h4 {
+            color: #f59e0b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .important {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+        
+        .important h4 {
+            color: #ef4444;
+            margin-bottom: 0.5rem;
+        }
+        
+        code {
+            background: var(--light);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        
+        pre {
+            background: var(--secondary);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .best-practice {
+            background: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+        
+        .best-practice h4 {
+            color: #0ea5e9;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">
+                    <span class="logo-icon">🔍</span>
+                    <span>Version Detection DB</span>
+                </a>
+                <div class="nav-links">
+                    <a href="../index.html">Home</a>
+                    <a href="../pattern-database.html">Patterns</a>
+                    <a href="https://github.com/sakirm-icpl/version-detection-db">GitHub</a>
+                    <a href="../docs.html">Documentation</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Home</a> <span>></span> 
+                <a href="../docs.html">Documentation</a> <span>></span> 
+                Pattern Development Guide
+            </div>
+            
+            <div class="page-header">
+                <h1>Pattern Development Guide</h1>
+                <p>Best practices and guidelines for creating effective version detection patterns</p>
+            </div>
+            
+            <div class="content">
+                <div class="main-content">
+                    <h2>Introduction</h2>
+                    <p>This guide provides best practices and guidelines for creating effective version detection patterns for the Version Detection Pattern Database. Following these guidelines will help ensure your patterns are accurate, reliable, and useful to the community.</p>
+                    
+                    <div class="tip">
+                        <h4>💡 Before You Start</h4>
+                        <p>If you're new to pattern development, we recommend reading our <a href="beginners-guide.html">Beginner's Guide</a> first to understand the contribution process.</p>
+                    </div>
+                    
+                    <h2>Understanding Version Detection Patterns</h2>
+                    <p>Version detection patterns are regular expressions that identify and extract software version information from network responses. These patterns are used by security tools to:</p>
+                    <ul>
+                        <li>Identify potentially vulnerable software versions</li>
+                        <li>Inventory software assets in networks</li>
+                        <li>Support penetration testing and vulnerability assessments</li>
+                        <li>Enable automated security scanning</li>
+                    </ul>
+                    
+                    <h2>Pattern Quality Principles</h2>
+                    
+                    <div class="best-practice">
+                        <h4>✅ Accuracy</h4>
+                        <p>Patterns should correctly identify version information without false positives. Test extensively with real-world examples.</p>
+                    </div>
+                    
+                    <div class="best-practice">
+                        <h4>✅ Specificity</h4>
+                        <p>Patterns should be specific enough to avoid matching unrelated text while being general enough to match legitimate variations.</p>
+                    </div>
+                    
+                    <div class="best-practice">
+                        <h4>✅ Reliability</h4>
+                        <p>Patterns should work consistently across different versions and configurations of the target software.</p>
+                    </div>
+                    
+                    <div class="best-practice">
+                        <h4>✅ Performance</h4>
+                        <p>Patterns should be efficient and not cause significant performance overhead when used in scanning tools.</p>
+                    </div>
+                    
+                    <h2>Research Process</h2>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">1</span> Identify Target Service</h3>
+                        <p>Select a service that discloses version information. Focus on:</p>
+                        <ul>
+                            <li>Popular software with significant user base</li>
+                            <li>Services commonly found in enterprise environments</li>
+                            <li>Software with known security vulnerabilities</li>
+                            <li>Services not yet covered in our database</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">2</span> Gather Sample Responses</h3>
+                        <p>Collect real-world examples of the service's responses. Methods include:</p>
+                        <ul>
+                            <li>Direct network interaction with test instances</li>
+                            <li>Public vulnerability reports and advisories</li>
+                            <li>Security research papers and documentation</li>
+                            <li>Existing security tools and databases</li>
+                        </ul>
+                        
+                        <p>Document variations in response formats, including:</p>
+                        <ul>
+                            <li>Different version formats (e.g., 1.2.3 vs 1.2.3-rc1)</li>
+                            <li>Platform-specific information</li>
+                            <li>Configuration-dependent disclosures</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">3</span> Analyze Response Structure</h3>
+                        <p>Examine the structure of responses to identify:</p>
+                        <ul>
+                            <li>Consistent identifiers (headers, banners, keywords)</li>
+                            <li>Version information location and format</li>
+                            <li>Common variations and edge cases</li>
+                            <li>Potential false positive triggers</li>
+                        </ul>
+                    </div>
+                    
+                    <h2>Regex Development Best Practices</h2>
+                    
+                    <h3>Capture Groups</h3>
+                    <p>Use capture groups to extract version information:</p>
+                    <pre><code>// Good: Clear capture group for version
+"Server: Apache/([\\d.]+)"
+
+// Avoid: Too many capture groups
+"Server: (Apache)/([\\d.]+)( .*)?"</code></pre>
+                    
+                    <p>Specify the correct <code>version_group</code> number in your pattern metadata to indicate which capture group contains the version.</p>
+                    
+                    <h3>Character Classes</h3>
+                    <p>Use appropriate character classes for version components:</p>
+                    <pre><code>// For simple numeric versions
+"([\\d.]+)"
+
+// For versions with letters and numbers
+"([\\w.]+)"
+
+// For semantic versions (e.g., 1.2.3-alpha.1)
+"([\\d]+\\.[\\d]+\\.[\\d]+(?:-[\\w.]+)?)"
+
+// For complex version strings
+"([\\d]+\\.[\\d]+\\.[\\d]+(?:-[\\w.]+)?(?:\\+[\\w.]+)?)"
+</code></pre>
+                    
+                    <h3>Anchoring</h3>
+                    <p>Anchor patterns appropriately to avoid partial matches:</p>
+                    <pre><code>// Good: Anchored to beginning of line
+"^Server: Apache/([\\d.]+)"
+
+// Good: Specific context
+"Server: Apache/([\\d.]+)"
+
+// Avoid: Too broad without context
+"Apache/([\\d.]+)"  // Might match unrelated text
+</code></pre>
+                    
+                    <h3>Performance Considerations</h3>
+                    <p>Write efficient patterns to avoid performance issues:</p>
+                    <ul>
+                        <li>Avoid excessive backtracking with possessive quantifiers where possible</li>
+                        <li>Use specific character classes instead of generic <code>.</code> where possible</li>
+                        <li>Limit repetition to reasonable bounds</li>
+                        <li>Avoid nested quantifiers when possible</li>
+                    </ul>
+                    
+                    <h2>Test Case Development</h2>
+                    
+                    <div class="best-practice">
+                        <h4>✅ Comprehensive Coverage</h4>
+                        <p>Include test cases for all known variations of the service response.</p>
+                    </div>
+                    
+                    <div class="best-practice">
+                        <h4>✅ Real Examples</h4>
+                        <p>Use actual service responses rather than contrived examples.</p>
+                    </div>
+                    
+                    <div class="best-practice">
+                        <h4>✅ Edge Cases</h4>
+                        <p>Test with edge cases that might cause false positives or negatives.</p>
+                    </div>
+                    
+                    <div class="best-practice">
+                        <h4>✅ Negative Cases</h4>
+                        <p>Include examples that should NOT match to verify pattern specificity.</p>
+                    </div>
+                    
+                    <h3>Test Case Structure</h3>
+                    <p>Each test case should include:</p>
+                    <ul>
+                        <li><strong>input</strong>: The exact response text the pattern will process</li>
+                        <li><strong>expected_version</strong>: The version that should be extracted</li>
+                    </ul>
+                    
+                    <pre><code>"test_cases": [
+  {
+    "input": "Server: Apache/2.4.41 (Ubuntu)",
+    "expected_version": "2.4.41"
+  },
+  {
+    "input": "Server: Apache/2.4.52",
+    "expected_version": "2.4.52"
+  }
+]</code></pre>
+                    
+                    <h2>Metadata Best Practices</h2>
+                    
+                    <h3>Priority Values</h3>
+                    <p>Set appropriate priority values based on service importance:</p>
+                    <ul>
+                        <li><strong>300+</strong>: Critical/common services (Apache, Nginx, MySQL)</li>
+                        <li><strong>200-299</strong>: Common services (PostgreSQL, MongoDB, Redis)</li>
+                        <li><strong>100-199</strong>: Less common services (specific applications)</li>
+                        <li><strong>50-99</strong>: Rare or specialized services</li>
+                    </ul>
+                    
+                    <h3>Confidence Values</h3>
+                    <p>Set confidence values based on pattern reliability:</p>
+                    <ul>
+                        <li><strong>0.95-1.0</strong>: Very high confidence (minimal false positives)</li>
+                        <li><strong>0.85-0.94</strong>: High confidence (some edge cases)</li>
+                        <li><strong>0.70-0.84</strong>: Medium confidence (some limitations)</li>
+                        <li><strong>0.50-0.69</strong>: Low confidence (use with caution)</li>
+                    </ul>
+                    
+                    <h3>Tags</h3>
+                    <p>Use descriptive tags to categorize patterns:</p>
+                    <ul>
+                        <li>Protocol tags: http, ssh, ftp, smtp</li>
+                        <li>Service tags: apache, nginx, mysql, postgresql</li>
+                        <li>Category tags: webserver, database, networking</li>
+                        <li>Platform tags: linux, windows, docker (if relevant)</li>
+                    </ul>
+                    
+                    <h2>Validation Process</h2>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">1</span> JSON Schema Validation</h3>
+                        <p>Ensure your pattern file conforms to our JSON schema:</p>
+                        <pre><code>python tools/validate-pattern.py patterns/your-pattern.json</code></pre>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">2</span> Regex Compilation Test</h3>
+                        <p>Verify that your regex pattern compiles without errors.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">3</span> Test Case Execution</h3>
+                        <p>Run all test cases to ensure they pass:</p>
+                        <ul>
+                            <li>Correct version extraction</li>
+                            <li>No false positives</li>
+                            <li>Edge case handling</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">4</span> Peer Review</h3>
+                        <p>Submit your pattern for community review through a pull request.</p>
+                    </div>
+                    
+                    <h2>Common Pitfalls to Avoid</h2>
+                    
+                    <div class="important">
+                        <h4>⚠️ Overly Broad Patterns</h4>
+                        <p>Patterns that are too general may produce false positives. Always test against unrelated services.</p>
+                    </div>
+                    
+                    <div class="important">
+                        <h4>⚠️ Insufficient Test Cases</h4>
+                        <p>Patterns with too few test cases may not be reliable. Include at least 3 diverse examples.</p>
+                    </div>
+                    
+                    <div class="important">
+                        <h4>⚠️ Incorrect Capture Groups</h4>
+                        <p>Ensure the <code>version_group</code> number matches the capture group containing the version.</p>
+                    </div>
+                    
+                    <div class="important">
+                        <h4>⚠️ Poor Performance</h4>
+                        <p>Avoid patterns with excessive backtracking that can slow down scanning tools.</p>
+                    </div>
+                    
+                    <h2>Examples of Good Patterns</h2>
+                    
+                    <h3>Web Server Pattern</h3>
+                    <pre><code>{
+  "patterns": [
+    {
+      "name": "Apache HTTPD Server",
+      "category": "web",
+      "pattern": "Server: Apache/([\\d.]+)",
+      "vendor": "Apache",
+      "product": "HTTPD",
+      "version_group": 1,
+      "priority": 180,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Research Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects Apache HTTPD version from HTTP server banner. This pattern matches the Server header commonly returned by Apache HTTPD servers.",
+        "tags": ["http", "apache", "webserver"],
+        "test_cases": [
+          {
+            "input": "Server: Apache/2.4.41 (Ubuntu)",
+            "expected_version": "2.4.41"
+          },
+          {
+            "input": "Server: Apache/2.4.52",
+            "expected_version": "2.4.52"
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
+                    
+                    <h3>Database Pattern</h3>
+                    <pre><code>{
+  "patterns": [
+    {
+      "name": "MySQL Database",
+      "category": "database",
+      "pattern": "([\\d]+\\.[\\d]+\\.[\\d]+)[\\s-]*MySQL.*",
+      "vendor": "Oracle",
+      "product": "MySQL",
+      "version_group": 1,
+      "priority": 150,
+      "confidence": 0.85,
+      "metadata": {
+        "author": "Database Security Team",
+        "created_at": "2024-02-15T00:00:00",
+        "updated_at": "2024-02-15T00:00:00",
+        "description": "Detects MySQL version from handshake response. MySQL includes version information in its initial connection handshake.",
+        "tags": ["database", "mysql", "sql"],
+        "test_cases": [
+          {
+            "input": "5.7.33-0ubuntu0.16.04.1 MySQL Community Server (GPL)",
+            "expected_version": "5.7.33"
+          },
+          {
+            "input": "8.0.25 MySQL Community Server - GPL",
+            "expected_version": "8.0.25"
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
+                    
+                    <h2>Getting Help</h2>
+                    <p>If you need assistance with pattern development:</p>
+                    <ul>
+                        <li>Check the <a href="../contributing.html">Contributing Guide</a></li>
+                        <li>Ask questions in <a href="https://github.com/sakirm-icpl/version-detection-db/discussions">GitHub Discussions</a></li>
+                        <li>Review existing patterns in the database for examples</li>
+                        <li>Contact maintainers directly for complex issues</li>
+                    </ul>
+                    
+                    <div style="text-align: center; margin: 2rem 0;">
+                        <a href="https://github.com/sakirm-icpl/version-detection-db/fork" class="cta-button">Fork the Repository</a>
+                        <a href="../pattern-database.html" class="cta-button">View Pattern Database</a>
+                    </div>
+                </div>
+                
+                <div class="sidebar">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="../getting-started.html">Getting Started Guide</a></li>
+                        <li><a href="../pattern-database.html">Pattern Database</a></li>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/blob/main/patterns/TEMPLATE.md">Pattern Template</a></li>
+                    </ul>
+                    
+                    <h3 style="margin-top: 2rem;">Resources</h3>
+                    <ul>
+                        <li><a href="../docs.html">Full Documentation</a></li>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db">GitHub Repository</a></li>
+                        <li><a href="../contributing.html">Contributing Guide</a></li>
+                        <li><a href="../code-of-conduct.html">Code of Conduct</a></li>
+                    </ul>
+                    
+                    <h3 style="margin-top: 2rem;">Community</h3>
+                    <ul>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/issues">Report Issues</a></li>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/discussions">Discussions</a></li>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">Good First Issues</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Version Detection Pattern Database - Open-source regex patterns for software version detection.</p>
+            <p class="copyright">&copy; 2025 Version Detection Contributors. Released under the MIT License.</p>
+        </div>
+    </footer>
+</body>
+</html>

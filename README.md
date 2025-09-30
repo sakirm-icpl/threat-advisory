@@ -83,7 +83,15 @@ Community members can contribute new detection patterns by:
 
 For detailed instructions, see the [Pattern Contribution Guide](patterns/CONTRIBUTING.md).
 
-### Getting Started
+### Getting Started for New Contributors
+
+If you're new to open-source contribution or cybersecurity research, we've created special resources to help you get started:
+
+- [Beginner's Guide](docs/community/beginners-guide.html) - Step-by-step introduction for new contributors
+- [Good First Issues](docs/community/good-first-issues.html) - Curated list of beginner-friendly contribution opportunities
+- [Pattern Development Guide](docs/community/pattern-development.html) - Best practices for creating effective patterns
+
+### Standard Contribution Process
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b pattern/new-service`

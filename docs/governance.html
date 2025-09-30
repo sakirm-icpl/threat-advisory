@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Governance for Version Detection Pattern Database">
+    <title>Governance - Version Detection Pattern Database</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --accent: #8b5cf6;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --dark: #0f172a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+        
+        main {
+            padding: 2rem 0;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .page-header p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar ul li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .sidebar ul li a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .sidebar ul li a:hover {
+            color: var(--primary-dark);
+        }
+        
+        h2 {
+            color: var(--secondary);
+            margin: 2rem 0 1rem 0;
+        }
+        
+        h3 {
+            color: var(--secondary);
+            margin: 1.5rem 0 1rem 0;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+        }
+        
+        .section h3 {
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+            padding-left: 1rem;
+        }
+        
+        .roles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .role-card {
+            background: var(--light);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .role-card h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        footer {
+            background: var(--secondary);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb span {
+            color: var(--gray);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🔍</span>
+                    <span>Version Detection DB</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="pattern-database.html">Patterns</a>
+                    <a href="https://github.com/sakirm-icpl/version-detection-db">GitHub</a>
+                    <a href="docs.html">Documentation</a>
+                    <a href="community/beginners-guide.html">Community</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a> <span>></span> Governance
+            </div>
+            
+            <div class="page-header">
+                <h1>Project Governance</h1>
+                <p>How the Version Detection Pattern Database project is managed</p>
+            </div>
+            
+            <div class="content">
+                <div class="main-content">
+                    <p>This document outlines the governance model for the Version Detection Pattern Database project.</p>
+                    
+                    <div class="section">
+                        <h3>Roles and Responsibilities</h3>
+                        <p>Our project has several roles with different responsibilities:</p>
+                        
+                        <div class="roles">
+                            <div class="role-card">
+                                <h4>Contributors</h4>
+                                <p>Community members who contribute to the project in various ways:</p>
+                                <ul>
+                                    <li>Submitting patterns and improvements</li>
+                                    <li>Improving documentation</li>
+                                    <li>Enhancing tools and scripts</li>
+                                    <li>Participating in discussions</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="role-card">
+                                <h4>Maintainers</h4>
+                                <p>Responsible for the overall health and direction of the project:</p>
+                                <ul>
+                                    <li>Reviewing and merging pull requests</li>
+                                    <li>Managing issues and feature requests</li>
+                                    <li>Ensuring quality and consistency</li>
+                                    <li>Maintaining documentation</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="role-card">
+                                <h4>Project Lead</h4>
+                                <p>Has additional responsibilities:</p>
+                                <ul>
+                                    <li>Setting project vision and strategy</li>
+                                    <li>Coordinating with maintainers</li>
+                                    <li>Representing the project publicly</li>
+                                    <li>Making final decisions</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h3>Decision Making</h3>
+                        <p>We strive to make decisions through consensus among maintainers and active contributors. This means:</p>
+                        <ul>
+                            <li>Discussing issues openly and thoroughly</li>
+                            <li>Seeking input from all stakeholders</li>
+                            <li>Finding solutions that most people can accept</li>
+                            <li>Documenting decisions for future reference</li>
+                        </ul>
+                        
+                        <p>If consensus cannot be reached on a significant issue, maintainers may call for a vote. Voting is used sparingly and only for critical decisions.</p>
+                    </div>
+                    
+                    <div class="section">
+                        <h3>Contribution Process</h3>
+                        <p>All participants must follow our <a href="code-of-conduct.html">Code of Conduct</a>. Violations will be addressed according to the enforcement procedures outlined in that document.</p>
+                        
+                        <h4>Pull Request Process</h4>
+                        <ul>
+                            <li>All contributions must go through the pull request process</li>
+                            <li>Pull requests must be reviewed by at least one maintainer</li>
+                            <li>Significant changes should be discussed in issues first</li>
+                            <li>Maintainers have the right to request changes or reject contributions</li>
+                        </ul>
+                        
+                        <h4>Quality Standards</h4>
+                        <ul>
+                            <li>Contributions must follow our templates and guidelines</li>
+                            <li>Data must be accurate and well-documented</li>
+                            <li>Documentation should be clear and comprehensive</li>
+                            <li>Code should be clean and well-commented</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="section">
+                        <h3>Release Process</h3>
+                        <h4>Versioning</h4>
+                        <p>We follow Semantic Versioning (SemVer) for all releases.</p>
+                        
+                        <h4>Release Cadence</h4>
+                        <ul>
+                            <li>Major releases: As needed for significant changes</li>
+                            <li>Minor releases: Quarterly or as needed for new features</li>
+                            <li>Patch releases: As needed for bug fixes and security updates</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="section">
+                        <h3>Conflict Resolution</h3>
+                        <p>The <a href="code-of-conduct.html">Code of Conduct Committee</a> handles violations of our Code of Conduct.</p>
+                        
+                        <h4>Technical Decisions</h4>
+                        <p>Technical disagreements should be resolved through:</p>
+                        <ol>
+                            <li>Discussion among involved parties</li>
+                            <li>Mediation by maintainers if needed</li>
+                            <li>Final decision by the Project Lead if consensus cannot be reached</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="section">
+                        <h3>Changes to Governance</h3>
+                        <p>This governance document can be changed by:</p>
+                        <ol>
+                            <li>Opening a GitHub issue to propose changes</li>
+                            <li>Discussing the proposal with the community</li>
+                            <li>Getting approval from a majority of maintainers</li>
+                            <li>Merging the changes after review</li>
+                        </ol>
+                        
+                        <p>Significant changes require broader community input.</p>
+                    </div>
+                </div>
+                
+                <div class="sidebar">
+                    <h3>Project Info</h3>
+                    <ul>
+                        <li><a href="contributing.html">Contributing</a></li>
+                        <li><a href="code-of-conduct.html">Code of Conduct</a></li>
+                        <li><a href="license.html">License</a></li>
+                    </ul>
+                    
+                    <h3 style="margin-top: 2rem;">Community</h3>
+                    <ul>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/discussions">Discussions</a></li>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/issues">Issues</a></li>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db">GitHub Repository</a></li>
+                    </ul>
+                    
+                    <h3 style="margin-top: 2rem;">Documentation</h3>
+                    <ul>
+                        <li><a href="docs.html">Full Documentation</a></li>
+                        <li><a href="getting-started.html">Getting Started</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Version Detection Pattern Database - Open-source regex patterns for software version detection.</p>
+            <p class="copyright">&copy; 2025 Version Detection Contributors. Released under the MIT License.</p>
+        </div>
+    </footer>
+</body>
+</html>

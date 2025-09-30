@@ -34,6 +34,7 @@
             color: white;
             padding: 2rem 0;
             text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .container {
@@ -56,6 +57,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            text-decoration: none;
+            color: white;
         }
         
         .logo-icon {
@@ -179,7 +182,7 @@
             text-align: center;
             padding: 2rem;
             background: white;
-            border-radius: 0.75rem;
+            border-radius: 0.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
         
@@ -284,22 +287,23 @@
     <header>
         <div class="container">
             <nav>
-                <div class="logo">
+                <a href="index.html" class="logo">
                     <span class="logo-icon">🔍</span>
                     <span>Version Detection DB</span>
-                </div>
+                </a>
                 <div class="nav-links">
                     <a href="#features">Features</a>
                     <a href="#how-it-works">How It Works</a>
                     <a href="https://github.com/sakirm-icpl/version-detection-db">GitHub</a>
-                    <a href="https://github.com/sakirm-icpl/version-detection-db/blob/main/docs/README.md">Documentation</a>
+                    <a href="docs.html">Documentation</a>
+                    <a href="community/beginners-guide.html">Community</a>
                 </div>
             </nav>
             <div class="hero">
                 <h1>Open-Source Version Detection Patterns</h1>
                 <p>Community-driven database of regex patterns for identifying software versions in security assessments</p>
                 <a href="https://github.com/sakirm-icpl/version-detection-db" class="cta-button">View on GitHub</a>
-                <a href="#how-it-works" class="cta-button">Learn More</a>
+                <a href="getting-started.html" class="cta-button">Get Started</a>
             </div>
         </div>
     </header>
@@ -370,11 +374,38 @@
         </div>
     </section>
 
+    <section class="features" style="background-color: #f1f5f9;">
+        <div class="container">
+            <h2 class="section-title">Getting Started for Contributors</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📘</div>
+                    <h3>Beginner's Guide</h3>
+                    <p>Step-by-step introduction for new contributors to understand the project and start contributing.</p>
+                    <a href="community/beginners-guide.html" class="cta-button" style="margin-top: 1rem; display: inline-block;">Read Guide</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Good First Issues</h3>
+                    <p>Curated list of beginner-friendly contribution opportunities to help you get started.</p>
+                    <a href="community/good-first-issues.html" class="cta-button" style="margin-top: 1rem; display: inline-block;">View Issues</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>Pattern Development</h3>
+                    <p>Best practices and guidelines for creating effective version detection patterns.</p>
+                    <a href="community/pattern-development.html" class="cta-button" style="margin-top: 1rem; display: inline-block;">Read Guide</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="cta">
         <div class="container">
             <h2>Join the Security Research Community</h2>
             <p>Contribute your version detection patterns, access our comprehensive database, and help improve security testing for everyone.</p>
-            <a href="https://github.com/sakirm-icpl/version-detection-db" class="cta-button">Contribute on GitHub</a>
+            <a href="getting-started.html" class="cta-button">Get Started Contributing</a>
+            <a href="https://github.com/sakirm-icpl/version-detection-db" class="cta-button">View on GitHub</a>
         </div>
     </section>
 
@@ -388,10 +419,10 @@
                 <div class="footer-column">
                     <h3>Resources</h3>
                     <ul>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/blob/main/patterns/README.md">Pattern Database</a></li>
+                        <li><a href="pattern-database.html">Pattern Database</a></li>
                         <li><a href="https://github.com/sakirm-icpl/version-detection-db">GitHub Repository</a></li>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/blob/main/CONTRIBUTING.md">Contributing Guide</a></li>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/blob/main/LICENSE">License</a></li>
+                        <li><a href="contributing.html">Contributing Guide</a></li>
+                        <li><a href="license.html">License</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
@@ -399,7 +430,7 @@
                     <ul>
                         <li><a href="https://github.com/sakirm-icpl/version-detection-db/issues">Report Issues</a></li>
                         <li><a href="https://github.com/sakirm-icpl/version-detection-db/discussions">Discussions</a></li>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a></li>
+                        <li><a href="code-of-conduct.html">Code of Conduct</a></li>
                     </ul>
                 </div>
             </div>

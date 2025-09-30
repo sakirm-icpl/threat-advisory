@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Page not found - Version Detection Pattern Database">
+    <title>404 - Page Not Found | Version Detection Pattern Database</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --accent: #8b5cf6;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --dark: #0f172a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .error-content {
+            text-align: center;
+            max-width: 600px;
+        }
+        
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .error-title {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .error-message {
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 0.5rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        footer {
+            background: var(--secondary);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🔍</span>
+                    <span>Version Detection DB</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="index.html">Features</a>
+                    <a href="index.html">How It Works</a>
+                    <a href="https://github.com/sakirm-icpl/version-detection-db">GitHub</a>
+                    <a href="docs.html">Documentation</a>
+                    <a href="community/beginners-guide.html">Community</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="error-content">
+                <div class="error-code">404</div>
+                <h1 class="error-title">Page Not Found</h1>
+                <p class="error-message">Sorry, the page you're looking for doesn't exist or has been moved.</p>
+                <a href="index.html" class="cta-button">Return to Homepage</a>
+                <a href="docs.html" class="cta-button">View Documentation</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Version Detection Pattern Database - Open-source regex patterns for software version detection.</p>
+            <p class="copyright">&copy; 2025 Version Detection Contributors. Released under the MIT License.</p>
+        </div>
+    </footer>
+</body>
+</html>

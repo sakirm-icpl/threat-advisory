@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Beginner's Guide to Contributing to Version Detection Pattern Database">
+    <title>Beginner's Guide - Version Detection Pattern Database</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --accent: #8b5cf6;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --dark: #0f172a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+        
+        main {
+            padding: 2rem 0;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .page-header p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar ul li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .sidebar ul li a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .sidebar ul li a:hover {
+            color: var(--primary-dark);
+        }
+        
+        h2 {
+            color: var(--secondary);
+            margin: 2rem 0 1rem 0;
+        }
+        
+        h3 {
+            color: var(--secondary);
+            margin: 1.5rem 0 1rem 0;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        .step {
+            background: var(--light);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 0.5rem 0;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        footer {
+            background: var(--secondary);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb span {
+            color: var(--gray);
+        }
+        
+        .tip {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+        
+        .tip h4 {
+            color: #f59e0b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .important {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+        
+        .important h4 {
+            color: #ef4444;
+            margin-bottom: 0.5rem;
+        }
+        
+        code {
+            background: var(--light);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        
+        pre {
+            background: var(--secondary);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">
+                    <span class="logo-icon">🔍</span>
+                    <span>Version Detection DB</span>
+                </a>
+                <div class="nav-links">
+                    <a href="../index.html">Home</a>
+                    <a href="../pattern-database.html">Patterns</a>
+                    <a href="https://github.com/sakirm-icpl/version-detection-db">GitHub</a>
+                    <a href="../docs.html">Documentation</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Home</a> <span>></span> 
+                <a href="../docs.html">Documentation</a> <span>></span> 
+                Beginner's Guide
+            </div>
+            
+            <div class="page-header">
+                <h1>Beginner's Guide to Contributing</h1>
+                <p>Your step-by-step introduction to contributing to the Version Detection Pattern Database</p>
+            </div>
+            
+            <div class="content">
+                <div class="main-content">
+                    <h2>Welcome to the Community!</h2>
+                    <p>If you're new to open-source contribution or cybersecurity research, this guide is for you. We've designed a simple, step-by-step process to help you contribute your first version detection pattern to our database.</p>
+                    
+                    <div class="tip">
+                        <h4>💡 First Time Contributor?</h4>
+                        <p>If you're new to GitHub, we recommend starting with GitHub's <a href="https://guides.github.com/activities/hello-world/" target="_blank">Hello World guide</a> to familiarize yourself with the basics of creating repositories, branches, commits, and pull requests.</p>
+                    </div>
+                    
+                    <h2>What You'll Learn</h2>
+                    <p>By following this guide, you'll learn how to:</p>
+                    <ul>
+                        <li>Understand what version detection patterns are</li>
+                        <li>Find services that disclose version information</li>
+                        <li>Create regex patterns to detect software versions</li>
+                        <li>Write test cases to validate your patterns</li>
+                        <li>Submit your pattern to the database</li>
+                    </ul>
+                    
+                    <h2>What Are Version Detection Patterns?</h2>
+                    <p>Version detection patterns are regular expressions (regex) that identify software versions from network responses. For example, when a web server responds to an HTTP request, it might include a "Server" header like:</p>
+                    
+                    <pre><code>Server: Apache/2.4.41 (Ubuntu)</code></pre>
+                    
+                    <p>A version detection pattern for this would be a regex that can extract "2.4.41" from this response. These patterns are used by security professionals for:</p>
+                    <ul>
+                        <li>Penetration testing</li>
+                        <li>Vulnerability assessment</li>
+                        <li>Bug bounty hunting</li>
+                        <li>Asset discovery</li>
+                    </ul>
+                    
+                    <h2>Step-by-Step Contribution Process</h2>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">1</span> Set Up Your Environment</h3>
+                        <p>Before you start, you'll need:</p>
+                        <ul>
+                            <li>A GitHub account (free to create)</li>
+                            <li>Git installed on your computer</li>
+                            <li>A text editor (VS Code, Sublime Text, etc.)</li>
+                            <li>Python 3.6+ (for validation tools)</li>
+                        </ul>
+                        
+                        <p>Install the required Python package:</p>
+                        <pre><code>pip install jsonschema</code></pre>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">2</span> Find a Service to Research</h3>
+                        <p>Look for services that disclose version information in their responses. Some common examples include:</p>
+                        <ul>
+                            <li>Web servers: Apache, Nginx, IIS</li>
+                            <li>Database systems: MySQL, PostgreSQL, MongoDB</li>
+                            <li>Networking services: SSH, FTP, SMTP</li>
+                            <li>Applications: WordPress, Jenkins, Tomcat</li>
+                        </ul>
+                        
+                        <p>You can find these by:</p>
+                        <ul>
+                            <li>Scanning your own test environments</li>
+                            <li>Researching publicly available documentation</li>
+                            <li>Looking at existing patterns in our database to find gaps</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">3</span> Fork and Clone the Repository</h3>
+                        <p>Visit our <a href="https://github.com/sakirm-icpl/version-detection-db">GitHub repository</a> and click the "Fork" button in the top-right corner. This creates your own copy of the repository.</p>
+                        
+                        <p>Clone your fork to your local machine:</p>
+                        <pre><code>git clone https://github.com/YOUR-USERNAME/version-detection-db.git
+cd version-detection-db</code></pre>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">4</span> Create a New Branch</h3>
+                        <p>Create a new branch for your pattern:</p>
+                        <pre><code>git checkout -b pattern/service-name</code></pre>
+                        <p>Replace "service-name" with the name of the service you're creating a pattern for (e.g., "pattern/apache" or "pattern/mysql").</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">5</span> Create Your Pattern File</h3>
+                        <p>Create a new JSON file in the appropriate category directory:</p>
+                        <ul>
+                            <li><code>patterns/web/</code> - For web servers and applications</li>
+                            <li><code>patterns/networking/</code> - For networking services</li>
+                            <li><code>patterns/database/</code> - For database systems</li>
+                            <li><code>patterns/messaging/</code> - For messaging systems</li>
+                        </li>
+                        
+                        <p>Copy the template to get started:</p>
+                        <pre><code>cp patterns/TEMPLATE.md patterns/web/your-service.json</code></pre>
+                        
+                        <p>For example, if you're creating a pattern for Nginx:</p>
+                        <pre><code>cp patterns/TEMPLATE.md patterns/web/nginx.json</code></pre>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">6</span> Write Your Pattern</h3>
+                        <p>Open your new file and replace the template content with your pattern information:</p>
+                        
+                        <p>Key fields to update:</p>
+                        <ul>
+                            <li><strong>name</strong>: Descriptive name (e.g., "Nginx Web Server")</li>
+                            <li><strong>category</strong>: One of web, networking, database, messaging</li>
+                            <li><strong>pattern</strong>: Your regex pattern with version capture group</li>
+                            <li><strong>vendor</strong>: Software vendor (e.g., "Nginx Inc.")</li>
+                            <li><strong>product</strong>: Software product name (e.g., "Nginx")</li>
+                            <li><strong>version_group</strong>: Capture group number for version (usually 1)</li>
+                            <li><strong>priority</strong>: 1-999 (higher = more important)</li>
+                            <li><strong>confidence</strong>: 0.0-1.0 (how reliable is your pattern?)</li>
+                        </ul>
+                        
+                        <p>In the metadata section:</p>
+                        <ul>
+                            <li><strong>author</strong>: Your name or GitHub username</li>
+                            <li><strong>created_at</strong>: Current date in ISO format</li>
+                            <li><strong>description</strong>: Explain what your pattern detects</li>
+                            <li><strong>tags</strong>: Relevant keywords for your pattern</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">7</span> Add Test Cases</h3>
+                        <p>Add at least 2-3 test cases in the test_cases array:</p>
+                        <pre><code>"test_cases": [
+  {
+    "input": "Server: nginx/1.18.0 (Ubuntu)",
+    "expected_version": "1.18.0"
+  },
+  {
+    "input": "Server: nginx/1.20.1",
+    "expected_version": "1.20.1"
+  }
+]</code></pre>
+                        
+                        <p>Your test cases should include:</p>
+                        <ul>
+                            <li>Real examples from actual service responses</li>
+                            <li>Variations in formatting (if applicable)</li>
+                            <li>Edge cases that might cause false positives</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">8</span> Validate Your Pattern</h3>
+                        <p>Run the validation script to check your pattern:</p>
+                        <pre><code>python tools/validate-pattern.py patterns/web/your-file.json</code></pre>
+                        
+                        <p>This will check:</p>
+                        <ul>
+                            <li>JSON schema compliance</li>
+                            <li>Regex compilation</li>
+                            <li>Test case execution</li>
+                        </ul>
+                        
+                        <p>Fix any errors that appear.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">9</span> Commit and Push Your Changes</h3>
+                        <p>Add your new file to git:</p>
+                        <pre><code>git add patterns/web/your-file.json
+git commit -m "Add pattern for Nginx version detection"</code></pre>
+                        
+                        <p>Push to your fork:</p>
+                        <pre><code>git push origin pattern/service-name</code></pre>
+                    </div>
+                    
+                    <div class="step">
+                        <h3><span class="step-number">10</span> Create a Pull Request</h3>
+                        <p>Visit your fork on GitHub and create a pull request:</p>
+                        <ol>
+                            <li>Click "Compare & pull request"</li>
+                            <li>Write a descriptive title and explanation</li>
+                            <li>Submit the pull request</li>
+                        </ol>
+                        
+                        <p>Maintainers will review your pattern and may suggest improvements.</p>
+                    </div>
+                    
+                    <h2>Example Pattern</h2>
+                    <p>Here's a complete example for Nginx:</p>
+                    
+                    <pre><code>{
+  "patterns": [
+    {
+      "name": "Nginx Web Server",
+      "category": "web",
+      "pattern": "Server: nginx/([\\d.]+)",
+      "vendor": "Nginx Inc.",
+      "product": "Nginx",
+      "version_group": 1,
+      "priority": 170,
+      "confidence": 0.95,
+      "metadata": {
+        "author": "Your Name",
+        "created_at": "2025-09-30T10:00:00",
+        "updated_at": "2025-09-30T10:00:00",
+        "description": "Detects Nginx version from HTTP server banner. This pattern matches the Server header commonly returned by Nginx servers.",
+        "tags": ["http", "nginx", "webserver"],
+        "test_cases": [
+          {
+            "input": "Server: nginx/1.18.0 (Ubuntu)",
+            "expected_version": "1.18.0"
+          },
+          {
+            "input": "Server: nginx/1.20.1",
+            "expected_version": "1.20.1"
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
+                    
+                    <h2>Tips for Success</h2>
+                    
+                    <div class="tip">
+                        <h4>💡 Regex Tips</h4>
+                        <ul>
+                            <li>Use capture groups <code>()</code> around the version part you want to extract</li>
+                            <li>Escape backslashes in JSON strings (use <code>\\d</code> instead of <code>\d</code>)</li>
+                            <li>Be specific to avoid false positives</li>
+                            <li>Test your pattern against various examples</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tip">
+                        <h4>💡 Testing Tips</h4>
+                        <ul>
+                            <li>Include real examples from actual services</li>
+                            <li>Test edge cases and variations</li>
+                            <li>Check for false positives with similar strings</li>
+                            <li>Validate with the provided tool before submitting</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="important">
+                        <h4>⚠️ Important Guidelines</h4>
+                        <ul>
+                            <li>Only submit patterns you've tested and validated</li>
+                            <li>Include comprehensive test cases</li>
+                            <li>Follow the existing pattern structure exactly</li>
+                            <li>Provide accurate metadata information</li>
+                            <li>Be patient during the review process</li>
+                        </ul>
+                    </div>
+                    
+                    <h2>Getting Help</h2>
+                    <p>If you need assistance:</p>
+                    <ul>
+                        <li>Check the <a href="../contributing.html">Contributing Guide</a></li>
+                        <li>Ask questions in <a href="https://github.com/sakirm-icpl/version-detection-db/discussions">GitHub Discussions</a></li>
+                        <li>Review existing issues and pull requests for examples</li>
+                        <li>Look at existing patterns in the database for reference</li>
+                    </ul>
+                    
+                    <div style="text-align: center; margin: 2rem 0;">
+                        <a href="https://github.com/sakirm-icpl/version-detection-db/fork" class="cta-button">Fork the Repository</a>
+                        <a href="../pattern-database.html" class="cta-button">View Pattern Database</a>
+                    </div>
+                </div>
+                
+                <div class="sidebar">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="../getting-started.html">Getting Started Guide</a></li>
+                        <li><a href="../pattern-database.html">Pattern Database</a></li>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/blob/main/patterns/TEMPLATE.md">Pattern Template</a></li>
+                        <li><a href="../contributing.html">Contributing Guide</a></li>
+                        <li><a href="../tools.html">Validation Tools</a></li>
+                    </ul>
+                    
+                    <h3 style="margin-top: 2rem;">Resources</h3>
+                    <ul>
+                        <li><a href="../docs.html">Full Documentation</a></li>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db">GitHub Repository</a></li>
+                        <li><a href="../code-of-conduct.html">Code of Conduct</a></li>
+                        <li><a href="../license.html">License</a></li>
+                    </ul>
+                    
+                    <h3 style="margin-top: 2rem;">Community</h3>
+                    <ul>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/issues">Report Issues</a></li>
+                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/discussions">Discussions</a></li>
+                        <li><a href="../governance.html">Governance</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Version Detection Pattern Database - Open-source regex patterns for software version detection.</p>
+            <p class="copyright">&copy; 2025 Version Detection Contributors. Released under the MIT License.</p>
+        </div>
+    </footer>
+</body>
+</html>
