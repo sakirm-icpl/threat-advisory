@@ -1,155 +1,162 @@
-# Version Detection Pattern Database
+# Threat Advisory Database
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Issues](https://img.shields.io/github/issues/sakirm-icpl/version-detection-db.svg)](https://github.com/sakirm-icpl/version-detection-db/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/sakirm-icpl/version-detection-db.svg)](https://github.com/sakirm-icpl/version-detection-db/pulls)
-[![Contributors](https://img.shields.io/github/contributors/sakirm-icpl/version-detection-db.svg)](https://github.com/sakirm-icpl/version-detection-db/graphs/contributors)
-[![Patterns](https://img.shields.io/badge/Patterns-100+-blue.svg)](patterns/)
+An open-source repository of threat intelligence advisories, vulnerability data, and security research findings. This database is designed to support cybersecurity professionals, researchers, and organizations in staying informed about emerging threats and vulnerabilities.
 
-**Version Detection Pattern Database** is an open-source collection of regex patterns designed to help security researchers, penetration testers, and developers identify software versions through service banners, HTTP responses, and other network protocol responses.
+[![Deploy Documentation](https://github.com/your-org/threat-advisory/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/your-org/threat-advisory/actions/workflows/deploy-docs.yml)
+[![Validate Data](https://github.com/your-org/threat-advisory/actions/workflows/validate-data.yml/badge.svg)](https://github.com/your-org/threat-advisory/actions/workflows/validate-data.yml)
 
-## 🌟 About This Repository
+## Purpose
 
-This repository serves as a community-driven database of regex patterns for version detection of various software products. Each pattern is carefully crafted and tested to accurately identify software versions from network responses, making it invaluable for:
+This project aims to create a comprehensive database of threat advisories and vulnerability intelligence that can be used by security teams to protect their organizations. By providing a centralized repository of curated threat data, we can help security professionals stay ahead of emerging threats.
 
-- Security scanning tools
-- Penetration testing
-- Vulnerability assessment
-- Bug bounty hunting
-- Asset discovery and inventory
-- Network reconnaissance
+## Use Cases
 
-## 📂 Repository Structure
+- Threat intelligence platforms
+- Vulnerability management systems
+- Security operations centers (SOCs)
+- Incident response teams
+- Red team/blue team exercises
+- Security research and analysis
+
+## Repository Structure
 
 ```
-version-detection-db/
-├── patterns/               # Regex patterns organized by category
-│   ├── web/                # Web server/application patterns
-│   ├── networking/         # Networking service patterns
-│   ├── database/           # Database service patterns
-│   ├── messaging/          # Messaging service patterns
-│   ├── TEMPLATE.md         # Template for new patterns
-│   └── CONTRIBUTING.md     # Guide for pattern contributions
-├── data/                   # Product and vendor information
-│   ├── products.json       # Database of software products
-│   ├── vendors.json        # Database of software vendors
-│   └── README.md           # Guide to data structure
-├── docs/                   # Documentation for contributors and users
-│   ├── community/          # Community contribution guides
-│   └── index.html          # Static website for GitHub Pages
-├── tools/                  # Validation and testing tools
-│   └── validate-pattern.py # Pattern validation script
-└── .github/                # GitHub integration files
+threat-advisory/
+├── advisories/               # Main threat advisory database
+│   ├── cve/                  # CVE-based advisories
+│   ├── malware/              # Malware threat advisories
+│   ├── apt/                  # APT group advisories
+│   ├── vulnerability/        # General vulnerability advisories
+│   ├── TEMPLATE.md           # Advisory template
+│   └── CONTRIBUTING.md       # Contribution guidelines
+├── tools/                    # Validation and utility scripts
+├── docs/                     # Documentation site
+├── data/                     # Structured data files
+├── .github/workflows/        # GitHub Actions workflows
+├── README.md                 # Project overview
+├── CONTRIBUTING.md           # Contribution guidelines
+├── CODE_OF_CONDUCT.md        # Code of conduct
+├── LICENSE                   # License information
+├── ADVISORY_SUMMARY.md       # Advisory database summary
+└── PROJECT_SUMMARY.md        # Project summary
 ```
 
-## 🎯 Use Cases
+## Advisory Format
 
-### Security Scanning Tools
-Integrate these patterns into your security scanners to automatically detect software versions during assessments.
+Each advisory follows a standardized JSON structure for consistency and ease of processing:
 
-### Penetration Testing
-Use patterns to quickly identify target software versions for vulnerability research.
+```json
+{
+  "advisories": [
+    {
+      "id": "THREAT-2024-001",
+      "title": "Advisory Title",
+      "severity": "high",
+      "category": "vulnerability",
+      "affected_products": ["Product A", "Product B"],
+      "description": "Detailed description of the threat or vulnerability",
+      "impact": "Potential impact of the threat",
+      "recommendations": ["Recommendation 1", "Recommendation 2"],
+      "references": ["https://example.com/reference1", "https://example.com/reference2"],
+      "published_date": "2024-01-01",
+      "last_updated": "2024-01-01",
+      "metadata": {
+        "author": "Contributor Name",
+        "tags": ["tag1", "tag2"],
+        "cvss_score": 7.5
+      }
+    }
+  ]
+}
+```
 
-### Bug Bounty Hunting
-Rapidly identify potentially vulnerable software versions in scope targets.
+## Sample Advisories
 
-### Asset Discovery
-Automate the discovery and cataloging of software assets in your network.
+We've included several sample advisories to demonstrate the format and capabilities:
 
-### Vulnerability Assessment
-Cross-reference detected versions with vulnerability databases to identify potential security risks.
+- [CVE-2024-12345](advisories/cve/cve-2024-12345.json) - Critical vulnerability advisory
+- [APT29 Campaign](advisories/apt/apt29-campaign.json) - APT group activity advisory
+- [Ransomware Variant](advisories/malware/ransomware-variant.json) - Malware threat advisory
+- [Authentication Bypass](advisories/vulnerability/webserver-pro-auth-bypass.json) - High severity vulnerability advisory
+- [Supply Chain Risks](advisories/threat/supply-chain-risks.json) - Medium severity threat advisory
 
-## 🤝 Contributing Patterns
+## Advisory Categories
 
-We welcome contributions from the security research community! Help expand our database by contributing new regex patterns.
+The database includes advisories for the following categories:
 
-### Types of Pattern Contributions
+- **CVE**: Common Vulnerabilities and Exposures
+- **Malware**: Malware threats and analysis
+- **APT**: Advanced Persistent Threat groups
+- **Vulnerability**: General vulnerability advisories
+- **Threat**: General threat advisories
 
-1. **Web Server Patterns** - Apache, Nginx, IIS, etc.
-2. **Database Patterns** - MySQL, PostgreSQL, MongoDB, etc.
-3. **Networking Service Patterns** - SSH, FTP, SMTP, etc.
-4. **Application Patterns** - CMS, frameworks, custom applications
-5. **Messaging Patterns** - Kafka, RabbitMQ, ActiveMQ, etc.
+## Tools
 
-### How to Contribute Detection Patterns
+The project includes several Python tools to work with the advisory database:
 
-Community members can contribute new detection patterns by:
+- `validate-advisory.py` - Validates a single advisory file
+- `validate-all-advisories.py` - Validates all advisory files in the repository
+- `generate-advisory-summary.py` - Generates a summary report of all advisories
 
-1. **Research**: Identify a service that isn't currently detected or needs improved detection
-2. **Pattern Development**: Create regex patterns to detect the service and extract versions
-3. **Testing**: Develop comprehensive test cases with real service responses
-4. **Documentation**: Provide clear documentation and proof of concept
-5. **Submission**: Follow the contribution guidelines to submit your pattern
+## Documentation
 
-For detailed instructions, see the [Pattern Contribution Guide](patterns/CONTRIBUTING.md).
+The project includes comprehensive documentation:
 
-### Getting Started for New Contributors
+- [Advisory Template](advisories/TEMPLATE.md) and [Contribution Guidelines](advisories/CONTRIBUTING.md)
+- [Beginner's Guide](docs/community/beginners-guide.html) for new contributors
+- [Good First Issues](docs/community/good-first-issues.html) for newcomers
+- [Advisory Development Guide](docs/community/advisory-development.html) for advanced contributors
+- Static HTML documentation site with GitHub Pages deployment
 
-If you're new to open-source contribution or cybersecurity research, we've created special resources to help you get started:
+## Validation
 
-- [Beginner's Guide](docs/community/beginners-guide.html) - Step-by-step introduction for new contributors
-- [Good First Issues](docs/community/good-first-issues.html) - Curated list of beginner-friendly contribution opportunities
-- [Pattern Development Guide](docs/community/pattern-development.html) - Best practices for creating effective patterns
+All advisories in the database have been validated using our automated tools and include:
 
-### Standard Contribution Process
+- Proper JSON structure
+- Required fields completion
+- Valid references
+- Complete metadata
+
+## Community Features
+
+The project includes features to support community contributions:
+
+- Clear contribution guidelines
+- Beginner-friendly resources
+- Good first issues for newcomers
+- Code of conduct
+- GitHub Actions workflow for documentation deployment
+
+## Statistics
+
+As of the latest update:
+
+- Total Advisories: 5
+- Advisories with References: 5
+- Total References: 10
+- Categories: 5
+- Severity Levels: 3
+
+## Contributing
+
+We welcome contributions from the community! Please read our [contribution guidelines](advisories/CONTRIBUTING.md) to get started.
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b pattern/new-service`
-3. Add your pattern following the [Pattern Template](patterns/TEMPLATE.md)
-4. Validate your pattern with our [validation script](tools/validate-pattern.py)
-5. Commit your changes: `git commit -am 'Add pattern for NewService'`
-6. Push to the branch: `git push origin pattern/new-service`
-7. Create a new Pull Request
+2. Create a new advisory file following our [template](advisories/TEMPLATE.md)
+3. Add references and recommendations to your advisory
+4. Validate your advisory using our [tools](tools/)
+5. Submit a pull request
 
-Please read our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) for details.
+## Community
 
-## 📖 Documentation
+- [Beginner's Guide](docs/community/beginners-guide.html) - Getting started with contributing
+- [Good First Issues](docs/community/good-first-issues.html) - Easy ways to contribute
+- [Advisory Development Guide](docs/community/advisory-development.html) - Advanced advisory creation
 
-Comprehensive documentation for contributors and users is available:
-
-- [Pattern Database Guide](patterns/README.md) - Complete pattern structure and contribution guidelines
-- [Pattern Template](patterns/TEMPLATE.md) - Template for creating new patterns
-- [Contribution Guide](patterns/CONTRIBUTING.md) - Step-by-step contribution instructions
-- [Data Structure Guide](data/README.md) - Product and vendor database information
-- [Community Guides](docs/community/) - Additional contribution resources
-- [Tool Documentation](tools/README.md) - Validation and testing tools
-
-## 🛠️ Tools
-
-### Pattern Validation
-Validate your patterns using our validation script:
-```bash
-python tools/validate-pattern.py patterns/web/apache.json
-```
-
-### Pattern Testing
-Test patterns against real service responses:
-```bash
-python tools/test-pattern.py patterns/networking/ssh.json
-```
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## Project Status
 
-### Getting Help
-
-- 📖 **Documentation**: Comprehensive guides available in [patterns/](patterns/) and [docs/](docs/)
-- 🐛 **Issues**: Report issues via [GitHub Issues](https://github.com/sakirm-icpl/version-detection-db/issues)
-- 💬 **Discussions**: Join community discussions on [GitHub Discussions](https://github.com/sakirm-icpl/version-detection-db/discussions)
-
-### Community
-
-- **Contributors**: [See our contributors](https://github.com/sakirm-icpl/version-detection-db/graphs/contributors)
-- **Code of Conduct**: [Read our Code of Conduct](CODE_OF_CONDUCT.md)
-- **Contributing Guide**: [Learn how to contribute](CONTRIBUTING.md)
-
----
-
-**Built with ❤️ by the Version Detection Community**
-
-*Empowering security through community-driven version detection patterns.*
-
-[Project Website](https://sakirm-icpl.github.io/version-detection-db/) | [Pattern Database](patterns/) | [Contributing](CONTRIBUTING.md) | [License](LICENSE)
+This project is actively maintained and we welcome new contributors. Check out our [good first issues](docs/community/good-first-issues.html) to get started!

@@ -1,152 +1,109 @@
-# Contributing to Version Detection Pattern Database
+# Contributing to Threat Advisory Database
 
-Thank you for your interest in contributing to the Version Detection Pattern Database! This document provides guidelines for contributing to our open-source version detection project.
+Thank you for your interest in contributing to the Threat Advisory Database! This document provides guidelines for contributing to this project.
 
 ## Table of Contents
+
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
-- [How You Can Contribute](#how-you-can-contribute)
-- [Contribution Process](#contribution-process)
-- [Reporting Issues](#reporting-issues)
-- [Pull Request Guidelines](#pull-request-guidelines)
-- [Community Guidelines](#community-guidelines)
+- [How to Contribute](#how-to-contribute)
+- [Advisory Contribution Guidelines](#advisory-contribution-guidelines)
+- [Documentation Improvements](#documentation-improvements)
+- [Code Quality](#code-quality)
+- [Community](#community)
 
 ## Code of Conduct
 
-By participating in this project, you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md). Please treat all participants with respect and professionalism.
+This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/your-username/version-detection-db.git`
-3. Create a new branch: `git checkout -b pattern/your-pattern-name`
+2. Clone your fork locally
+3. Create a new branch for your work
 4. Make your changes
-5. Commit your changes: `git commit -am 'Add some pattern'`
-6. Push to the branch: `git push origin pattern/your-pattern-name`
-7. Create a new Pull Request
+5. Test your changes
+6. Commit and push your changes
+7. Create a pull request
 
-## How You Can Contribute
+## How to Contribute
 
-### Pattern Contributions
-- Submit new regex patterns for version detection
-- Improve existing patterns with better accuracy
-- Add comprehensive test cases
-- Update pattern metadata and documentation
+There are many ways to contribute to this project:
 
-### Code Contributions
-- Improve validation scripts
-- Enhance documentation and guides
-- Develop new tools for pattern analysis
-- Fix bugs and improve existing functionality
+1. **Add new advisories** - Research and create advisories for newly discovered threats
+2. **Improve existing advisories** - Enhance accuracy, add references, or improve recommendations
+3. **Fix issues** - Help resolve issues reported on GitHub
+4. **Improve documentation** - Enhance guides, tutorials, and explanations
+5. **Enhance tooling** - Improve validation tools and utilities
+6. **Report bugs** - Identify and report issues with existing advisories or tools
 
-### Documentation Improvements
-- Clarify existing documentation
-- Add new guides and tutorials
-- Translate documentation to other languages
-- Improve examples and templates
+## Advisory Contribution Guidelines
 
-### Community Support
-- Answer questions in discussions
-- Help review pull requests
-- Participate in project planning
-- Share the project with others
+### Advisory Structure
 
-## Contribution Process
+All advisories must follow our standardized JSON structure as defined in the [advisory template](advisories/TEMPLATE.md).
 
-### 1. Issue Creation
-Before starting work on a significant contribution, please create an issue to discuss your idea with the maintainers. This helps ensure your contribution aligns with project goals and avoids duplicate work.
+### Research Requirements
 
-### 2. Development
-- Follow the project's coding standards and conventions
-- Write clear, descriptive commit messages
-- Include tests when applicable
-- Update documentation as needed
+Before submitting an advisory:
 
-### 3. Testing
-- Validate your patterns using provided tools
-- Ensure your contribution doesn't break existing functionality
-- Test with various data formats and edge cases
+1. Verify the threat or vulnerability from multiple sources
+2. Gather evidence and proof of concept where possible
+3. Identify affected products and versions
+4. Determine the potential impact
+5. Research existing advisories to avoid duplication
 
-### 4. Submission
-- Create a pull request with a clear description of your changes
-- Link to any related issues
-- Respond to feedback during review
+### Quality Standards
 
-## Reporting Issues
+1. **Accuracy** - Advisories must contain accurate information verified from authoritative sources
+2. **Completeness** - Include comprehensive metadata, references, and recommendations
+3. **Actionability** - Provide clear, actionable recommendations
+4. **Documentation** - Provide clear descriptions and reliable references
 
-### Pattern Issues
-For issues with existing patterns:
-1. Check if the issue already exists
-2. Create a new issue using the appropriate template
-3. Provide detailed information about the problem
-4. Include examples and test cases
+### References
 
-### Security Issues
-For security vulnerabilities, please follow responsible disclosure practices:
-1. Do not create public issues for security vulnerabilities
-2. Contact the maintainers directly at security@version-detection-db.example.com
-3. Provide detailed information about the vulnerability
-4. Allow time for the team to address the issue before public disclosure
+Every advisory must include references that:
 
-### General Issues
-For bugs, feature requests, and other issues:
-1. Check if the issue already exists
-2. Create a new issue using the appropriate template
-3. Provide detailed information about the problem or request
-4. Include steps to reproduce for bug reports
+1. Link to authoritative sources
+2. Provide additional context or information
+3. Are accessible and reliable
+4. Are properly formatted URLs
 
-## Pull Request Guidelines
+## Documentation Improvements
 
-### Before Submitting
-- Ensure your patterns are well-tested
-- Follow the project's style guidelines
-- Update documentation as needed
-- Validate JSON files using the provided scripts
+We welcome improvements to our documentation:
 
-### Pull Request Description
-Include the following in your pull request:
-- Clear, descriptive title
-- Detailed description of changes
-- References to related issues
-- Testing instructions if applicable
+1. Clarify existing documentation
+2. Add new guides and tutorials
+3. Improve examples
+4. Fix typos and grammatical errors
+5. Translate documentation to other languages
 
-### Review Process
-1. Automated checks (CI/CD pipeline)
-2. Maintainer review
-3. Community feedback (if applicable)
-4. Approval and merge
+## Code Quality
 
-The review process typically takes 3-5 business days, but may vary based on complexity and maintainer availability.
+For code contributions to our tools:
 
-## Community Guidelines
+1. Follow established coding conventions
+2. Include comments for complex logic
+3. Write clear commit messages
+4. Test your changes thoroughly
 
-### Communication
-- Be respectful and professional in all interactions
-- Use clear, inclusive language
-- Provide constructive feedback
-- Help others learn and grow
+## Community
 
-### Collaboration
-- Welcome newcomers and provide guidance
-- Share knowledge and expertise
-- Acknowledge contributions from others
-- Work together toward common goals
+We encourage a welcoming and supportive community:
 
-### Recognition
-- All contributors will be acknowledged in release notes
-- Significant contributors may be added to the CONTRIBUTORS file
-- Outstanding contributions may be highlighted in community communications
+1. Be respectful and inclusive
+2. Provide constructive feedback
+3. Help newcomers get started
+4. Share knowledge and expertise
+5. Participate in discussions
 
-## Getting Help
+## Questions?
 
-If you need help with your contribution:
-- Check the documentation in the [docs/](docs/) directory
-- Review existing issues and pull requests
-- Ask questions in GitHub Discussions
-- Contact maintainers directly for complex issues
+If you have questions about contributing, feel free to:
 
-## License
+1. Open an issue for general questions
+2. Contact the maintainers directly
+3. Check our [documentation](docs/) for more information
 
-By contributing to Version Detection Pattern Database, you agree that your contributions will be licensed under the MIT License. See [LICENSE](LICENSE) for details.
-
-Thank you for helping to improve version detection for everyone!
+Thank you for helping make the Threat Advisory Database better for everyone!

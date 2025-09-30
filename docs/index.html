@@ -3,282 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Version Detection Pattern Database - Open-source regex patterns for software version detection">
-    <title>Version Detection Pattern Database - Open-Source Regex Patterns</title>
+    <title>Threat Advisory Database</title>
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #0f172a;
-            --accent: #8b5cf6;
-            --light: #f8fafc;
-            --gray: #94a3b8;
-            --dark: #0f172a;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             line-height: 1.6;
-            color: var(--dark);
-            background-color: var(--light);
+            color: #333;
+            background-color: #f8f9fa;
         }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 2rem 0;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
+
         .container {
             width: 90%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 20px;
         }
-        
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #1a2a3a);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 1rem 0;
         }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            color: white;
-        }
-        
-        .logo-icon {
-            font-size: 1.8rem;
-        }
-        
+
         .nav-links {
             display: flex;
             gap: 2rem;
         }
-        
+
         .nav-links a {
             color: white;
             text-decoration: none;
             font-weight: 500;
             transition: opacity 0.3s;
         }
-        
+
         .nav-links a:hover {
             opacity: 0.8;
         }
-        
+
         .hero {
-            padding: 4rem 0;
             text-align: center;
+            padding: 4rem 0;
+            background: white;
+            margin: 2rem 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
-        
-        .hero h1 {
+
+        h1 {
             font-size: 3rem;
             margin-bottom: 1rem;
-            font-weight: 800;
+            color: #2c3e50;
         }
-        
-        .hero p {
-            font-size: 1.25rem;
-            max-width: 700px;
-            margin: 0 auto 2rem;
-            color: var(--light);
-            opacity: 0.9;
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 2rem;
         }
-        
+
         .cta-button {
             display: inline-block;
-            background-color: white;
-            color: var(--primary);
-            padding: 0.75rem 2rem;
-            border-radius: 0.5rem;
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 1.1rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 0.5rem;
+            transition: background 0.3s;
+            margin: 0 10px;
         }
-        
+
         .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background: #2980b9;
         }
-        
+
+        .cta-button.secondary {
+            background: #2c3e50;
+        }
+
+        .cta-button.secondary:hover {
+            background: #1a2a3a;
+        }
+
         .features {
-            padding: 5rem 0;
-            background-color: white;
-        }
-        
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: var(--secondary);
-        }
-        
-        .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
+            margin: 3rem 0;
         }
-        
+
         .feature-card {
-            background: var(--light);
-            border-radius: 0.75rem;
+            background: white;
             padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s, box-shadow 0.3s;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
         }
-        
+
         .feature-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
-        
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-        
+
         .feature-card h3 {
-            font-size: 1.5rem;
+            color: #2c3e50;
             margin-bottom: 1rem;
-            color: var(--secondary);
         }
-        
-        .how-it-works {
-            padding: 5rem 0;
-            background-color: #f1f5f9;
+
+        .community-section {
+            background: white;
+            padding: 3rem 0;
+            margin: 3rem 0;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
-        
-        .steps {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 2rem;
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
             margin-top: 3rem;
         }
-        
-        .step {
-            flex: 1;
-            min-width: 250px;
-            max-width: 300px;
-            text-align: center;
-            padding: 2rem;
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        
-        .step-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-        
-        .cta {
-            padding: 5rem 0;
-            text-align: center;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-        }
-        
-        .cta h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .cta p {
-            font-size: 1.25rem;
-            max-width: 700px;
-            margin: 0 auto 2rem;
-            opacity: 0.9;
-        }
-        
-        footer {
-            background: var(--secondary);
-            color: white;
-            padding: 3rem 0 2rem;
-            text-align: center;
-        }
-        
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            text-align: left;
-            margin-bottom: 2rem;
-        }
-        
-        .footer-column h3 {
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
-        }
-        
-        .footer-column ul {
-            list-style: none;
-        }
-        
-        .footer-column ul li {
-            margin-bottom: 0.5rem;
-        }
-        
-        .footer-column a {
-            color: var(--gray);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .footer-column a:hover {
-            color: white;
-        }
-        
-        .copyright {
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-        
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
             }
             
-            .hero h1 {
+            h1 {
                 font-size: 2rem;
             }
             
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .section-title {
-                font-size: 2rem;
+            .hero {
+                padding: 2rem 0;
             }
         }
     </style>
@@ -287,156 +160,54 @@
     <header>
         <div class="container">
             <nav>
-                <a href="index.html" class="logo">
-                    <span class="logo-icon">🔍</span>
-                    <span>Version Detection DB</span>
-                </a>
+                <div class="logo">ThreatAdvisory</div>
                 <div class="nav-links">
-                    <a href="#features">Features</a>
-                    <a href="#how-it-works">How It Works</a>
-                    <a href="https://github.com/sakirm-icpl/version-detection-db">GitHub</a>
-                    <a href="docs.html">Documentation</a>
-                    <a href="community/beginners-guide.html">Community</a>
+                    <a href="index.html">Home</a>
+                    <a href="community/beginners-guide.html">Getting Started</a>
+                    <a href="community/good-first-issues.html">Contribute</a>
                 </div>
             </nav>
-            <div class="hero">
-                <h1>Open-Source Version Detection Patterns</h1>
-                <p>Community-driven database of regex patterns for identifying software versions in security assessments</p>
-                <a href="https://github.com/sakirm-icpl/version-detection-db" class="cta-button">View on GitHub</a>
-                <a href="getting-started.html" class="cta-button">Get Started</a>
-            </div>
         </div>
     </header>
 
-    <section class="features" id="features">
-        <div class="container">
-            <h2 class="section-title">Powerful Features</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🔍</div>
-                    <h3>Version Detection</h3>
-                    <p>Regex patterns to identify software versions from service banners, HTTP responses, and network protocols.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🛡️</div>
-                    <h3>Security Testing</h3>
-                    <p>Essential resource for penetration testing, vulnerability assessment, and bug bounty hunting.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Structured Data</h3>
-                    <p>Machine-readable JSON format with comprehensive metadata and test cases for easy integration.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔌</div>
-                    <h3>Tool Integration</h3>
-                    <p>Easy integration with security scanners, asset discovery tools, and network reconnaissance frameworks.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">👥</div>
-                    <h3>Community Driven</h3>
-                    <p>Collaborative platform where security researchers contribute and validate detection patterns.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔄</div>
-                    <h3>Regular Updates</h3>
-                    <p>Continuously updated pattern database with new services and improved detection accuracy.</p>
-                </div>
+    <main class="container">
+        <section class="hero">
+            <h1>Threat Advisory Database</h1>
+            <p class="subtitle">An open-source collection of threat intelligence advisories and vulnerability data</p>
+            <div>
+                <a href="https://github.com/your-org/threat-advisory" class="cta-button">View on GitHub</a>
+                <a href="community/beginners-guide.html" class="cta-button secondary">Get Started</a>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="how-it-works" id="how-it-works">
-        <div class="container">
-            <h2 class="section-title">How It Works</h2>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Research Services</h3>
-                    <p>Security researchers identify services that disclose version information through network responses.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Create Patterns</h3>
-                    <p>Develop regex patterns to extract version information with comprehensive test cases.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3>Community Review</h3>
-                    <p>Contributions are reviewed by the community for accuracy, reliability, and performance.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <h3>Database Integration</h3>
-                    <p>Validated patterns are added to the database for use by security professionals worldwide.</p>
-                </div>
+        <section class="features">
+            <div class="feature-card">
+                <h3>Comprehensive Coverage</h3>
+                <p>Stay informed about CVEs, malware threats, APT activities, and general security advisories with our extensive database.</p>
             </div>
-        </div>
-    </section>
-
-    <section class="features" style="background-color: #f1f5f9;">
-        <div class="container">
-            <h2 class="section-title">Getting Started for Contributors</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">📘</div>
-                    <h3>Beginner's Guide</h3>
-                    <p>Step-by-step introduction for new contributors to understand the project and start contributing.</p>
-                    <a href="community/beginners-guide.html" class="cta-button" style="margin-top: 1rem; display: inline-block;">Read Guide</a>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Good First Issues</h3>
-                    <p>Curated list of beginner-friendly contribution opportunities to help you get started.</p>
-                    <a href="community/good-first-issues.html" class="cta-button" style="margin-top: 1rem; display: inline-block;">View Issues</a>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚙️</div>
-                    <h3>Pattern Development</h3>
-                    <p>Best practices and guidelines for creating effective version detection patterns.</p>
-                    <a href="community/pattern-development.html" class="cta-button" style="margin-top: 1rem; display: inline-block;">Read Guide</a>
-                </div>
+            <div class="feature-card">
+                <h3>Community Driven</h3>
+                <p>Built and maintained by security professionals worldwide. Contribute advisories and help improve existing ones.</p>
             </div>
-        </div>
-    </section>
+            <div class="feature-card">
+                <h3>Well Structured</h3>
+                <p>Every advisory follows a standardized format with clear recommendations and reliable references.</p>
+            </div>
+        </section>
 
-    <section class="cta">
-        <div class="container">
-            <h2>Join the Security Research Community</h2>
-            <p>Contribute your version detection patterns, access our comprehensive database, and help improve security testing for everyone.</p>
-            <a href="getting-started.html" class="cta-button">Get Started Contributing</a>
-            <a href="https://github.com/sakirm-icpl/version-detection-db" class="cta-button">View on GitHub</a>
-        </div>
-    </section>
+        <section class="community-section">
+            <h2>Join Our Community</h2>
+            <p>Ready to contribute to open-source cybersecurity intelligence?</p>
+            <div style="margin-top: 2rem;">
+                <a href="community/beginners-guide.html" class="cta-button">Beginner's Guide</a>
+                <a href="community/good-first-issues.html" class="cta-button secondary">Good First Issues</a>
+            </div>
+        </section>
+    </main>
 
     <footer>
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>Version Detection Pattern Database</h3>
-                    <p>Open-source regex patterns for software version detection.</p>
-                </div>
-                <div class="footer-column">
-                    <h3>Resources</h3>
-                    <ul>
-                        <li><a href="pattern-database.html">Pattern Database</a></li>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db">GitHub Repository</a></li>
-                        <li><a href="contributing.html">Contributing Guide</a></li>
-                        <li><a href="license.html">License</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Community</h3>
-                    <ul>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/issues">Report Issues</a></li>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/discussions">Discussions</a></li>
-                        <li><a href="code-of-conduct.html">Code of Conduct</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="copyright">
-                <p>&copy; 2025 Version Detection Contributors. Released under the MIT License.</p>
-            </div>
+            <p>&copy; 2024 Threat Advisory Database. Open Source under MIT License.</p>
         </div>
     </footer>
 </body>

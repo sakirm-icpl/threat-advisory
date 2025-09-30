@@ -1,53 +1,65 @@
 # Tools
 
-This directory contains tools for validating and testing version detection patterns.
+This directory contains utility scripts for working with the advisory database.
 
 ## Validation Tools
 
-### Pattern Validation
-The [validate-pattern.py](validate-pattern.py) script validates pattern files against the expected JSON schema and tests the regex patterns with provided test cases.
+### validate-advisory.py
 
-#### Usage
+Validates a single advisory file against our schema and checks the completeness of the advisory data.
+
+Usage:
 ```bash
-python validate-pattern.py patterns/web/apache.json
-python validate-pattern.py patterns/networking/openssh.json patterns/database/mysql.json
+python validate-advisory.py ../advisories/cve/cve-2024-12345.json
 ```
 
-#### Features
-- JSON schema validation
-- Regex compilation testing
-- Test case execution
-- Version extraction validation
+### validate-all-advisories.py
 
-## Testing Tools
+Validates all advisory files in the repository.
 
-### Pattern Testing
-(Coming Soon) Tools for testing patterns against real service responses.
-
-## Development Tools
-
-### Pattern Generator
-(Coming Soon) Tools for generating pattern templates and scaffolding.
-
-## Requirements
-
-To use these tools, you need:
-- Python 3.6+
-- jsonschema package
-
-Install requirements:
+Usage:
 ```bash
-pip install jsonschema
+python validate-all-advisories.py
 ```
 
-## Contributing
+## Summary Tools
 
-If you'd like to contribute new tools or improve existing ones, please:
-1. Follow the existing code style
-2. Include comprehensive documentation
-3. Add test cases for new functionality
-4. Submit a pull request
+### generate-advisory-summary.py
 
-## License
+Generates a summary report of all advisories in the database, including statistics by category, severity, and other metrics.
 
-These tools are provided under the MIT License. See [LICENSE](../LICENSE) file in the root directory for more information.
+Usage:
+```bash
+python generate-advisory-summary.py
+```
+
+## Tool Requirements
+
+All tools are written in Python and require:
+- Python 3.6 or higher
+
+No additional Python packages are required for the validation tools.
+
+## Contributing to Tools
+
+When adding new tools or modifying existing ones:
+
+1. Ensure the tool is well-documented with usage examples
+2. Include error handling for common failure cases
+3. Follow Python best practices and coding standards
+4. Test the tool thoroughly before submitting
+5. Update this README with information about new tools
+
+## Tool Descriptions
+
+### Advisory Validation
+
+The validation tools check:
+
+1. JSON schema compliance
+2. Required fields completion
+3. Reference URL validity
+4. Metadata completeness
+5. Severity and category values
+
+These tools help ensure that all advisories in the database meet our quality standards and function correctly.

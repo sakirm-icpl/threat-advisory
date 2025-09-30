@@ -1,0 +1,29 @@
+{
+  "categories": [
+    {
+      "id": "cve",
+      "name": "Common Vulnerabilities and Exposures",
+      "description": "Officially assigned CVE identifiers for publicly disclosed vulnerabilities"
+    },
+    {
+      "id": "malware",
+      "name": "Malware Threats",
+      "description": "Advisories about malware families, variants, and associated threats"
+    },
+    {
+      "id": "apt",
+      "name": "Advanced Persistent Threats",
+      "description": "Information about APT groups, their campaigns, and tactics"
+    },
+    {
+      "id": "vulnerability",
+      "name": "General Vulnerabilities",
+      "description": "Vulnerabilities that may not have official CVE assignments"
+    },
+    {
+      "id": "threat",
+      "name": "General Threats",
+      "description": "Broader threat advisories that don't fit other categories"
+    }
+  ]
+}

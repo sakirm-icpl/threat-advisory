@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advisory Development Guide - Threat Advisory Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #1a2a3a);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin: 2rem 0;
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .step {
+            background: #e8f4fc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .tip {
+            background: #fff8e1;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #f39c12;
+        }
+
+        .warning {
+            background: #f8d7da;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin: 1rem 0;
+        }
+
+        .cta-button:hover {
+            background: #2980b9;
+        }
+
+        pre {
+            background: #2c3e50;
+            color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">ThreatAdvisory</div>
+                <div class="nav-links">
+                    <a href="../index.html">Home</a>
+                    <a href="beginners-guide.html">Getting Started</a>
+                    <a href="good-first-issues.html">Contribute</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="content">
+            <h1>Advisory Development Guide</h1>
+            
+            <p>This guide is for experienced contributors who want to create advanced advisories or improve existing ones. It covers best practices, advanced techniques, and common pitfalls to avoid.</p>
+            
+            <h2>Advanced Advisory Design</h2>
+            
+            <div class="tip">
+                <h3>Understanding Advisory Structure</h3>
+                <p>Each advisory follows a standardized JSON structure that makes it easy to process programmatically. Understanding this structure is crucial for creating high-quality advisories.</p>
+            </div>
+            
+            <div class="step">
+                <h3>Complex Advisory Structures</h3>
+                <p>For complex threats that require multiple advisories, consider creating multiple entries in a single file:</p>
+                
+                <pre><code>{
+  "advisories": [
+    {
+      "id": "THREAT-2024-001",
+      "title": "Initial Access Vector for Campaign X",
+      "category": "threat",
+      // ... other fields ...
+    },
+    {
+      "id": "THREAT-2024-002",
+      "title": "Lateral Movement Techniques in Campaign X",
+      "category": "threat",
+      // ... other fields ...
+    }
+  ]
+}</code></pre>
+            </div>
+            
+            <h2>Research Best Practices</h2>
+            
+            <div class="tip">
+                <h3>Source Verification</h3>
+                <p>Always verify information from multiple authoritative sources:</p>
+                <ul>
+                    <li>Vendor security advisories</li>
+                    <li>National vulnerability databases</li>
+                    <li>Threat intelligence feeds</li>
+                    <li>Security research publications</li>
+                    <li>Incident response reports</li>
+                </ul>
+            </div>
+            
+            <div class="warning">
+                <h3>Common Pitfalls</h3>
+                <p>Avoid these common mistakes:</p>
+                <ul>
+                    <li>Creating advisories based on unverified information</li>
+                    <li>Duplicating existing advisories</li>
+                    <li>Providing vague or non-actionable recommendations</li>
+                    <li>Using unreliable or broken reference links</li>
+                </ul>
+            </div>
+            
+            <h2>Advanced Content Creation</h2>
+            
+            <div class="step">
+                <h3>Writing Effective Recommendations</h3>
+                <p>Recommendations should be:</p>
+                <ul>
+                    <li>Actionable and specific</li>
+                    <li>Prioritized by effectiveness</li>
+                    <li>Applicable to different environments</li>
+                    <li>Clear and concise</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <h3>Creating Comprehensive References</h3>
+                <p>Include references that:</p>
+                <ul>
+                    <li>Link to authoritative sources</li>
+                    <li>Provide additional context</li>
+                    <li>Are accessible and reliable</li>
+                    <li>Cover different aspects of the threat</li>
+                </ul>
+            </div>
+            
+            <h2>Severity and Impact Assessment</h2>
+            
+            <div class="tip">
+                <h3>Severity Scoring Guidelines</h3>
+                <p>Use these guidelines for consistent severity scoring:</p>
+                <ul>
+                    <li><strong>Critical</strong>: Immediate threat with severe impact (CVSS 9.0-10.0)</li>
+                    <li><strong>High</strong>: Significant threat with major impact (CVSS 7.0-8.9)</li>
+                    <li><strong>Medium</strong>: Moderate threat with notable impact (CVSS 4.0-6.9)</li>
+                    <li><strong>Low</strong>: Minimal threat with limited impact (CVSS 0.1-3.9)</li>
+                </ul>
+            </div>
+            
+            <h2>Working with the Validation Tools</h2>
+            
+            <div class="step">
+                <h3>Automated Validation</h3>
+                <p>Use our validation tools to check your advisories:</p>
+                
+                <pre><code># Validate a single advisory
+python tools/validate-advisory.py advisories/cve/cve-2024-12345.json
+
+# Validate all advisories
+python tools/validate-all-advisories.py</code></pre>
+            </div>
+            
+            <div class="tip">
+                <h3>Continuous Integration</h3>
+                <p>All advisories are automatically validated when submitted via pull request. Make sure your advisories pass validation before submitting.</p>
+            </div>
+            
+            <h2>Collaboration and Review</h2>
+            
+            <div class="step">
+                <h3>Peer Review Process</h3>
+                <p>All advisory submissions go through peer review:</p>
+                <ol>
+                    <li>Automated validation checks</li>
+                    <li>Manual review by maintainers</li>
+                    <li>Verification of sources and references</li>
+                    <li>Feedback and revision requests</li>
+                    <li>Approval and merge</li>
+                </ol>
+            </div>
+            
+            <div class="tip">
+                <h3>Incorporating Feedback</h3>
+                <p>Be open to feedback and willing to iterate on your advisories. Reviewers may suggest improvements to accuracy, clarity, or completeness.</p>
+            </div>
+            
+            <h2>Advanced Contribution Opportunities</h2>
+            
+            <ul>
+                <li>Develop new validation tools or enhance existing ones</li>
+                <li>Create advisory analysis tools to identify potential improvements</li>
+                <li>Build integrations with popular threat intelligence platforms</li>
+                <li>Research and document emerging threat patterns</li>
+            </ul>
+            
+            <a href="good-first-issues.html" class="cta-button">Find Advanced Issues</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Threat Advisory Database. Open Source under MIT License.</p>
+        </div>
+    </footer>
+</body>
+</html>

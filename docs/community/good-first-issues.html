@@ -3,326 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Good First Issues for New Contributors to Version Detection Pattern Database">
-    <title>Good First Issues - Version Detection Pattern Database</title>
+    <title>Good First Issues - Threat Advisory Database</title>
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #0f172a;
-            --accent: #8b5cf6;
-            --light: #f8fafc;
-            --gray: #94a3b8;
-            --dark: #0f172a;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             line-height: 1.6;
-            color: var(--dark);
-            background-color: var(--light);
+            color: #333;
+            background-color: #f8f9fa;
         }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 1rem 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
+
         .container {
             width: 90%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 20px;
         }
-        
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #1a2a3a);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 1rem 0;
         }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            color: white;
-        }
-        
-        .logo-icon {
-            font-size: 1.8rem;
-        }
-        
+
         .nav-links {
             display: flex;
             gap: 2rem;
         }
-        
+
         .nav-links a {
             color: white;
             text-decoration: none;
             font-weight: 500;
             transition: opacity 0.3s;
         }
-        
+
         .nav-links a:hover {
             opacity: 0.8;
         }
-        
-        main {
-            padding: 2rem 0;
-        }
-        
-        .page-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-        
-        .page-header h1 {
-            font-size: 2.5rem;
-            color: var(--secondary);
-            margin-bottom: 1rem;
-        }
-        
-        .page-header p {
-            font-size: 1.25rem;
-            color: var(--gray);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
+
         .content {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 2rem;
-        }
-        
-        @media (max-width: 768px) {
-            .content {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .main-content {
             background: white;
-            border-radius: 0.5rem;
             padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin: 2rem 0;
         }
-        
-        .sidebar {
-            background: white;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        
-        .sidebar h3 {
-            color: var(--secondary);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--gray);
-        }
-        
-        .sidebar ul {
-            list-style: none;
-        }
-        
-        .sidebar ul li {
-            margin-bottom: 0.75rem;
-        }
-        
-        .sidebar ul li a {
-            color: var(--primary);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .sidebar ul li a:hover {
-            color: var(--primary-dark);
-        }
-        
-        h2 {
-            color: var(--secondary);
-            margin: 2rem 0 1rem 0;
-        }
-        
-        h3 {
-            color: var(--secondary);
+
+        h1, h2, h3 {
+            color: #2c3e50;
             margin: 1.5rem 0 1rem 0;
         }
-        
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+        }
+
         p {
             margin-bottom: 1rem;
         }
-        
-        .step {
-            background: var(--light);
-            border-left: 4px solid var(--primary);
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border-radius: 0 0.25rem 0.25rem 0;
-        }
-        
-        .step-number {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 30px;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-        
-        .cta-button {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 0.5rem 0;
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        footer {
-            background: var(--secondary);
-            color: white;
-            padding: 2rem 0;
-            text-align: center;
-            margin-top: 2rem;
-        }
-        
-        .copyright {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-        
-        .breadcrumb {
+
+        ul, ol {
+            margin-left: 2rem;
             margin-bottom: 1rem;
         }
-        
-        .breadcrumb a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
-        .breadcrumb span {
-            color: var(--gray);
-        }
-        
-        .tip {
-            background: #fffbeb;
-            border-left: 4px solid #f59e0b;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0 0.25rem 0.25rem 0;
-        }
-        
-        .tip h4 {
-            color: #f59e0b;
+
+        li {
             margin-bottom: 0.5rem;
         }
-        
-        .important {
-            background: #fef2f2;
-            border-left: 4px solid #ef4444;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0 0.25rem 0.25rem 0;
+
+        .issue-category {
+            margin: 2rem 0;
         }
-        
-        .important h4 {
-            color: #ef4444;
-            margin-bottom: 0.5rem;
-        }
-        
-        code {
-            background: var(--light);
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.25rem;
-            font-family: 'Consolas', 'Courier New', monospace;
-        }
-        
-        pre {
-            background: var(--secondary);
-            color: white;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            margin: 1rem 0;
-        }
-        
-        .issue-card {
-            border: 1px solid var(--gray);
-            border-radius: 0.5rem;
+
+        .issue {
+            background: #f8f9fa;
             padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #3498db;
         }
-        
-        .issue-card h3 {
-            margin-top: 0;
-            color: var(--primary);
+
+        .difficulty {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
         }
-        
-        .issue-card .labels {
-            display: flex;
-            gap: 0.5rem;
+
+        .difficulty.easy {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difficulty.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty.hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
             margin: 1rem 0;
         }
-        
-        .label {
-            background: var(--light);
-            padding: 0.25rem 0.5rem;
-            border-radius: 1rem;
-            font-size: 0.8rem;
+
+        .cta-button:hover {
+            background: #2980b9;
         }
-        
-        .label.beginner {
-            background: #dcfce7;
-            color: #166534;
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
         }
-        
-        .label.documentation {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .label.pattern {
-            background: #f3e8ff;
-            color: #7c3aed;
-        }
-        
-        .label.testing {
-            background: #fef3c7;
-            color: #d97706;
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
@@ -330,251 +170,119 @@
     <header>
         <div class="container">
             <nav>
-                <a href="../index.html" class="logo">
-                    <span class="logo-icon">🔍</span>
-                    <span>Version Detection DB</span>
-                </a>
+                <div class="logo">ThreatAdvisory</div>
                 <div class="nav-links">
                     <a href="../index.html">Home</a>
-                    <a href="../pattern-database.html">Patterns</a>
-                    <a href="https://github.com/sakirm-icpl/version-detection-db">GitHub</a>
-                    <a href="../docs.html">Documentation</a>
+                    <a href="beginners-guide.html">Getting Started</a>
+                    <a href="good-first-issues.html">Contribute</a>
                 </div>
             </nav>
         </div>
     </header>
 
-    <main>
-        <div class="container">
-            <div class="breadcrumb">
-                <a href="../index.html">Home</a> <span>></span> 
-                <a href="../docs.html">Documentation</a> <span>></span> 
-                Good First Issues
-            </div>
+    <main class="container">
+        <div class="content">
+            <h1>Good First Issues</h1>
             
-            <div class="page-header">
-                <h1>Good First Issues</h1>
-                <p>Beginner-friendly issues to help you start contributing to the Version Detection Pattern Database</p>
-            </div>
+            <p>Welcome! If you're new to contributing to open-source or to this project specifically, these issues are a great place to start. They're well-defined, relatively self-contained, and don't require deep knowledge of the entire codebase.</p>
             
-            <div class="content">
-                <div class="main-content">
-                    <h2>Welcome New Contributors!</h2>
-                    <p>These issues are specifically selected for newcomers to the project. They're relatively straightforward to implement and don't require deep knowledge of the entire codebase. Each issue includes clear instructions and is a great way to get familiar with our contribution process.</p>
-                    
-                    <div class="tip">
-                        <h4>💡 Before You Start</h4>
-                        <p>If you're new to GitHub or open-source contribution, please read our <a href="beginners-guide.html">Beginner's Guide</a> first. It explains the entire process from forking the repository to submitting your first pull request.</p>
-                    </div>
-                    
-                    <h2>Available Issues</h2>
-                    
-                    <div class="issue-card">
-                        <h3>Create Pattern for Redis Database</h3>
-                        <p>We need a version detection pattern for Redis database servers. Redis typically discloses version information in its initial connection response.</p>
-                        
-                        <div class="labels">
-                            <span class="label beginner">Beginner</span>
-                            <span class="label pattern">Pattern</span>
-                            <span class="label database">Database</span>
-                        </div>
-                        
-                        <h4>Details</h4>
-                        <p>Redis servers respond with version information when a client connects. The response looks like:</p>
-                        <pre><code>+OK
-$4
-redis_version:6.2.6</code></pre>
-                        
-                        <p>Your task is to create a regex pattern that can extract the version number (e.g., "6.2.6") from this response.</p>
-                        
-                        <h4>Requirements</h4>
-                        <ul>
-                            <li>Create a pattern file in <code>patterns/database/redis.json</code></li>
-                            <li>Follow the pattern template structure</li>
-                            <li>Include at least 3 test cases with real examples</li>
-                            <li>Validate with our tools before submitting</li>
-                        </ul>
-                        
-                        <a href="https://github.com/sakirm-icpl/version-detection-db/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" class="cta-button">View Issue on GitHub</a>
-                    </div>
-                    
-                    <div class="issue-card">
-                        <h3>Create Pattern for PostgreSQL Database</h3>
-                        <p>We need a version detection pattern for PostgreSQL database servers. PostgreSQL discloses version information in its startup response.</p>
-                        
-                        <div class="labels">
-                            <span class="label beginner">Beginner</span>
-                            <span class="label pattern">Pattern</span>
-                            <span class="label database">Database</span>
-                        </div>
-                        
-                        <h4>Details</h4>
-                        <p>PostgreSQL servers include version information in their startup packets. The version string typically looks like:</p>
-                        <pre><code>PostgreSQL 13.3 (Ubuntu 13.3-1.pgdg20.04+1) on x86_64-pc-linux-gnu</code></pre>
-                        
-                        <p>Your task is to create a regex pattern that can extract the version number (e.g., "13.3") from this response.</p>
-                        
-                        <h4>Requirements</h4>
-                        <ul>
-                            <li>Create a pattern file in <code>patterns/database/postgresql.json</code></li>
-                            <li>Follow the pattern template structure</li>
-                            <li>Include at least 3 test cases with real examples</li>
-                            <li>Validate with our tools before submitting</li>
-                        </ul>
-                        
-                        <a href="https://github.com/sakirm-icpl/version-detection-db/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" class="cta-button">View Issue on GitHub</a>
-                    </div>
-                    
-                    <div class="issue-card">
-                        <h3>Improve Documentation for Pattern Testing</h3>
-                        <p>Our documentation for pattern testing could be more comprehensive. We need help improving the guides and examples.</p>
-                        
-                        <div class="labels">
-                            <span class="label beginner">Beginner</span>
-                            <span class="label documentation">Documentation</span>
-                        </div>
-                        
-                        <h4>Details</h4>
-                        <p>The current documentation for pattern testing in <code>tools/README.md</code> is basic. We need more detailed examples and explanations of how to write effective test cases.</p>
-                        
-                        <h4>Requirements</h4>
-                        <ul>
-                            <li>Expand the documentation with more examples</li>
-                            <li>Explain common testing scenarios</li>
-                            <li>Add tips for writing effective test cases</li>
-                            <li>Include information about edge cases to consider</li>
-                        </ul>
-                        
-                        <a href="https://github.com/sakirm-icpl/version-detection-db/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" class="cta-button">View Issue on GitHub</a>
-                    </div>
-                    
-                    <div class="issue-card">
-                        <h3>Create Pattern for MongoDB Database</h3>
-                        <p>We need a version detection pattern for MongoDB database servers. MongoDB discloses version information in its initial handshake.</p>
-                        
-                        <div class="labels">
-                            <span class="label beginner">Beginner</span>
-                            <span class="label pattern">Pattern</span>
-                            <span class="label database">Database</span>
-                        </div>
-                        
-                        <h4>Details</h4>
-                        <p>MongoDB servers include version information in their initial handshake response. The version string typically looks like:</p>
-                        <pre><code>{ "version": "5.0.2", "gitVersion": "..." }</code></pre>
-                        
-                        <p>Your task is to create a regex pattern that can extract the version number (e.g., "5.0.2") from this JSON response.</p>
-                        
-                        <h4>Requirements</h4>
-                        <ul>
-                            <li>Create a pattern file in <code>patterns/database/mongodb.json</code></li>
-                            <li>Follow the pattern template structure</li>
-                            <li>Include at least 3 test cases with real examples</li>
-                            <li>Validate with our tools before submitting</li>
-                        </ul>
-                        
-                        <a href="https://github.com/sakirm-icpl/version-detection-db/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" class="cta-button">View Issue on GitHub</a>
-                    </div>
-                    
-                    <div class="issue-card">
-                        <h3>Add Test Cases to Existing Patterns</h3>
-                        <p>Many existing patterns could benefit from additional test cases to improve their reliability and coverage.</p>
-                        
-                        <div class="labels">
-                            <span class="label beginner">Beginner</span>
-                            <span class="label testing">Testing</span>
-                            <span class="label pattern">Pattern</span>
-                        </div>
-                        
-                        <h4>Details</h4>
-                        <p>Review existing patterns in the database and add additional test cases to improve their coverage. Look for patterns with fewer than 3 test cases or patterns that might have edge cases not currently covered.</p>
-                        
-                        <h4>Requirements</h4>
-                        <ul>
-                            <li>Identify patterns that need more test cases</li>
-                            <li>Research real-world examples of the service responses</li>
-                            <li>Add 2-3 additional test cases to each selected pattern</li>
-                            <li>Ensure all test cases pass validation</li>
-                        </ul>
-                        
-                        <a href="https://github.com/sakirm-icpl/version-detection-db/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" class="cta-button">View Issue on GitHub</a>
-                    </div>
-                    
-                    <h2>How to Contribute</h2>
-                    
-                    <div class="step">
-                        <h3><span class="step-number">1</span> Choose an Issue</h3>
-                        <p>Browse the issues above and select one that interests you. If you're new to the project, we recommend starting with a pattern creation issue.</p>
-                    </div>
-                    
-                    <div class="step">
-                        <h3><span class="step-number">2</span> Comment on the Issue</h3>
-                        <p>Before you start working, comment on the GitHub issue to let others know you're working on it. This prevents duplicate work.</p>
-                    </div>
-                    
-                    <div class="step">
-                        <h3><span class="step-number">3</span> Follow Our Contribution Process</h3>
-                        <p>Follow the steps outlined in our <a href="beginners-guide.html">Beginner's Guide</a>:</p>
-                        <ol>
-                            <li>Fork the repository</li>
-                            <li>Create a new branch</li>
-                            <li>Make your changes</li>
-                            <li>Validate your work</li>
-                            <li>Submit a pull request</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="step">
-                        <h3><span class="step-number">4</span> Get Feedback</h3>
-                        <p>Maintainers will review your pull request and may suggest improvements. Be responsive to feedback and make requested changes.</p>
-                    </div>
-                    
-                    <h2>Need Help?</h2>
-                    <p>If you need assistance with any of these issues:</p>
-                    <ul>
-                        <li>Check the <a href="../contributing.html">Contributing Guide</a></li>
-                        <li>Ask questions in <a href="https://github.com/sakirm-icpl/version-detection-db/discussions">GitHub Discussions</a></li>
-                        <li>Review existing issues and pull requests for examples</li>
-                        <li>Contact maintainers directly for complex issues</li>
-                    </ul>
-                    
-                    <div style="text-align: center; margin: 2rem 0;">
-                        <a href="https://github.com/sakirm-icpl/version-detection-db/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" class="cta-button">View All Good First Issues</a>
-                        <a href="beginners-guide.html" class="cta-button">Read Beginner's Guide</a>
-                    </div>
+            <div class="issue-category">
+                <h2>Advisory Creation</h2>
+                
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Create Advisory for Recent CVE</h3>
+                    <p>Research a recently published CVE and create an advisory entry for it following our template.</p>
+                    <p><strong>Skills needed:</strong> Research skills, attention to detail</p>
+                    <p><strong>Expected outcome:</strong> A new advisory file in advisories/cve/ with comprehensive references</p>
                 </div>
                 
-                <div class="sidebar">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="beginners-guide.html">Beginner's Guide</a></li>
-                        <li><a href="../getting-started.html">Getting Started Guide</a></li>
-                        <li><a href="../pattern-database.html">Pattern Database</a></li>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/blob/main/patterns/TEMPLATE.md">Pattern Template</a></li>
-                    </ul>
-                    
-                    <h3 style="margin-top: 2rem;">Resources</h3>
-                    <ul>
-                        <li><a href="../docs.html">Full Documentation</a></li>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db">GitHub Repository</a></li>
-                        <li><a href="../contributing.html">Contributing Guide</a></li>
-                        <li><a href="../code-of-conduct.html">Code of Conduct</a></li>
-                    </ul>
-                    
-                    <h3 style="margin-top: 2rem;">Community</h3>
-                    <ul>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/issues">Report Issues</a></li>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/discussions">Discussions</a></li>
-                        <li><a href="https://github.com/sakirm-icpl/version-detection-db/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">Good First Issues</a></li>
-                    </ul>
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Create Advisory for Malware Family</h3>
+                    <p>Research a malware family and create an advisory entry with detection and mitigation information.</p>
+                    <p><strong>Skills needed:</strong> Research skills, attention to detail</p>
+                    <p><strong>Expected outcome:</strong> A new advisory file in advisories/malware/</p>
+                </div>
+                
+                <div class="issue">
+                    <span class="difficulty medium">Medium</span>
+                    <h3>Create Advisory for APT Campaign</h3>
+                    <p>Research an APT group's recent campaign and create a comprehensive advisory with TTPs and indicators.</p>
+                    <p><strong>Skills needed:</strong> Advanced research skills, understanding of threat intelligence</p>
+                    <p><strong>Expected outcome:</strong> A new advisory file in advisories/apt/</p>
                 </div>
             </div>
+            
+            <div class="issue-category">
+                <h2>Advisory Improvement</h2>
+                
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Add References to Existing Advisory</h3>
+                    <p>Find additional authoritative sources for an existing advisory and add them to the references section.</p>
+                    <p><strong>Skills needed:</strong> Research skills, attention to detail</p>
+                    <p><strong>Expected outcome:</strong> Updated references in an existing advisory file</p>
+                </div>
+                
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Improve Recommendations for Existing Advisory</h3>
+                    <p>Review existing advisories and enhance their recommendations with more actionable guidance.</p>
+                    <p><strong>Skills needed:</strong> Cybersecurity knowledge, clear writing skills</p>
+                    <p><strong>Expected outcome:</strong> Enhanced recommendations in an existing advisory</p>
+                </div>
+            </div>
+            
+            <div class="issue-category">
+                <h2>Documentation</h2>
+                
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Improve Advisory Template Documentation</h3>
+                    <p>Enhance the advisory template documentation with better examples and explanations.</p>
+                    <p><strong>Skills needed:</strong> Writing skills, understanding of the project</p>
+                    <p><strong>Expected outcome:</strong> Improved advisories/TEMPLATE.md file</p>
+                </div>
+                
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Create Examples for Different Categories</h3>
+                    <p>Create example advisories for categories that don't have good examples yet.</p>
+                    <p><strong>Skills needed:</strong> Research skills, attention to detail</p>
+                    <p><strong>Expected outcome:</strong> New example advisory files in underrepresented categories</p>
+                </div>
+            </div>
+            
+            <div class="issue-category">
+                <h2>Tooling</h2>
+                
+                <div class="issue">
+                    <span class="difficulty medium">Medium</span>
+                    <h3>Enhance Validation Tool</h3>
+                    <p>Add new validation features to the advisory validation tool, such as checking for common data pitfalls.</p>
+                    <p><strong>Skills needed:</strong> Python programming, understanding of data validation</p>
+                    <p><strong>Expected outcome:</strong> Enhanced tools/validate-advisory.py</p>
+                </div>
+            </div>
+            
+            <h2>How to Get Started</h2>
+            <ol>
+                <li>Read our <a href="beginners-guide.html">Beginner's Guide</a> if you haven't already</li>
+                <li>Choose an issue that interests you and matches your skill level</li>
+                <li>Fork the repository and create a new branch for your work</li>
+                <li>Comment on the issue to let others know you're working on it</li>
+                <li>Make your changes following our contribution guidelines</li>
+                <li>Submit a pull request when you're ready for review</li>
+            </ol>
+            
+            <a href="beginners-guide.html" class="cta-button">Read the Beginner's Guide</a>
         </div>
     </main>
 
     <footer>
         <div class="container">
-            <p>Version Detection Pattern Database - Open-source regex patterns for software version detection.</p>
-            <p class="copyright">&copy; 2025 Version Detection Contributors. Released under the MIT License.</p>
+            <p>&copy; 2024 Threat Advisory Database. Open Source under MIT License.</p>
         </div>
     </footer>
 </body>

@@ -1,49 +1,51 @@
-# Product and Vendor Database
+# Data Structure
 
-This directory contains structured information about software products and vendors that are referenced in the version detection patterns.
+This directory contains structured data about threat categories, severity levels, and other metadata that can be used in conjunction with the advisory database.
 
 ## Files
 
-- `vendors.json` - Database of software vendors
-- `products.json` - Database of software products
+- [categories.json](categories.json) - List of advisory categories
+- [severity-levels.json](severity-levels.json) - Severity level definitions
+- [vendors.json](vendors.json) - List of software vendors
 
-## Vendor Database Structure
+## Category Structure
 
 ```json
 {
-  "vendors": [
+  "categories": [
     {
-      "id": "unique-vendor-id",
-      "name": "Vendor Name",
-      "website": "https://vendor-website.com",
-      "description": "Brief description of the vendor",
-      "metadata": {
-        "created_at": "YYYY-MM-DDTHH:MM:SS",
-        "updated_at": "YYYY-MM-DDTHH:MM:SS"
-      }
+      "id": "unique_identifier",
+      "name": "Category Name",
+      "description": "Brief description of the category"
     }
   ]
 }
 ```
 
-## Product Database Structure
+## Severity Level Structure
 
 ```json
 {
-  "products": [
+  "severity_levels": [
     {
-      "id": "unique-product-id",
-      "name": "Product Name",
-      "vendor_id": "vendor-id-reference",
-      "description": "Brief description of the product",
-      "categories": ["web-server", "database", "application"],
-      "website": "https://product-website.com",
-      "first_release": "YYYY-MM-DD",
-      "cpe": "cpe:/a:vendor:product",
-      "metadata": {
-        "created_at": "YYYY-MM-DDTHH:MM:SS",
-        "updated_at": "YYYY-MM-DDTHH:MM:SS"
-      }
+      "level": "critical",
+      "description": "Immediate threat with severe impact",
+      "cvss_range": "9.0-10.0"
+    }
+  ]
+}
+```
+
+## Vendor Structure
+
+```json
+{
+  "vendors": [
+    {
+      "id": "unique_identifier",
+      "name": "Official Vendor Name",
+      "website": "https://vendor-website.com",
+      "description": "Brief description of the vendor"
     }
   ]
 }
@@ -51,21 +53,18 @@ This directory contains structured information about software products and vendo
 
 ## Purpose
 
-This database serves to:
+These files serve as reference data that can be used to:
 
-1. Provide detailed information about vendors and products referenced in patterns
-2. Enable cross-referencing between patterns and product information
-3. Support vulnerability mapping and CVE correlation
-4. Facilitate product categorization and filtering
+1. Ensure consistency in category and severity naming across advisories
+2. Provide additional context about threats and vulnerabilities
+3. Enable cross-referencing between advisories and structured data
+4. Support tools that consume the advisory database
 
 ## Contributing
 
-When contributing new patterns, please also add relevant vendor and product information to these databases if they don't already exist.
+When adding new categories, severity levels, or vendors:
 
-## Validation
-
-These files can be validated using standard JSON validation tools.
-
-## License
-
-This data is provided under the MIT License. See LICENSE file in the root directory for more information.
+1. Use existing entries as examples
+2. Ensure IDs are unique and follow the naming convention
+3. Provide accurate website URLs
+4. Write clear, concise descriptions

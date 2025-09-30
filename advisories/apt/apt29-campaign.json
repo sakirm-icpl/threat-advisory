@@ -1,0 +1,31 @@
+{
+  "advisories": [
+    {
+      "id": "THREAT-2024-002",
+      "title": "APT29 Campaign Targeting Government Networks",
+      "severity": "high",
+      "category": "apt",
+      "affected_products": ["Microsoft Windows", "Microsoft Office", "Network Infrastructure"],
+      "description": "APT29 (also known as Cozy Bear) has been observed conducting a new campaign targeting government networks. The campaign uses spear-phishing emails with weaponized Office documents to gain initial access, followed by lateral movement using legitimate administrative tools.",
+      "impact": "Successful compromise could result in unauthorized access to sensitive government data, persistent network presence, and potential exfiltration of classified information.",
+      "recommendations": [
+        "Implement email filtering to block suspicious attachments",
+        "Deploy endpoint detection and response (EDR) solutions",
+        "Monitor for unusual PowerShell and WMI activity",
+        "Review and update privileged account access policies",
+        "Conduct user awareness training on identifying phishing attempts"
+      ],
+      "references": [
+        "https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-015a",
+        "https://www.microsoft.com/security/blog/2024/01/15/apt29-campaign-targeting-government-networks/"
+      ],
+      "published_date": "2024-01-15",
+      "last_updated": "2024-01-15",
+      "metadata": {
+        "author": "Threat Intelligence Team",
+        "tags": ["apt29", "cozybear", "government", "phishing", "lateral-movement"],
+        "cvss_score": 0.0
+      }
+    }
+  ]
+}
