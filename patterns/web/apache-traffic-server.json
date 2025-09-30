@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "Apache Traffic Server",
+      "category": "web",
+      "pattern": "ATS/([\\d\\.]+)",
+      "vendor": "Apache",
+      "product": "Traffic Server",
+      "version_group": 1,
+      "priority": 160,
+      "confidence": 0.85,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2025-09-30T00:00:00",
+        "updated_at": "2025-09-30T00:00:00",
+        "description": "Detects Apache Traffic Server version from HTTP response. This pattern matches the server identification commonly returned by Apache Traffic Server.",
+        "tags": ["http", "apache", "proxy", "traffic-server"],
+        "test_cases": [
+          {
+            "input": "ATS/9.0.1",
+            "expected_version": "9.0.1"
+          },
+          {
+            "input": "ATS/10.1.2",
+            "expected_version": "10.1.2"
+          }
+        ]
+      }
+    }
+  ]
+}

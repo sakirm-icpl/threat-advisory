@@ -41,7 +41,7 @@ There are many ways to contribute to this project:
 
 ### Pattern Structure
 
-All patterns must follow our standardized JSON structure as defined in the [pattern template](patterns/TEMPLATE.md).
+All patterns must follow our standardized JSON structure as defined in the [pattern template](https://github.com/version-detection-db/threat-advisory/blob/master/patterns/TEMPLATE.md).
 
 ### Research Requirements
 
@@ -103,6 +103,6 @@ If you have questions about contributing, feel free to:
 
 1. Open an issue for general questions
 2. Contact the maintainers directly
-3. Check our [documentation](docs/) for more information
+3. Check our [documentation site](https://version-detection-db.github.io/threat-advisory/) for more information
 
 Thank you for helping make the Version Detection Pattern Database better for everyone!

@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "Couchbase Server",
+      "category": "database",
+      "pattern": "implementationVersion\": \"(\\d+\\.\\d+(?:\\.\\d+)?)",
+      "vendor": "Couchbase",
+      "product": "Couchbase Server",
+      "version_group": 1,
+      "priority": 150,
+      "confidence": 0.8,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2025-09-30T00:00:00",
+        "updated_at": "2025-09-30T00:00:00",
+        "description": "Detects Couchbase Server version from REST API response. This pattern matches the version string commonly returned by Couchbase Server in the /pools endpoint.",
+        "tags": ["couchbase", "nosql", "database", "rest-api"],
+        "test_cases": [
+          {
+            "input": "\"implementationVersion\": \"7.1.1-1234-enterprise\"",
+            "expected_version": "7.1.1"
+          },
+          {
+            "input": "\"implementationVersion\": \"6.2.0-1234-community\"",
+            "expected_version": "6.2.0"
+          }
+        ]
+      }
+    }
+  ]
+}

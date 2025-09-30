@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "Argo CD",
+      "category": "web",
+      "pattern": "\"Version\":\"v([\\d\\.]+)",
+      "vendor": "Argoproj",
+      "product": "Argocd",
+      "version_group": 1,
+      "priority": 150,
+      "confidence": 0.85,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2025-09-30T00:00:00",
+        "updated_at": "2025-09-30T00:00:00",
+        "description": "Detects Argo CD version from API response. This pattern matches the version string commonly returned by Argo CD in the /api/version endpoint.",
+        "tags": ["argocd", "kubernetes", "ci-cd", "devops"],
+        "test_cases": [
+          {
+            "input": "{\"Version\":\"v2.11.3\",\"BuildDate\":\"...\",\"GitCommit\":\"...\"}",
+            "expected_version": "2.11.3"
+          },
+          {
+            "input": "{\"Version\":\"v2.6.5\",\"BuildDate\":\"...\",\"GitCommit\":\"...\"}",
+            "expected_version": "2.6.5"
+          }
+        ]
+      }
+    }
+  ]
+}

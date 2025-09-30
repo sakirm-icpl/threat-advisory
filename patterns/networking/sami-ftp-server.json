@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "Sami FTP Server",
+      "category": "networking",
+      "pattern": "Sami FTP Server [vV]([\\d\\.]+)",
+      "vendor": "Karjasoft",
+      "product": "Sami FTP Server",
+      "version_group": 1,
+      "priority": 150,
+      "confidence": 0.85,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2025-09-30T00:00:00",
+        "updated_at": "2025-09-30T00:00:00",
+        "description": "Detects Sami FTP Server version from FTP banner. This pattern matches the banner response commonly returned by Sami FTP Server.",
+        "tags": ["ftp", "karjasoft", "file-transfer"],
+        "test_cases": [
+          {
+            "input": "220 KarjaSoft Sami FTP Server v2.0.2 ready.",
+            "expected_version": "2.0.2"
+          },
+          {
+            "input": "220 KarjaSoft Sami FTP Server v3.1.0 ready.",
+            "expected_version": "3.1.0"
+          }
+        ]
+      }
+    }
+  ]
+}

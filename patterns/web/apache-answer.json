@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "Apache Answer",
+      "category": "web",
+      "pattern": "(?:main|app|index|style|runtime~main)\\.([0-9a-f]{8})\\.(?:js|css)",
+      "vendor": "Apache",
+      "product": "Answer",
+      "version_group": 1,
+      "priority": 140,
+      "confidence": 0.75,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2025-09-30T00:00:00",
+        "updated_at": "2025-09-30T00:00:00",
+        "description": "Detects Apache Answer version from asset hash. This pattern matches the hash in JavaScript/CSS asset filenames commonly used by Apache Answer.",
+        "tags": ["apache-answer", "qna", "javascript", "web-application"],
+        "test_cases": [
+          {
+            "input": "main.dadb9922.js",
+            "expected_version": "dadb9922"
+          },
+          {
+            "input": "app.1c3bc641.css",
+            "expected_version": "1c3bc641"
+          }
+        ]
+      }
+    }
+  ]
+}

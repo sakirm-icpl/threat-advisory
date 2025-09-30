@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pattern Database - Version Detection Pattern Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #1a2a3a);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin: 2rem 0;
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .category-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .pattern-list {
+            list-style-type: none;
+            margin-left: 0;
+        }
+
+        .pattern-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .pattern-list li:last-child {
+            border-bottom: none;
+        }
+
+        .pattern-name {
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .pattern-vendor {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin: 1rem 0;
+        }
+
+        .cta-button:hover {
+            background: #2980b9;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">VersionDB</div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="community/beginners-guide.html">Getting Started</a>
+                    <a href="community/good-first-issues.html">Contribute</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="content">
+            <h1>Pattern Database</h1>
+            
+            <p>The Version Detection Pattern Database contains regex patterns used to identify software versions from various sources like HTTP headers, file contents, network responses, and more. These patterns are used by security tools to detect vulnerable software versions during assessments.</p>
+            
+            <h2>Pattern Categories</h2>
+            
+            <div class="category-section">
+                <h3>Web Servers & Applications</h3>
+                <ul class="pattern-list">
+                    <li><span class="pattern-name">Apache HTTPD Server</span> <span class="pattern-vendor">(Apache)</span></li>
+                    <li><span class="pattern-name">Apache Traffic Server</span> <span class="pattern-vendor">(Apache)</span></li>
+                    <li><span class="pattern-name">Apache Answer</span> <span class="pattern-vendor">(Apache)</span></li>
+                    <li><span class="pattern-name">Internet Information Services</span> <span class="pattern-vendor">(Microsoft)</span></li>
+                    <li><span class="pattern-name">NGINX</span> <span class="pattern-vendor">(F5 Networks)</span></li>
+                    <li><span class="pattern-name">ModSecurity</span> <span class="pattern-vendor">(Trustwave)</span></li>
+                    <li><span class="pattern-name">Kibana</span> <span class="pattern-vendor">(Elastic)</span></li>
+                    <li><span class="pattern-name">Argo CD</span> <span class="pattern-vendor">(Argoproj)</span></li>
+                    <li><span class="pattern-name">Liferay Portal</span> <span class="pattern-vendor">(Liferay)</span></li>
+                    <li><span class="pattern-name">Go Ethereum</span> <span class="pattern-vendor">(Ethereum)</span></li>
+                    <li><span class="pattern-name">ZenML</span> <span class="pattern-vendor">(ZenML)</span></li>
+                    <li><span class="pattern-name">Apiman</span> <span class="pattern-vendor">(Apiman)</span></li>
+                    <li><span class="pattern-name">Concrete CMS</span> <span class="pattern-vendor">(ConcreteCMS)</span></li>
+                </ul>
+            </div>
+            
+            <div class="category-section">
+                <h3>Networking</h3>
+                <ul class="pattern-list">
+                    <li><span class="pattern-name">Cisco IOS</span> <span class="pattern-vendor">(Cisco)</span></li>
+                    <li><span class="pattern-name">OpenSSH</span> <span class="pattern-vendor">(OpenBSD)</span></li>
+                    <li><span class="pattern-name">Sami FTP Server</span> <span class="pattern-vendor">(Karjasoft)</span></li>
+                    <li><span class="pattern-name">Slimftpd</span> <span class="pattern-vendor">(Whitsoft Development)</span></li>
+                    <li><span class="pattern-name">Blackmoon FTP Server</span> <span class="pattern-vendor">(Blackmoon FTP Server)</span></li>
+                </ul>
+            </div>
+            
+            <div class="category-section">
+                <h3>Database</h3>
+                <ul class="pattern-list">
+                    <li><span class="pattern-name">MySQL</span> <span class="pattern-vendor">(Oracle)</span></li>
+                    <li><span class="pattern-name">PostgreSQL</span> <span class="pattern-vendor">(PostgreSQL Global Development Group)</span></li>
+                    <li><span class="pattern-name">Couchbase Server</span> <span class="pattern-vendor">(Couchbase)</span></li>
+                </ul>
+            </div>
+            
+            <div class="category-section">
+                <h3>Messaging</h3>
+                <ul class="pattern-list">
+                    <li><span class="pattern-name">RabbitMQ</span> <span class="pattern-vendor">(VMware)</span></li>
+                    <li><span class="pattern-name">Apache Pulsar</span> <span class="pattern-vendor">(Apache)</span></li>
+                </ul>
+            </div>
+            
+            <div class="category-section">
+                <h3>Content Management Systems</h3>
+                <ul class="pattern-list">
+                    <li><span class="pattern-name">Drupal</span> <span class="pattern-vendor">(Drupal)</span></li>
+                    <li><span class="pattern-name">WordPress</span> <span class="pattern-vendor">(WordPress)</span></li>
+                    <li><span class="pattern-name">Concrete CMS</span> <span class="pattern-vendor">(ConcreteCMS)</span></li>
+                </ul>
+            </div>
+            
+            <div class="category-section">
+                <h3>Operating Systems</h3>
+                <ul class="pattern-list">
+                    <li><span class="pattern-name">Ubuntu</span> <span class="pattern-vendor">(Canonical)</span></li>
+                </ul>
+            </div>
+            
+            <div class="category-section">
+                <h3>Frameworks</h3>
+                <ul class="pattern-list">
+                    <li><span class="pattern-name">Django</span> <span class="pattern-vendor">(Django Software Foundation)</span></li>
+                </ul>
+            </div>
+            
+            <h2>Using the Patterns</h2>
+            
+            <p>All patterns are stored as JSON files in the <a href="https://github.com/version-detection-db/threat-advisory/tree/master/patterns">patterns directory</a> of our repository. Each pattern file contains:</p>
+            
+            <ul>
+                <li>Name and category information</li>
+                <li>Regex pattern for version detection</li>
+                <li>Vendor and product details</li>
+                <li>Priority and confidence scores</li>
+                <li>Metadata with description and tags</li>
+                <li>Test cases for validation</li>
+            </ul>
+            
+            <p>You can browse the <a href="https://github.com/version-detection-db/threat-advisory/tree/master/patterns">patterns directory</a> to see all available patterns, or check our <a href="pattern-summary.html">pattern summary</a> for an overview of the database.</p>
+            
+            <a href="https://github.com/version-detection-db/threat-advisory/tree/master/patterns" class="cta-button">Browse Patterns on GitHub</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Version Detection Pattern Database. Open Source under MIT License.</p>
+            <p style="margin-top: 10px;">
+                <a href="https://github.com/version-detection-db/threat-advisory" style="color: #3498db; text-decoration: none;">GitHub Repository</a> | 
+                <a href="index.html" style="color: #3498db; text-decoration: none;">Home</a> | 
+                <a href="https://version-detection-db.github.io/threat-advisory/" style="color: #3498db; text-decoration: none;">Live Site</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

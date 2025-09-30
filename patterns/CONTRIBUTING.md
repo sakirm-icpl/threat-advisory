@@ -46,7 +46,7 @@ Every pattern must include test cases that:
 - Validate the correct version extraction
 
 Example test case structure:
-``json
+```json
 {
   "input": "Sample text containing version",
   "expected_version": "Extracted version string"
@@ -103,4 +103,4 @@ If you have questions about contributing, feel free to:
 
 1. Open an issue for general questions
 2. Contact the maintainers directly
-3. Check our [documentation](../docs/) for more information
+3. Check our [documentation site](https://version-detection-db.github.io/threat-advisory/) for more information

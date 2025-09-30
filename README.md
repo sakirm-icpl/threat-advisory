@@ -38,15 +38,19 @@ threat-advisory/
 
 ## Getting Started
 
-1. **Explore the patterns**: Browse the [patterns directory](patterns/) to see existing version detection patterns
-2. **Read the documentation**: Visit our [documentation site](docs/index.html) to learn how to contribute
-3. **Contribute**: Follow our [contribution guidelines](patterns/CONTRIBUTING.md) to add new patterns
+1. **Explore the patterns**: Browse the [patterns directory](https://github.com/version-detection-db/threat-advisory/tree/master/patterns) to see existing version detection patterns
+2. **Read the documentation**: Visit our [documentation site](https://version-detection-db.github.io/threat-advisory/) to learn how to contribute
+3. **Contribute**: Follow our [contribution guidelines](https://github.com/version-detection-db/threat-advisory/blob/master/patterns/CONTRIBUTING.md) to add new patterns
 
 ## Community
 
-- [Beginner's Guide](docs/community/beginners-guide.html) - Getting started with contributing
-- [Good First Issues](docs/community/good-first-issues.html) - Easy ways to contribute
-- [Pattern Development Guide](docs/community/pattern-development.html) - Advanced pattern creation
+- [Beginner's Guide](https://version-detection-db.github.io/threat-advisory/community/beginners-guide.html) - Getting started with contributing
+- [Good First Issues](https://version-detection-db.github.io/threat-advisory/community/good-first-issues.html) - Easy ways to contribute
+- [Pattern Development Guide](https://version-detection-db.github.io/threat-advisory/community/pattern-development.html) - Advanced pattern creation
+
+## Live Site
+
+Visit our [live documentation site](https://version-detection-db.github.io/threat-advisory/) to explore the pattern database and learn how to contribute.
 
 ## License
 

@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "ZenML",
+      "category": "web",
+      "pattern": "\"version\"\\s*:\\s*\"([\\d\\.]+)\"",
+      "vendor": "ZenML",
+      "product": "ZenML",
+      "version_group": 1,
+      "priority": 140,
+      "confidence": 0.8,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2025-09-30T00:00:00",
+        "updated_at": "2025-09-30T00:00:00",
+        "description": "Detects ZenML version from API response. This pattern matches the version string commonly returned by ZenML in API responses.",
+        "tags": ["zenml", "mlops", "machine-learning", "api"],
+        "test_cases": [
+          {
+            "input": "\"version\": \"0.85.0\"",
+            "expected_version": "0.85.0"
+          },
+          {
+            "input": "\"version\" : \"1.2.3\"",
+            "expected_version": "1.2.3"
+          }
+        ]
+      }
+    }
+  ]
+}

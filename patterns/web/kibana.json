@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "Kibana",
+      "category": "web",
+      "pattern": "kbn-version: ([\\d\\.]+)",
+      "vendor": "Elastic",
+      "product": "Kibana",
+      "version_group": 1,
+      "priority": 160,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2025-09-30T00:00:00",
+        "updated_at": "2025-09-30T00:00:00",
+        "description": "Detects Kibana version from HTTP headers. This pattern matches the kbn-version header commonly returned by Kibana.",
+        "tags": ["kibana", "elastic", "analytics", "web-application"],
+        "test_cases": [
+          {
+            "input": "kbn-version: 8.13.0",
+            "expected_version": "8.13.0"
+          },
+          {
+            "input": "kbn-version: 7.4.2",
+            "expected_version": "7.4.2"
+          }
+        ]
+      }
+    }
+  ]
+}

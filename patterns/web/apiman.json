@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "Apiman",
+      "category": "web",
+      "pattern": "\"version\"\\s*:\\s*\"([^\"]*)\"",
+      "vendor": "Apiman",
+      "product": "Apiman",
+      "version_group": 1,
+      "priority": 140,
+      "confidence": 0.8,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2025-09-30T00:00:00",
+        "updated_at": "2025-09-30T00:00:00",
+        "description": "Detects Apiman version from API response. This pattern matches the version string commonly returned by Apiman in API responses.",
+        "tags": ["apiman", "api-management", "java", "web-application"],
+        "test_cases": [
+          {
+            "input": "{\"version\": \"3.1.1.Final\"}",
+            "expected_version": "3.1.1.Final"
+          },
+          {
+            "input": "{\"version\":\"2.0.0.Final\"}",
+            "expected_version": "2.0.0.Final"
+          }
+        ]
+      }
+    }
+  ]
+}

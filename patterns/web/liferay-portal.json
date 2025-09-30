@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "Liferay Portal",
+      "category": "web",
+      "pattern": "(\\d+\\.\\d+(?:\\.\\d+){0,2})",
+      "vendor": "Liferay",
+      "product": "Liferay Portal",
+      "version_group": 1,
+      "priority": 150,
+      "confidence": 0.8,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2025-09-30T00:00:00",
+        "updated_at": "2025-09-30T00:00:00",
+        "description": "Detects Liferay Portal version from HTTP headers. This pattern matches the version string commonly returned in X-Powered-By headers by Liferay Portal.",
+        "tags": ["liferay", "portal", "java", "web-application"],
+        "test_cases": [
+          {
+            "input": "X-Powered-By: Liferay Portal 7.4.3.10-ga10",
+            "expected_version": "7.4.3.10"
+          },
+          {
+            "input": "X-Powered-By: Liferay Portal 6.2.1-ga1",
+            "expected_version": "6.2.1"
+          }
+        ]
+      }
+    }
+  ]
+}
