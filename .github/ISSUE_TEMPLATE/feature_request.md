@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for the Threat Advisory Platform
+about: Suggest an idea for the Version Detection Pattern Database
 title: '[FEATURE] '
 labels: enhancement
 assignees: ''
@@ -19,7 +19,7 @@ A clear and concise description of any alternative solutions or features you've 
 ## Use Case
 Describe how this feature would be used and who would benefit from it:
 - Security researchers
-- Threat intelligence analysts
+- Security researchers
 - SOC teams
 - Developers
 - Other

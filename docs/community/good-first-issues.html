@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Good First Issues - Threat Advisory Database</title>
+    <title>Good First Issues - Version Detection Pattern Database</title>
     <style>
         * {
             margin: 0;
@@ -170,7 +170,7 @@
     <header>
         <div class="container">
             <nav>
-                <div class="logo">ThreatAdvisory</div>
+                <div class="logo">VersionDB</div>
                 <div class="nav-links">
                     <a href="../index.html">Home</a>
                     <a href="beginners-guide.html">Getting Started</a>
@@ -187,50 +187,50 @@
             <p>Welcome! If you're new to contributing to open-source or to this project specifically, these issues are a great place to start. They're well-defined, relatively self-contained, and don't require deep knowledge of the entire codebase.</p>
             
             <div class="issue-category">
-                <h2>Advisory Creation</h2>
+                <h2>Pattern Creation</h2>
                 
                 <div class="issue">
                     <span class="difficulty easy">Easy</span>
-                    <h3>Create Advisory for Recent CVE</h3>
-                    <p>Research a recently published CVE and create an advisory entry for it following our template.</p>
-                    <p><strong>Skills needed:</strong> Research skills, attention to detail</p>
-                    <p><strong>Expected outcome:</strong> A new advisory file in advisories/cve/ with comprehensive references</p>
+                    <h3>Add Pattern for Apache Tomcat</h3>
+                    <p>Create a regex pattern to detect Apache Tomcat versions from HTTP server headers or other common sources.</p>
+                    <p><strong>Skills needed:</strong> Basic regex knowledge, research skills</p>
+                    <p><strong>Expected outcome:</strong> A new pattern file in patterns/web/ with comprehensive test cases</p>
                 </div>
                 
                 <div class="issue">
                     <span class="difficulty easy">Easy</span>
-                    <h3>Create Advisory for Malware Family</h3>
-                    <p>Research a malware family and create an advisory entry with detection and mitigation information.</p>
-                    <p><strong>Skills needed:</strong> Research skills, attention to detail</p>
-                    <p><strong>Expected outcome:</strong> A new advisory file in advisories/malware/</p>
+                    <h3>Add Pattern for Nginx</h3>
+                    <p>Create a regex pattern to detect Nginx versions from HTTP server headers.</p>
+                    <p><strong>Skills needed:</strong> Basic regex knowledge, research skills</p>
+                    <p><strong>Expected outcome:</strong> A new pattern file in patterns/web/ with comprehensive test cases</p>
                 </div>
                 
                 <div class="issue">
                     <span class="difficulty medium">Medium</span>
-                    <h3>Create Advisory for APT Campaign</h3>
-                    <p>Research an APT group's recent campaign and create a comprehensive advisory with TTPs and indicators.</p>
-                    <p><strong>Skills needed:</strong> Advanced research skills, understanding of threat intelligence</p>
-                    <p><strong>Expected outcome:</strong> A new advisory file in advisories/apt/</p>
+                    <h3>Add Pattern for MySQL</h3>
+                    <p>Create regex patterns to detect MySQL versions from various sources like error messages, banners, or protocol responses.</p>
+                    <p><strong>Skills needed:</strong> Intermediate regex knowledge, research skills</p>
+                    <p><strong>Expected outcome:</strong> A new pattern file in patterns/database/ with comprehensive test cases</p>
                 </div>
             </div>
             
             <div class="issue-category">
-                <h2>Advisory Improvement</h2>
+                <h2>Pattern Improvement</h2>
                 
                 <div class="issue">
                     <span class="difficulty easy">Easy</span>
-                    <h3>Add References to Existing Advisory</h3>
-                    <p>Find additional authoritative sources for an existing advisory and add them to the references section.</p>
+                    <h3>Add More Test Cases to Apache HTTPD Pattern</h3>
+                    <p>The existing Apache HTTPD pattern could use more test cases to cover edge cases and different version formats.</p>
                     <p><strong>Skills needed:</strong> Research skills, attention to detail</p>
-                    <p><strong>Expected outcome:</strong> Updated references in an existing advisory file</p>
+                    <p><strong>Expected outcome:</strong> Additional test cases in patterns/web/apache.json</p>
                 </div>
                 
                 <div class="issue">
-                    <span class="difficulty easy">Easy</span>
-                    <h3>Improve Recommendations for Existing Advisory</h3>
-                    <p>Review existing advisories and enhance their recommendations with more actionable guidance.</p>
-                    <p><strong>Skills needed:</strong> Cybersecurity knowledge, clear writing skills</p>
-                    <p><strong>Expected outcome:</strong> Enhanced recommendations in an existing advisory</p>
+                    <span class="difficulty medium">Medium</span>
+                    <h3>Improve Confidence Score for Existing Patterns</h3>
+                    <p>Review existing patterns and update their confidence scores based on real-world testing or additional research.</p>
+                    <p><strong>Skills needed:</strong> Analytical skills, research skills</p>
+                    <p><strong>Expected outcome:</strong> Updated confidence scores with justification in pattern metadata</p>
                 </div>
             </div>
             
@@ -239,18 +239,18 @@
                 
                 <div class="issue">
                     <span class="difficulty easy">Easy</span>
-                    <h3>Improve Advisory Template Documentation</h3>
-                    <p>Enhance the advisory template documentation with better examples and explanations.</p>
+                    <h3>Improve Pattern Template Documentation</h3>
+                    <p>Enhance the pattern template documentation with better examples and explanations.</p>
                     <p><strong>Skills needed:</strong> Writing skills, understanding of the project</p>
-                    <p><strong>Expected outcome:</strong> Improved advisories/TEMPLATE.md file</p>
+                    <p><strong>Expected outcome:</strong> Improved patterns/TEMPLATE.md file</p>
                 </div>
                 
                 <div class="issue">
                     <span class="difficulty easy">Easy</span>
                     <h3>Create Examples for Different Categories</h3>
-                    <p>Create example advisories for categories that don't have good examples yet.</p>
-                    <p><strong>Skills needed:</strong> Research skills, attention to detail</p>
-                    <p><strong>Expected outcome:</strong> New example advisory files in underrepresented categories</p>
+                    <p>Create example patterns for categories that don't have good examples yet.</p>
+                    <p><strong>Skills needed:</strong> Basic regex knowledge, research skills</p>
+                    <p><strong>Expected outcome:</strong> New example pattern files in underrepresented categories</p>
                 </div>
             </div>
             
@@ -260,9 +260,9 @@
                 <div class="issue">
                     <span class="difficulty medium">Medium</span>
                     <h3>Enhance Validation Tool</h3>
-                    <p>Add new validation features to the advisory validation tool, such as checking for common data pitfalls.</p>
-                    <p><strong>Skills needed:</strong> Python programming, understanding of data validation</p>
-                    <p><strong>Expected outcome:</strong> Enhanced tools/validate-advisory.py</p>
+                    <p>Add new validation features to the pattern validation tool, such as checking for common regex pitfalls.</p>
+                    <p><strong>Skills needed:</strong> Python programming, regex knowledge</p>
+                    <p><strong>Expected outcome:</strong> Enhanced tools/validate-pattern.py</p>
                 </div>
             </div>
             
@@ -282,7 +282,7 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 Threat Advisory Database. Open Source under MIT License.</p>
+            <p>&copy; 2024 Version Detection Pattern Database. Open Source under MIT License.</p>
         </div>
     </footer>
 </body>

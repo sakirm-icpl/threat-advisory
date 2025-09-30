@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beginner's Guide - Threat Advisory Database</title>
+    <title>Beginner's Guide - Version Detection Pattern Database</title>
     <style>
         * {
             margin: 0;
@@ -150,7 +150,7 @@
     <header>
         <div class="container">
             <nav>
-                <div class="logo">ThreatAdvisory</div>
+                <div class="logo">VersionDB</div>
                 <div class="nav-links">
                     <a href="../index.html">Home</a>
                     <a href="beginners-guide.html">Getting Started</a>
@@ -164,10 +164,17 @@
         <div class="content">
             <h1>Beginner's Guide to Contributing</h1>
             
-            <p>Welcome to the Threat Advisory Database! This guide will help you get started contributing to our open-source project, even if you're new to cybersecurity or open-source development.</p>
+            <p>Welcome to the Version Detection Pattern Database! This guide will help you get started contributing to our open-source project, even if you're new to security research or open-source development.</p>
             
             <h2>What is this project?</h2>
-            <p>The Threat Advisory Database is a collection of threat intelligence advisories and vulnerability data used to inform security professionals about emerging threats. These advisories help organizations protect themselves by providing timely information about security risks.</p>
+            <p>The Version Detection Pattern Database is a collection of regex patterns used to identify software versions from various sources like HTTP headers, file contents, network responses, and more. These patterns are used by security tools to:</p>
+            
+            <ul>
+                <li>Detect vulnerable software versions during security assessments</li>
+                <li>Identify software during penetration testing</li>
+                <li>Support bug bounty hunting efforts</li>
+                <li>Enable automated vulnerability scanning</li>
+            </ul>
             
             <h2>How to Contribute</h2>
             
@@ -185,60 +192,60 @@
                 <h3>Step 2: Clone Your Fork</h3>
                 <p>Clone your forked repository to your local machine:</p>
                 <pre><code>git clone https://github.com/YOUR-USERNAME/threat-advisory.git
-cd threat-advisory</code></pre>
+cd version-detection-db</code></pre>
             </div>
             
             <div class="step">
                 <h3>Step 3: Create a New Branch</h3>
                 <p>Create a new branch for your work to keep changes organized:</p>
-                <pre><code>git checkout -b add-my-new-advisory</code></pre>
+                <pre><code>git checkout -b add-my-new-pattern</code></pre>
             </div>
             
             <div class="step">
-                <h3>Step 4: Research Your Advisory</h3>
-                <p>Before creating an advisory, conduct thorough research:</p>
+                <h3>Step 4: Research Your Pattern</h3>
+                <p>Before creating a pattern, conduct thorough research:</p>
                 <ul>
-                    <li>Verify the threat or vulnerability from multiple sources</li>
-                    <li>Gather evidence and proof of concept where possible</li>
-                    <li>Identify affected products and versions</li>
-                    <li>Determine the potential impact</li>
-                    <li>Research existing advisories to avoid duplication</li>
+                    <li>Identify the software you want to detect</li>
+                    <li>Find examples of how it reports its version</li>
+                    <li>Look for official documentation about version reporting</li>
+                    <li>Consider different deployment scenarios (cloud, on-premise, containers)</li>
                 </ul>
             </div>
             
             <div class="step">
-                <h3>Step 5: Create Your Advisory File</h3>
-                <p>Create a new advisory file in the appropriate category directory:</p>
+                <h3>Step 5: Create Your Pattern File</h3>
+                <p>Create a new pattern file in the appropriate category directory:</p>
                 <ol>
-                    <li>Navigate to the <code>advisories/</code> directory</li>
-                    <li>Choose the appropriate subdirectory (cve, malware, apt, etc.)</li>
-                    <li>Create a new JSON file using the advisory ID (e.g., <code>cve-2024-12345.json</code>)</li>
-                    <li>Use our <a href="../../advisories/TEMPLATE.md">advisory template</a> as a starting point</li>
+                    <li>Navigate to the <code>patterns/</code> directory</li>
+                    <li>Choose the appropriate subdirectory (web, database, networking, etc.)</li>
+                    <li>Create a new JSON file using the product name (e.g., <code>nginx.json</code>)</li>
+                    <li>Use our <a href="../../patterns/TEMPLATE.md">pattern template</a> as a starting point</li>
                 </ol>
             </div>
             
             <div class="step">
-                <h3>Step 6: Add References and Recommendations</h3>
-                <p>Every advisory must include references and recommendations:</p>
+                <h3>Step 6: Add Test Cases</h3>
+                <p>Every pattern must include test cases to validate its accuracy:</p>
                 <ul>
-                    <li>Add authoritative references to sources</li>
-                    <li>Include actionable recommendations for protection</li>
-                    <li>Provide reliable URLs for further information</li>
+                    <li>Add positive test cases with expected version matches</li>
+                    <li>Include negative test cases that should not match</li>
+                    <li>Cover various version formats for the product</li>
+                    <li>Test edge cases and unusual version strings</li>
                 </ul>
             </div>
             
             <div class="step">
-                <h3>Step 7: Validate Your Advisory</h3>
-                <p>Use our validation tool to check your advisory:</p>
-                <pre><code>python tools/validate-advisory.py advisories/cve/cve-2024-12345.json</code></pre>
+                <h3>Step 7: Validate Your Pattern</h3>
+                <p>Use our validation tool to check your pattern:</p>
+                <pre><code>python tools/validate-pattern.py patterns/web/nginx.json</code></pre>
                 <p>Fix any issues that the validation tool reports.</p>
             </div>
             
             <div class="step">
                 <h3>Step 8: Commit and Push Your Changes</h3>
-                <pre><code>git add advisories/cve/cve-2024-12345.json
-git commit -m "Add advisory for CVE-2024-12345"
-git push origin add-my-new-advisory</code></pre>
+                <pre><code>git add patterns/web/nginx.json
+git commit -m "Add pattern for NGINX version detection"
+git push origin add-my-new-pattern</code></pre>
             </div>
             
             <div class="step">
@@ -250,29 +257,29 @@ git push origin add-my-new-advisory</code></pre>
             
             <div class="tip">
                 <h3>Research Thoroughly</h3>
-                <p>Spend time verifying information from multiple authoritative sources before creating an advisory.</p>
+                <p>Spend time understanding how the software reports its version in different contexts. Look at official documentation, community forums, and real-world examples.</p>
             </div>
             
             <div class="tip">
                 <h3>Be Specific</h3>
-                <p>Make your advisories specific enough to be actionable but comprehensive enough to be useful.</p>
+                <p>Make your patterns specific enough to avoid false positives, but flexible enough to catch variations in version formatting.</p>
             </div>
             
             <div class="tip">
-                <h3>Provide Actionable Recommendations</h3>
-                <p>Include clear, practical recommendations that organizations can implement to protect themselves.</p>
+                <h3>Test Extensively</h3>
+                <p>Include comprehensive test cases that cover normal cases, edge cases, and examples that should not match.</p>
             </div>
             
             <div class="tip">
                 <h3>Follow the Template</h3>
-                <p>Use our standard advisory template and fill out all required fields with accurate information.</p>
+                <p>Use our standard pattern template and fill out all required fields with accurate information.</p>
             </div>
             
             <h2>Need Help?</h2>
             <p>If you need assistance:</p>
             <ul>
-                <li>Check our <a href="../../advisories/CONTRIBUTING.md">contribution guidelines</a></li>
-                <li>Look at existing advisories as examples</li>
+                <li>Check our <a href="../../patterns/CONTRIBUTING.md">contribution guidelines</a></li>
+                <li>Look at existing patterns as examples</li>
                 <li>Open an issue on GitHub with your question</li>
                 <li>Join our community discussions</li>
             </ul>
@@ -283,7 +290,7 @@ git push origin add-my-new-advisory</code></pre>
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 Threat Advisory Database. Open Source under MIT License.</p>
+            <p>&copy; 2024 Version Detection Pattern Database. Open Source under MIT License.</p>
         </div>
     </footer>
 </body>

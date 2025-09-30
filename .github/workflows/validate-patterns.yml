@@ -1,4 +1,4 @@
-name: Validate Data
+name: Validate Patterns
 
 on:
   push:
@@ -19,6 +19,6 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Validate all advisories
+      - name: Validate all patterns
         run: |
-          python tools/validate-all-advisories.py
+          python tools/validate-all-patterns.py

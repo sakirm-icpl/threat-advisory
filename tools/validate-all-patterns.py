@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Pattern Validation Tool
+Validate All Patterns Tool
 
-This script validates pattern files against our schema and tests the regex patterns
-against provided test cases.
+This script validates all pattern files in the repository against our schema 
+and tests the regex patterns against provided test cases.
 """
 
 import json
 import re
-import sys
 import os
+import sys
 from pathlib import Path
 
 def validate_json_structure(pattern_data):
@@ -61,7 +61,7 @@ def validate_regex_pattern(pattern_str):
     except re.error as e:
         raise ValueError(f"Invalid regex pattern: {e}")
 
-def run_test_cases(pattern_data):
+def run_test_cases(pattern_data, file_path):
     """Run test cases for all patterns in the file."""
     for i, pattern in enumerate(pattern_data['patterns']):
         pattern_regex = pattern['pattern']
@@ -83,18 +83,18 @@ def run_test_cases(pattern_data):
             if expected_version is not None:
                 # This is a positive test case
                 if not match:
-                    raise ValueError(f"Pattern {i}, Test Case {j}: Expected match but got none")
+                    raise ValueError(f"File {file_path}, Pattern {i}, Test Case {j}: Expected match but got none")
                 
                 if version_group > len(match.groups()):
-                    raise ValueError(f"Pattern {i}, Test Case {j}: Version group {version_group} out of range")
+                    raise ValueError(f"File {file_path}, Pattern {i}, Test Case {j}: Version group {version_group} out of range")
                 
                 actual_version = match.group(version_group)
                 if actual_version != expected_version:
-                    raise ValueError(f"Pattern {i}, Test Case {j}: Expected version '{expected_version}' but got '{actual_version}'")
+                    raise ValueError(f"File {file_path}, Pattern {i}, Test Case {j}: Expected version '{expected_version}' but got '{actual_version}'")
             else:
                 # This is a negative test case (no match expected)
                 if match:
-                    raise ValueError(f"Pattern {i}, Test Case {j}: Expected no match but got one")
+                    raise ValueError(f"File {file_path}, Pattern {i}, Test Case {j}: Expected no match but got one")
 
 def validate_pattern_file(file_path):
     """Validate a pattern file."""
@@ -105,7 +105,7 @@ def validate_pattern_file(file_path):
         try:
             pattern_data = json.load(f)
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON: {e}")
+            raise ValueError(f"Invalid JSON in {file_path}: {e}")
     
     # Validate JSON structure
     validate_json_structure(pattern_data)
@@ -116,29 +116,56 @@ def validate_pattern_file(file_path):
         validate_regex_pattern(pattern['pattern'])
     
     # Run test cases
-    run_test_cases(pattern_data)
+    run_test_cases(pattern_data, file_path)
     
     print(f"✓ {file_path} passed all validation checks")
     return True
 
+def find_pattern_files(root_dir):
+    """Find all pattern files in the repository."""
+    pattern_files = []
+    patterns_dir = os.path.join(root_dir, 'patterns')
+    
+    for root, dirs, files in os.walk(patterns_dir):
+        for file in files:
+            if file.endswith('.json'):
+                pattern_files.append(os.path.join(root, file))
+    
+    return pattern_files
+
 def main():
     """Main function."""
-    if len(sys.argv) < 2:
-        print("Usage: python validate-pattern.py <pattern_file>")
+    # Get the repository root directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(script_dir)
+    
+    # Find all pattern files
+    pattern_files = find_pattern_files(repo_root)
+    
+    if not pattern_files:
+        print("No pattern files found!")
         sys.exit(1)
     
-    file_path = sys.argv[1]
+    print(f"Found {len(pattern_files)} pattern files to validate")
     
-    if not os.path.exists(file_path):
-        print(f"Error: File {file_path} not found")
-        sys.exit(1)
+    # Validate each pattern file
+    failed_files = []
+    for pattern_file in pattern_files:
+        try:
+            validate_pattern_file(pattern_file)
+        except ValueError as e:
+            print(f"✗ Validation failed for {pattern_file}: {e}")
+            failed_files.append(pattern_file)
     
-    try:
-        validate_pattern_file(file_path)
-        print("All validations passed!")
-    except ValueError as e:
-        print(f"Validation failed: {e}")
+    # Summary
+    if failed_files:
+        print(f"\nValidation failed for {len(failed_files)} files:")
+        for file in failed_files:
+            print(f"  - {file}")
         sys.exit(1)
+    else:
+        print(f"\nAll {len(pattern_files)} pattern files passed validation!")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

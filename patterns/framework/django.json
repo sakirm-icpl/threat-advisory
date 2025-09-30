@@ -1,0 +1,27 @@
+{
+  "patterns": [
+    {
+      "name": "Django Framework - X-Powered-By Header",
+      "category": "framework",
+      "pattern": "X-Powered-By: Django ([\\d.]+)",
+      "vendor": "Django Software Foundation",
+      "product": "Django",
+      "version_group": 1,
+      "priority": 140,
+      "confidence": 0.8,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects Django version from X-Powered-By header. Note that this header is not always present and must be explicitly configured.",
+        "tags": ["framework", "django", "python", "web"],
+        "test_cases": [
+          {
+            "input": "X-Powered-By: Django 4.1.7",
+            "expected_version": "4.1.7"
+          }
+        ]
+      }
+    }
+  ]
+}

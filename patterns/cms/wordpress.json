@@ -1,0 +1,50 @@
+{
+  "patterns": [
+    {
+      "name": "WordPress CMS",
+      "category": "cms",
+      "pattern": "X-Powered-By: WP Engine ([\\d.]+)",
+      "vendor": "WordPress",
+      "product": "WordPress",
+      "version_group": 1,
+      "priority": 150,
+      "confidence": 0.85,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects WordPress version from X-Powered-By header when hosted on WP Engine. This is one of several ways WordPress versions can be detected.",
+        "tags": ["cms", "wordpress", "blog", "wp-engine"],
+        "test_cases": [
+          {
+            "input": "X-Powered-By: WP Engine 5.9.3",
+            "expected_version": "5.9.3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WordPress Generator Meta Tag",
+      "category": "cms",
+      "pattern": "<meta name=\"generator\" content=\"WordPress ([\\d.]+)",
+      "vendor": "WordPress",
+      "product": "WordPress",
+      "version_group": 1,
+      "priority": 160,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects WordPress version from the generator meta tag in HTML content. This is commonly found in WordPress sites.",
+        "tags": ["cms", "wordpress", "blog", "html"],
+        "test_cases": [
+          {
+            "input": "<meta name=\"generator\" content=\"WordPress 6.1.1\">",
+            "expected_version": "6.1.1"
+          }
+        ]
+      }
+    }
+  ]
+}

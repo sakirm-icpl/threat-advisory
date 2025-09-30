@@ -1,36 +1,36 @@
 # Tools
 
-This directory contains utility scripts for working with the advisory database.
+This directory contains utility scripts for working with the pattern database.
 
 ## Validation Tools
 
-### validate-advisory.py
+### validate-pattern.py
 
-Validates a single advisory file against our schema and checks the completeness of the advisory data.
+Validates a single pattern file against our schema and tests the regex patterns against provided test cases.
 
 Usage:
 ```bash
-python validate-advisory.py ../advisories/cve/cve-2024-12345.json
+python validate-pattern.py ../patterns/web/apache.json
 ```
 
-### validate-all-advisories.py
+### validate-all-patterns.py
 
-Validates all advisory files in the repository.
+Validates all pattern files in the repository.
 
 Usage:
 ```bash
-python validate-all-advisories.py
+python validate-all-patterns.py
 ```
 
 ## Summary Tools
 
-### generate-advisory-summary.py
+### generate-pattern-summary.py
 
-Generates a summary report of all advisories in the database, including statistics by category, severity, and other metrics.
+Generates a summary report of all patterns in the database.
 
 Usage:
 ```bash
-python generate-advisory-summary.py
+python generate-pattern-summary.py
 ```
 
 ## Tool Requirements
@@ -52,14 +52,14 @@ When adding new tools or modifying existing ones:
 
 ## Tool Descriptions
 
-### Advisory Validation
+### Pattern Validation
 
 The validation tools check:
 
 1. JSON schema compliance
-2. Required fields completion
-3. Reference URL validity
+2. Regex pattern compilation
+3. Test case execution
 4. Metadata completeness
-5. Severity and category values
+5. Priority and confidence score ranges
 
-These tools help ensure that all advisories in the database meet our quality standards and function correctly.
+These tools help ensure that all patterns in the database meet our quality standards and function correctly.

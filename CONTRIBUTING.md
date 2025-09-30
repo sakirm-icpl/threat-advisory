@@ -1,13 +1,13 @@
-# Contributing to Threat Advisory Database
+# Contributing to Version Detection Pattern Database
 
-Thank you for your interest in contributing to the Threat Advisory Database! This document provides guidelines for contributing to this project.
+Thank you for your interest in contributing to the Version Detection Pattern Database! This document provides guidelines for contributing to this project.
 
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
 - [How to Contribute](#how-to-contribute)
-- [Advisory Contribution Guidelines](#advisory-contribution-guidelines)
+- [Pattern Contribution Guidelines](#pattern-contribution-guidelines)
 - [Documentation Improvements](#documentation-improvements)
 - [Code Quality](#code-quality)
 - [Community](#community)
@@ -30,44 +30,43 @@ This project and everyone participating in it is governed by our [Code of Conduc
 
 There are many ways to contribute to this project:
 
-1. **Add new advisories** - Research and create advisories for newly discovered threats
-2. **Improve existing advisories** - Enhance accuracy, add references, or improve recommendations
+1. **Add new patterns** - Research and create regex patterns for detecting software versions
+2. **Improve existing patterns** - Enhance accuracy, add test cases, or improve metadata
 3. **Fix issues** - Help resolve issues reported on GitHub
 4. **Improve documentation** - Enhance guides, tutorials, and explanations
 5. **Enhance tooling** - Improve validation tools and utilities
-6. **Report bugs** - Identify and report issues with existing advisories or tools
+6. **Report bugs** - Identify and report issues with existing patterns or tools
 
-## Advisory Contribution Guidelines
+## Pattern Contribution Guidelines
 
-### Advisory Structure
+### Pattern Structure
 
-All advisories must follow our standardized JSON structure as defined in the [advisory template](advisories/TEMPLATE.md).
+All patterns must follow our standardized JSON structure as defined in the [pattern template](patterns/TEMPLATE.md).
 
 ### Research Requirements
 
-Before submitting an advisory:
+Before submitting a pattern:
 
-1. Verify the threat or vulnerability from multiple sources
-2. Gather evidence and proof of concept where possible
-3. Identify affected products and versions
-4. Determine the potential impact
-5. Research existing advisories to avoid duplication
+1. Conduct thorough research on the software's version reporting mechanisms
+2. Identify multiple examples of version strings in different contexts
+3. Understand variations in version formatting
+4. Consider different deployment scenarios
 
 ### Quality Standards
 
-1. **Accuracy** - Advisories must contain accurate information verified from authoritative sources
-2. **Completeness** - Include comprehensive metadata, references, and recommendations
-3. **Actionability** - Provide clear, actionable recommendations
-4. **Documentation** - Provide clear descriptions and reliable references
+1. **Accuracy** - Patterns must correctly identify versions without false positives
+2. **Specificity** - Patterns should be specific enough to avoid matching unrelated text
+3. **Completeness** - Include comprehensive metadata and test cases
+4. **Documentation** - Provide clear descriptions of what the pattern detects
 
-### References
+### Test Cases
 
-Every advisory must include references that:
+Every pattern must include test cases that:
 
-1. Link to authoritative sources
-2. Provide additional context or information
-3. Are accessible and reliable
-4. Are properly formatted URLs
+1. Cover various version formats for the product
+2. Include both positive and negative test cases
+3. Demonstrate edge cases
+4. Validate correct version extraction
 
 ## Documentation Improvements
 
@@ -106,4 +105,4 @@ If you have questions about contributing, feel free to:
 2. Contact the maintainers directly
 3. Check our [documentation](docs/) for more information
 
-Thank you for helping make the Threat Advisory Database better for everyone!
+Thank you for helping make the Version Detection Pattern Database better for everyone!

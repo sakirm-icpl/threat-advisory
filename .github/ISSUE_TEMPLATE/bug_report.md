@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report errors or issues with the Threat Advisory Platform
+about: Report errors or issues with the Version Detection Pattern Database
 title: '[BUG] '
 labels: bug
 assignees: ''

@@ -3,7 +3,7 @@
     {
       "name": "OpenSSH Server",
       "category": "networking",
-      "pattern": "OpenSSH_([\\d\\.]+)",
+      "pattern": "OpenSSH_([\\d\\.p]+)",
       "vendor": "OpenBSD",
       "product": "OpenSSH",
       "version_group": 1,

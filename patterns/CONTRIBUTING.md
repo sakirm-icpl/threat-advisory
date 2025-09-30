@@ -1,223 +1,106 @@
-# Contributing Detection Patterns
+# Contributing to the Pattern Database
 
-Thank you for your interest in contributing to the Version Detection Pattern Database! This document provides guidelines for contributing regex patterns to our repository.
-
-## Table of Contents
-- [Getting Started](#getting-started)
-- [Pattern Requirements](#pattern-requirements)
-- [Research Best Practices](#research-best-practices)
-- [Creating Quality Patterns](#creating-quality-patterns)
-- [Testing Patterns](#testing-patterns)
-- [Submission Process](#submission-process)
-- [Review Process](#review-process)
+Thank you for your interest in contributing to the Version Detection Pattern Database! This document provides guidelines and best practices for contributing new patterns or improving existing ones.
 
 ## Getting Started
 
 1. Fork the repository
-2. Create a new branch for your pattern: `git checkout -b pattern/new-service`
-3. Follow the [pattern template](TEMPLATE.md)
-4. Test your pattern with our validation tools
-5. Submit a pull request with your contribution
-
-## Pattern Requirements
-
-### Technical Requirements
-- Patterns must be valid JSON following our schema
-- Each pattern must include a version capture group
-- Patterns must include comprehensive test cases
-- All fields must be properly filled out
-- Pattern files must be named appropriately (e.g., `apache.json`)
-
-### Quality Requirements
-- Patterns must be accurate and reliable
-- False positive rate should be minimized
-- Patterns should be specific to avoid over-matching
-- Confidence levels must be realistic
-- Test cases must cover various scenarios
-
-### Documentation Requirements
-- Clear, descriptive pattern names
-- Detailed descriptions of what the pattern detects
-- Proper categorization
-- Relevant tags for discoverability
-- Accurate author and timestamp information
+2. Create a new branch for your work
+3. Follow the [pattern template](TEMPLATE.md) when creating new patterns
+4. Ensure all fields are properly filled out
+5. Add comprehensive test cases
+6. Validate your pattern using our [validation tools](../tools/)
+7. Submit a pull request
 
 ## Research Best Practices
 
-### Pattern Development
-- Research the target service thoroughly
-- Identify common version disclosure mechanisms
-- Analyze various service configurations
-- Consider different deployment scenarios
-- Account for common obfuscation techniques
+Before creating a pattern, conduct thorough research:
 
-### Version Extraction
-- Focus on extracting accurate version information
-- Handle version normalization if needed
-- Consider different version formatting conventions
-- Account for pre-release and build metadata
-- Test with various version strings
+1. Identify multiple examples of the software/version string in different contexts
+2. Look for official documentation about version reporting
+3. Check various sources where the version might appear (headers, banners, file contents, etc.)
+4. Consider different deployment scenarios (cloud, on-premise, containers)
+5. Account for variations in version formatting
 
-### False Positive Prevention
-- Make patterns as specific as possible
-- Include contextual information when available
-- Test against common false positive sources
-- Validate with real-world examples
-- Consider service-specific identifiers
+## Pattern Quality Requirements
 
-## Creating Quality Patterns
+### Regex Guidelines
+- Use capture groups to extract version information
+- Make patterns specific enough to avoid false positives
+- Balance specificity with flexibility for version format variations
+- Escape special regex characters properly
+- Test against various version formats for the product
 
-### Pattern Design
-- Use raw strings to avoid escaping issues
-- Include only necessary capture groups
-- Make patterns efficient and performant
-- Consider case sensitivity requirements
-- Account for optional components
+### Metadata Standards
+- Provide accurate and complete metadata
+- Use descriptive pattern names
+- Select appropriate categories and tags
+- Write clear, concise descriptions
+- Set realistic confidence scores based on testing
 
-### Version Group Identification
-- Identify the correct capture group for version extraction
-- Handle complex version formats appropriately
-- Consider version ranges and wildcards
-- Normalize version formats when possible
-- Document any version format peculiarities
+### Test Cases
+Every pattern must include test cases that:
+- Cover various version formats for the product
+- Include both positive and negative test cases
+- Demonstrate edge cases
+- Validate the correct version extraction
 
-### Priority and Confidence
-- Set appropriate priority values based on service commonality
-- Assign realistic confidence levels based on testing
-- Consider pattern specificity in confidence scoring
-- Update values based on real-world performance
-- Document any confidence considerations
-
-## Testing Patterns
-
-### Test Case Development
-Create comprehensive test cases that include:
-
-#### Positive Test Cases
-- Various version formats for the target service
-- Different service configurations
-- Multiple service versions
-- Edge cases and unusual formats
-
-#### Negative Test Cases
-- Services that should not match
-- Similar services with different versions
-- Common false positive sources
-- Malformed or incomplete responses
-
-### Validation Process
-1. Use our [validation script](../tools/validate-pattern.py) to check JSON schema compliance
-2. Test patterns against your test cases
-3. Validate against real-world service responses when possible
-4. Check for performance issues with large inputs
-5. Verify no conflicts with existing patterns
-
-### Testing Tools
-```bash
-# Validate pattern structure
-python tools/validate-pattern.py patterns/web/apache.json
-
-# Test pattern against specific input
-python tools/test-pattern.py patterns/web/apache.json "Server: Apache/2.4.41 (Ubuntu)"
-
-# Run comprehensive tests
-python tools/test-suite.py patterns/web/apache.json
+Example test case structure:
+``json
+{
+  "input": "Sample text containing version",
+  "expected_version": "Extracted version string"
+}
 ```
 
-## Submission Process
+## Priority Scoring
 
-### 1. Fork and Clone
-```bash
-git clone https://github.com/your-username/version-detection-db.git
-cd version-detection-db
-```
+Use the following guidelines for setting pattern priority:
 
-### 2. Create a Branch
-```bash
-git checkout -b pattern/new-service
-```
+| Score Range | Reliability Level | Description |
+|-------------|-------------------|-------------|
+| 180-200 | Very High | Official version strings, almost no false positives |
+| 150-179 | High | Reliable patterns with minimal false positives |
+| 100-149 | Medium | Generally reliable but may have occasional false positives |
+| 50-99 | Low | Patterns with known limitations or higher false positive rates |
+| 0-49 | Very Low | Experimental patterns or those with significant limitations |
 
-### 3. Add Your Pattern
-- Place patterns in the appropriate category directory
-- Follow naming conventions: `service-name.json`
-- Use the [template](TEMPLATE.md) as a guide
-- Include comprehensive documentation
+## Confidence Scoring
 
-### 4. Validate Your Pattern
-```bash
-python tools/validate-pattern.py patterns/web/your-pattern.json
-```
+Confidence represents how accurately the pattern extracts versions:
 
-### 5. Test Your Pattern
-```bash
-python tools/test-pattern.py patterns/web/your-pattern.json
-```
-
-### 6. Commit and Push
-```bash
-git add patterns/web/your-pattern.json
-git commit -m "Add pattern for Service Name version detection"
-git push origin pattern/new-service
-```
-
-### 7. Create Pull Request
-- Provide a clear title and description
-- Include testing results and validation
-- Reference any related issues
-- Request review from maintainers
+| Score | Meaning | When to Use |
+|-------|---------|-------------|
+| 0.9-1.0 | Very High | Consistently extracts correct versions in all test cases |
+| 0.7-0.89 | High | Accurately extracts versions with rare exceptions |
+| 0.5-0.69 | Medium | Generally accurate but with notable exceptions |
+| 0.3-0.49 | Low | Often inaccurate or inconsistent |
+| 0.0-0.29 | Very Low | Frequently produces incorrect results |
 
 ## Review Process
 
-### Automated Checks
-All submissions go through automated validation:
-1. JSON schema validation
-2. Pattern syntax checking
-3. Test case validation
-4. Duplicate detection
+All contributions go through a review process:
 
-### Manual Review
-Maintainers review submissions for:
-1. Technical accuracy
-2. Pattern quality and reliability
-3. Documentation completeness
-4. Test case comprehensiveness
-5. Overall contribution value
+1. Automated validation checks
+2. Manual review by maintainers
+3. Testing against real-world samples
+4. Feedback and revision requests
+5. Approval and merge
 
-### Community Feedback
-- Community members can review and comment
-- Feedback is considered during evaluation
-- Constructive criticism is encouraged
-- Consensus building when possible
+## Code of Conduct
 
-### Approval and Merge
-- Approved patterns are merged into main branch
-- Authors are credited in commit history
-- Patterns are published to the database
-- Contributors are added to CONTRIBUTORS file
+By participating in this project, you agree to abide by our Code of Conduct:
 
-## Getting Help
+- Be respectful and inclusive
+- Provide constructive feedback
+- Welcome newcomers and help them get started
+- Focus on the technical merits of contributions
+- Maintain professional communication
 
-### Documentation
-- Review all template documentation
-- Check existing patterns as examples
-- Read through previous community contributions
+## Questions?
 
-### Community Support
-- Ask questions in GitHub Discussions
-- Join our community chat (if available)
-- Reach out to maintainers directly
+If you have questions about contributing, feel free to:
 
-### Tools and Resources
-- Use our validation and testing scripts
-- Refer to regex documentation and best practices
-- Utilize pattern testing platforms
-
-## Recognition
-
-We value all contributions to the database:
-- All contributors are listed in our repository
-- Significant contributions may be highlighted in release notes
-- Outstanding contributors may be invited to join the maintainer team
-- Your work helps security professionals worldwide
-
-Thank you for helping to improve version detection for everyone!
+1. Open an issue for general questions
+2. Contact the maintainers directly
+3. Check our [documentation](../docs/) for more information

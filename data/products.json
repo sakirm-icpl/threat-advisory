@@ -2,45 +2,99 @@
   "products": [
     {
       "id": "apache-httpd",
-      "name": "HTTPD",
       "vendor_id": "apache",
-      "description": "The Apache HTTP Server, colloquially called Apache, is a free and open-source cross-platform web server software.",
-      "categories": ["web-server"],
+      "name": "HTTPD",
+      "category": "web",
       "website": "https://httpd.apache.org",
-      "first_release": "1995-04-01",
-      "cpe": "cpe:/a:apache:http_server",
-      "metadata": {
-        "created_at": "2024-01-01T00:00:00",
-        "updated_at": "2024-01-01T00:00:00"
-      }
+      "description": "Apache HTTP Server, the world's most used web server software"
     },
     {
-      "id": "openssh",
-      "name": "OpenSSH",
-      "vendor_id": "openbsd",
-      "description": "OpenSSH is a suite of secure networking utilities based on the Secure Shell protocol, which provides a secure channel over an unsecured network.",
-      "categories": ["network-service"],
-      "website": "https://openssh.com",
-      "first_release": "1999-10-01",
-      "cpe": "cpe:/a:openbsd:openssh",
-      "metadata": {
-        "created_at": "2024-01-01T00:00:00",
-        "updated_at": "2024-01-01T00:00:00"
-      }
+      "id": "microsoft-iis",
+      "vendor_id": "microsoft",
+      "name": "Internet Information Services",
+      "category": "web",
+      "website": "https://www.iis.net",
+      "description": "Web server software and set of services for Microsoft Windows"
+    },
+    {
+      "id": "nginx",
+      "vendor_id": "nginx",
+      "name": "NGINX",
+      "category": "web",
+      "website": "https://nginx.org",
+      "description": "Open source web and reverse proxy server"
     },
     {
       "id": "mysql",
-      "name": "MySQL",
       "vendor_id": "oracle",
-      "description": "MySQL is an open-source relational database management system.",
-      "categories": ["database"],
+      "name": "MySQL",
+      "category": "database",
       "website": "https://mysql.com",
-      "first_release": "1995-05-23",
-      "cpe": "cpe:/a:oracle:mysql",
-      "metadata": {
-        "created_at": "2024-01-01T00:00:00",
-        "updated_at": "2024-01-01T00:00:00"
-      }
+      "description": "Open-source relational database management system"
+    },
+    {
+      "id": "postgresql",
+      "vendor_id": "postgresql",
+      "name": "PostgreSQL",
+      "category": "database",
+      "website": "https://postgresql.org",
+      "description": "Open-source relational database management system"
+    },
+    {
+      "id": "cisco-ios",
+      "vendor_id": "cisco",
+      "name": "IOS",
+      "category": "networking",
+      "website": "https://cisco.com",
+      "description": "Network operating system for Cisco routers and switches"
+    },
+    {
+      "id": "ubuntu",
+      "vendor_id": "canonical",
+      "name": "Ubuntu",
+      "category": "os",
+      "website": "https://ubuntu.com",
+      "description": "Open-source Linux distribution based on Debian"
+    },
+    {
+      "id": "rabbitmq",
+      "vendor_id": "vmware",
+      "name": "RabbitMQ",
+      "category": "messaging",
+      "website": "https://rabbitmq.com",
+      "description": "Open-source message broker software that implements the Advanced Message Queuing Protocol"
+    },
+    {
+      "id": "modsecurity",
+      "vendor_id": "trustwave",
+      "name": "ModSecurity",
+      "category": "web",
+      "website": "https://modsecurity.org",
+      "description": "Open-source web application firewall"
+    },
+    {
+      "id": "wordpress",
+      "vendor_id": "wordpress",
+      "name": "WordPress",
+      "category": "cms",
+      "website": "https://wordpress.org",
+      "description": "Open-source content management system and blogging platform"
+    },
+    {
+      "id": "drupal",
+      "vendor_id": "drupal",
+      "name": "Drupal",
+      "category": "cms",
+      "website": "https://drupal.org",
+      "description": "Open-source content management framework"
+    },
+    {
+      "id": "django",
+      "vendor_id": "django",
+      "name": "Django",
+      "category": "framework",
+      "website": "https://djangoproject.com",
+      "description": "High-level Python web framework that encourages rapid development and clean, pragmatic design"
     }
   ]
 }

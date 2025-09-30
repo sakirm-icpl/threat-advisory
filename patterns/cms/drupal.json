@@ -1,0 +1,54 @@
+{
+  "patterns": [
+    {
+      "name": "Drupal CMS - Generator Meta Tag",
+      "category": "cms",
+      "pattern": "<meta name=\"Generator\" content=\"Drupal ([\\d.]+)",
+      "vendor": "Drupal",
+      "product": "Drupal",
+      "version_group": 1,
+      "priority": 160,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects Drupal version from the Generator meta tag in HTML content. This is commonly found in Drupal sites.",
+        "tags": ["cms", "drupal", "php", "web"],
+        "test_cases": [
+          {
+            "input": "<meta name=\"Generator\" content=\"Drupal 9 (https://www.drupal.org)\">",
+            "expected_version": "9"
+          },
+          {
+            "input": "<meta name=\"Generator\" content=\"Drupal 8.9.16 (https://www.drupal.org)\">",
+            "expected_version": "8.9.16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Drupal CMS - X-Generator Header",
+      "category": "cms",
+      "pattern": "X-Generator: Drupal ([\\d.]+)",
+      "vendor": "Drupal",
+      "product": "Drupal",
+      "version_group": 1,
+      "priority": 150,
+      "confidence": 0.85,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects Drupal version from the X-Generator HTTP header. This header is often present in Drupal installations.",
+        "tags": ["cms", "drupal", "php", "web", "header"],
+        "test_cases": [
+          {
+            "input": "X-Generator: Drupal 9 (https://www.drupal.org)",
+            "expected_version": "9"
+          }
+        ]
+      }
+    }
+  ]
+}
