@@ -1,3 +1,36 @@
+# Version Detection Pattern Database
+
+This repository contains a collection of regex patterns used to detect software versions from various sources like HTTP headers, file contents, network responses, and more.
+
+## Repository Structure
+
+- `patterns/` - JSON files containing version detection patterns
+- `docs/` - Static HTML documentation site
+- `tools/` - Validation and utility scripts
+- `patterns/TEMPLATE.md` - Template for creating new patterns
+- `patterns/CONTRIBUTING.md` - Contribution guidelines
+
+## Pattern Categories
+
+- Web servers and applications
+- Networking equipment and services
+- Database systems
+- Messaging systems
+- Content management systems
+- Operating systems
+- Frameworks and libraries
+
+## Documentation
+
+The documentation site is available at:
+- GitHub Pages: https://sakirm-icpl.github.io/threat-advisory/
+
+## Contributing
+
+Please see our [contribution guidelines](patterns/CONTRIBUTING.md) for details on how to contribute new patterns or improve existing ones.
+
+Last updated: 2025-10-01
+
 # Version Detection Pattern Database Documentation
 
 Welcome to the documentation for the Version Detection Pattern Database!

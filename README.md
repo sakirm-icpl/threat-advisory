@@ -39,18 +39,18 @@ threat-advisory/
 ## Getting Started
 
 1. **Explore the patterns**: Browse the [patterns directory](https://github.com/sakirm-icpl/threat-advisory/tree/master/patterns) to see existing version detection patterns
-2. **Read the documentation**: Visit our [documentation site](http://172.17.14.65:3000/) to learn how to contribute
+2. **Read the documentation**: Visit our [documentation site](https://sakirm-icpl.github.io/threat-advisory/) to learn how to contribute
 3. **Contribute**: Follow our [contribution guidelines](https://github.com/sakirm-icpl/threat-advisory/blob/master/patterns/CONTRIBUTING.md) to add new patterns
 
 ## Community
 
-- [Beginner's Guide](http://172.17.14.65:3000/community/beginners-guide.html) - Getting started with contributing
-- [Good First Issues](http://172.17.14.65:3000/community/good-first-issues.html) - Easy ways to contribute
-- [Pattern Development Guide](http://172.17.14.65:3000/community/pattern-development.html) - Advanced pattern creation
+- [Beginner's Guide](https://sakirm-icpl.github.io/threat-advisory/community/beginners-guide.html) - Getting started with contributing
+- [Good First Issues](https://sakirm-icpl.github.io/threat-advisory/community/good-first-issues.html) - Easy ways to contribute
+- [Pattern Development Guide](https://sakirm-icpl.github.io/threat-advisory/community/pattern-development.html) - Advanced pattern creation
 
 ## Live Site
 
-Visit our [live documentation site](http://172.17.14.65:3000/) to explore the pattern database and learn how to contribute.
+Visit our [live documentation site](https://sakirm-icpl.github.io/threat-advisory/) to explore the pattern database and learn how to contribute.
 
 ## License
 

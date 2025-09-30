@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pattern Summary - Version Detection Pattern Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #1a2a3a);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin: 2rem 0;
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stats-card h3 {
+            margin-top: 0;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">VersionDB</div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="pattern-database.html">Patterns</a>
+                    <a href="community/beginners-guide.html">Getting Started</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="content">
+            <h1>Pattern Database Summary</h1>
+            
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <h3>Total Patterns</h3>
+                    <p style="font-size: 2rem; font-weight: bold; color: #3498db;">32</p>
+                </div>
+                
+                <div class="stats-card">
+                    <h3>Patterns with Test Cases</h3>
+                    <p style="font-size: 2rem; font-weight: bold; color: #3498db;">32</p>
+                </div>
+                
+                <div class="stats-card">
+                    <h3>Total Test Cases</h3>
+                    <p style="font-size: 2rem; font-weight: bold; color: #3498db;">53</p>
+                </div>
+            </div>
+            
+            <h2>Patterns by Category</h2>
+            
+            <ul>
+                <li>cms: 5</li>
+                <li>database: 3</li>
+                <li>framework: 1</li>
+                <li>messaging: 3</li>
+                <li>networking: 6</li>
+                <li>os: 1</li>
+                <li>web: 13</li>
+            </ul>
+            
+            <h2>Patterns by Vendor</h2>
+            
+            <ul>
+                <li>Apache: 4</li>
+                <li>Apiman: 1</li>
+                <li>Argoproj: 1</li>
+                <li>Blackmoon FTP Server: 1</li>
+                <li>Canonical: 1</li>
+                <li>Cisco: 2</li>
+                <li>ConcreteCMS: 1</li>
+                <li>Couchbase: 1</li>
+                <li>Django Software Foundation: 1</li>
+                <li>Drupal: 2</li>
+                <li>Elastic: 1</li>
+                <li>Ethereum: 1</li>
+                <li>F5 Networks: 1</li>
+                <li>Karjasoft: 1</li>
+                <li>Liferay: 1</li>
+                <li>Microsoft: 1</li>
+                <li>OpenBSD: 1</li>
+                <li>Oracle: 1</li>
+                <li>PostgreSQL Global Development Group: 1</li>
+                <li>Trustwave: 2</li>
+                <li>VMware: 2</li>
+                <li>Whitsoft Development: 1</li>
+                <li>WordPress: 2</li>
+                <li>ZenML: 1</li>
+            </ul>
+            
+            <h2>Patterns by Product</h2>
+            
+            <ul>
+                <li>Answer: 1</li>
+                <li>Apiman: 1</li>
+                <li>Argocd: 1</li>
+                <li>Blackmoon FTP Server: 1</li>
+                <li>Concrete CMS: 1</li>
+                <li>Couchbase Server: 1</li>
+                <li>Django: 1</li>
+                <li>Drupal: 2</li>
+                <li>Go Ethereum: 1</li>
+                <li>HTTPD: 1</li>
+                <li>IOS: 2</li>
+                <li>Internet Information Services: 1</li>
+                <li>Kibana: 1</li>
+                <li>Liferay Portal: 1</li>
+                <li>ModSecurity: 2</li>
+                <li>MySQL: 1</li>
+                <li>NGINX: 1</li>
+                <li>OpenSSH: 1</li>
+                <li>PostgreSQL: 1</li>
+                <li>Pulsar: 1</li>
+                <li>RabbitMQ: 2</li>
+                <li>Sami FTP Server: 1</li>
+                <li>Slimftpd: 1</li>
+                <li>Traffic Server: 1</li>
+                <li>Ubuntu: 1</li>
+                <li>WordPress: 2</li>
+                <li>ZenML: 1</li>
+            </ul>
+            
+            <p><a href="pattern-database.html" class="cta-button">Back to Pattern Database</a></p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Version Detection Pattern Database. Open Source under MIT License. Updated: 2025-10-01</p>
+            <p style="margin-top: 10px;">
+                <a href="https://github.com/sakirm-icpl/threat-advisory/tree/master" style="color: #3498db; text-decoration: none;">GitHub Repository</a> | 
+                <a href="index.html" style="color: #3498db; text-decoration: none;">Home</a> | 
+                <a href="https://sakirm-icpl.github.io/threat-advisory/" style="color: #3498db; text-decoration: none;">Live Site</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
