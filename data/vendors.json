@@ -1,0 +1,76 @@
+{
+  "vendors": [
+    {
+      "id": "apache",
+      "name": "Apache Software Foundation",
+      "website": "https://apache.org",
+      "description": "Open-source software foundation supporting numerous projects"
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft Corporation",
+      "website": "https://microsoft.com",
+      "description": "Multinational technology company developing software, hardware, and services"
+    },
+    {
+      "id": "nginx",
+      "name": "F5 Networks",
+      "website": "https://nginx.org",
+      "description": "Developer of the NGINX web server and related technologies"
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle Corporation",
+      "website": "https://oracle.com",
+      "description": "Multinational computer technology corporation specializing in database software and technology"
+    },
+    {
+      "id": "cisco",
+      "name": "Cisco Systems",
+      "website": "https://cisco.com",
+      "description": "Multinational technology conglomerate manufacturing networking equipment"
+    },
+    {
+      "id": "canonical",
+      "name": "Canonical Ltd",
+      "website": "https://canonical.com",
+      "description": "UK-based company that markets commercial support and related services for Ubuntu and related projects"
+    },
+    {
+      "id": "vmware",
+      "name": "VMware",
+      "website": "https://vmware.com",
+      "description": "Subsidiary of Dell Technologies that provides cloud computing and virtualization services"
+    },
+    {
+      "id": "postgresql",
+      "name": "PostgreSQL Global Development Group",
+      "website": "https://postgresql.org",
+      "description": "Open-source community that develops and maintains the PostgreSQL database management system"
+    },
+    {
+      "id": "trustwave",
+      "name": "Trustwave",
+      "website": "https://trustwave.com",
+      "description": "Cybersecurity company that provides security solutions and services"
+    },
+    {
+      "id": "wordpress",
+      "name": "WordPress",
+      "website": "https://wordpress.org",
+      "description": "Open-source content management system and blogging platform"
+    },
+    {
+      "id": "drupal",
+      "name": "Drupal",
+      "website": "https://drupal.org",
+      "description": "Open-source content management framework"
+    },
+    {
+      "id": "django",
+      "name": "Django Software Foundation",
+      "website": "https://djangoproject.com",
+      "description": "Non-profit organization that develops and maintains the Django web framework"
+    }
+  ]
+}

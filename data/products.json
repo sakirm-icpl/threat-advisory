@@ -1,0 +1,100 @@
+{
+  "products": [
+    {
+      "id": "apache-httpd",
+      "vendor_id": "apache",
+      "name": "HTTPD",
+      "category": "web",
+      "website": "https://httpd.apache.org",
+      "description": "Apache HTTP Server, the world's most used web server software"
+    },
+    {
+      "id": "microsoft-iis",
+      "vendor_id": "microsoft",
+      "name": "Internet Information Services",
+      "category": "web",
+      "website": "https://www.iis.net",
+      "description": "Web server software and set of services for Microsoft Windows"
+    },
+    {
+      "id": "nginx",
+      "vendor_id": "nginx",
+      "name": "NGINX",
+      "category": "web",
+      "website": "https://nginx.org",
+      "description": "Open source web and reverse proxy server"
+    },
+    {
+      "id": "mysql",
+      "vendor_id": "oracle",
+      "name": "MySQL",
+      "category": "database",
+      "website": "https://mysql.com",
+      "description": "Open-source relational database management system"
+    },
+    {
+      "id": "postgresql",
+      "vendor_id": "postgresql",
+      "name": "PostgreSQL",
+      "category": "database",
+      "website": "https://postgresql.org",
+      "description": "Open-source relational database management system"
+    },
+    {
+      "id": "cisco-ios",
+      "vendor_id": "cisco",
+      "name": "IOS",
+      "category": "networking",
+      "website": "https://cisco.com",
+      "description": "Network operating system for Cisco routers and switches"
+    },
+    {
+      "id": "ubuntu",
+      "vendor_id": "canonical",
+      "name": "Ubuntu",
+      "category": "os",
+      "website": "https://ubuntu.com",
+      "description": "Open-source Linux distribution based on Debian"
+    },
+    {
+      "id": "rabbitmq",
+      "vendor_id": "vmware",
+      "name": "RabbitMQ",
+      "category": "messaging",
+      "website": "https://rabbitmq.com",
+      "description": "Open-source message broker software that implements the Advanced Message Queuing Protocol"
+    },
+    {
+      "id": "modsecurity",
+      "vendor_id": "trustwave",
+      "name": "ModSecurity",
+      "category": "web",
+      "website": "https://modsecurity.org",
+      "description": "Open-source web application firewall"
+    },
+    {
+      "id": "wordpress",
+      "vendor_id": "wordpress",
+      "name": "WordPress",
+      "category": "cms",
+      "website": "https://wordpress.org",
+      "description": "Open-source content management system and blogging platform"
+    },
+    {
+      "id": "drupal",
+      "vendor_id": "drupal",
+      "name": "Drupal",
+      "category": "cms",
+      "website": "https://drupal.org",
+      "description": "Open-source content management framework"
+    },
+    {
+      "id": "django",
+      "vendor_id": "django",
+      "name": "Django",
+      "category": "framework",
+      "website": "https://djangoproject.com",
+      "description": "High-level Python web framework that encourages rapid development and clean, pragmatic design"
+    }
+  ]
+}

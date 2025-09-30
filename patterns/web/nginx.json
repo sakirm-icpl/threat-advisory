@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "NGINX Web Server",
+      "category": "web",
+      "pattern": "Server: nginx/([\\d.]+)",
+      "vendor": "F5 Networks",
+      "product": "NGINX",
+      "version_group": 1,
+      "priority": 180,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects NGINX version from HTTP server banner. This pattern matches the Server header commonly returned by NGINX servers.",
+        "tags": ["http", "nginx", "webserver"],
+        "test_cases": [
+          {
+            "input": "Server: nginx/1.18.0",
+            "expected_version": "1.18.0"
+          },
+          {
+            "input": "Server: nginx/1.21.6",
+            "expected_version": "1.21.6"
+          }
+        ]
+      }
+    }
+  ]
+}

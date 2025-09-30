@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good First Issues - Version Detection Pattern Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #1a2a3a);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin: 2rem 0;
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .issue-category {
+            margin: 2rem 0;
+        }
+
+        .issue {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .difficulty.easy {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difficulty.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty.hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin: 1rem 0;
+        }
+
+        .cta-button:hover {
+            background: #2980b9;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">VersionDB</div>
+                <div class="nav-links">
+                    <a href="../index.html">Home</a>
+                    <a href="beginners-guide.html">Getting Started</a>
+                    <a href="good-first-issues.html">Contribute</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="content">
+            <h1>Good First Issues</h1>
+            
+            <p>Welcome! If you're new to contributing to open-source or to this project specifically, these issues are a great place to start. They're well-defined, relatively self-contained, and don't require deep knowledge of the entire codebase.</p>
+            
+            <div class="issue-category">
+                <h2>Pattern Creation</h2>
+                
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Add Pattern for Apache Tomcat</h3>
+                    <p>Create a regex pattern to detect Apache Tomcat versions from HTTP server headers or other common sources.</p>
+                    <p><strong>Skills needed:</strong> Basic regex knowledge, research skills</p>
+                    <p><strong>Expected outcome:</strong> A new pattern file in patterns/web/ with comprehensive test cases</p>
+                </div>
+                
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Add Pattern for Nginx</h3>
+                    <p>Create a regex pattern to detect Nginx versions from HTTP server headers.</p>
+                    <p><strong>Skills needed:</strong> Basic regex knowledge, research skills</p>
+                    <p><strong>Expected outcome:</strong> A new pattern file in patterns/web/ with comprehensive test cases</p>
+                </div>
+                
+                <div class="issue">
+                    <span class="difficulty medium">Medium</span>
+                    <h3>Add Pattern for MySQL</h3>
+                    <p>Create regex patterns to detect MySQL versions from various sources like error messages, banners, or protocol responses.</p>
+                    <p><strong>Skills needed:</strong> Intermediate regex knowledge, research skills</p>
+                    <p><strong>Expected outcome:</strong> A new pattern file in patterns/database/ with comprehensive test cases</p>
+                </div>
+            </div>
+            
+            <div class="issue-category">
+                <h2>Pattern Improvement</h2>
+                
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Add More Test Cases to Apache HTTPD Pattern</h3>
+                    <p>The existing Apache HTTPD pattern could use more test cases to cover edge cases and different version formats.</p>
+                    <p><strong>Skills needed:</strong> Research skills, attention to detail</p>
+                    <p><strong>Expected outcome:</strong> Additional test cases in patterns/web/apache.json</p>
+                </div>
+                
+                <div class="issue">
+                    <span class="difficulty medium">Medium</span>
+                    <h3>Improve Confidence Score for Existing Patterns</h3>
+                    <p>Review existing patterns and update their confidence scores based on real-world testing or additional research.</p>
+                    <p><strong>Skills needed:</strong> Analytical skills, research skills</p>
+                    <p><strong>Expected outcome:</strong> Updated confidence scores with justification in pattern metadata</p>
+                </div>
+            </div>
+            
+            <div class="issue-category">
+                <h2>Documentation</h2>
+                
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Improve Pattern Template Documentation</h3>
+                    <p>Enhance the pattern template documentation with better examples and explanations.</p>
+                    <p><strong>Skills needed:</strong> Writing skills, understanding of the project</p>
+                    <p><strong>Expected outcome:</strong> Improved patterns/TEMPLATE.md file</p>
+                </div>
+                
+                <div class="issue">
+                    <span class="difficulty easy">Easy</span>
+                    <h3>Create Examples for Different Categories</h3>
+                    <p>Create example patterns for categories that don't have good examples yet.</p>
+                    <p><strong>Skills needed:</strong> Basic regex knowledge, research skills</p>
+                    <p><strong>Expected outcome:</strong> New example pattern files in underrepresented categories</p>
+                </div>
+            </div>
+            
+            <div class="issue-category">
+                <h2>Tooling</h2>
+                
+                <div class="issue">
+                    <span class="difficulty medium">Medium</span>
+                    <h3>Enhance Validation Tool</h3>
+                    <p>Add new validation features to the pattern validation tool, such as checking for common regex pitfalls.</p>
+                    <p><strong>Skills needed:</strong> Python programming, regex knowledge</p>
+                    <p><strong>Expected outcome:</strong> Enhanced tools/validate-pattern.py</p>
+                </div>
+            </div>
+            
+            <h2>How to Get Started</h2>
+            <ol>
+                <li>Read our <a href="beginners-guide.html">Beginner's Guide</a> if you haven't already</li>
+                <li>Choose an issue that interests you and matches your skill level</li>
+                <li>Fork the repository and create a new branch for your work</li>
+                <li>Comment on the issue to let others know you're working on it</li>
+                <li>Make your changes following our contribution guidelines</li>
+                <li>Submit a pull request when you're ready for review</li>
+            </ol>
+            
+            <a href="beginners-guide.html" class="cta-button">Read the Beginner's Guide</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Version Detection Pattern Database. Open Source under MIT License.</p>
+        </div>
+    </footer>
+</body>
+</html>

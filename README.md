@@ -1,107 +1,53 @@
-# VersionIntel - Version Detection Research Platform
+# Version Detection Pattern Database
 
-## 🚀 **Quick Deploy (1 Command)**
+An open-source repository of regex patterns for detecting software versions across different products and applications. This database is designed to support security scanning tools, penetration testing, bug bounty hunting, VAPT, and other security-related activities.
 
-```bash
-git clone <repository-url>
-cd versionintel
-chmod +x quick-deploy.sh
-./quick-deploy.sh
-```
+## Purpose
 
-**Access**: http://localhost:3000 | **Login**: GitHub OAuth only
+This project aims to create a comprehensive database of regex patterns that can identify software versions from various sources like HTTP headers, file contents, network responses, and more. By providing a centralized repository of well-tested patterns, we can help security professionals quickly identify software versions during assessments.
 
----
+## Use Cases
 
-## 📋 **Complete Setup Guide**
+- Security scanning tools
+- Penetration testing
+- Bug bounty hunting
+- Vulnerability assessment and penetration testing (VAPT)
+- Asset discovery and management
+- Threat intelligence
 
-See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed instructions including:
-- GitHub OAuth setup (Required)
-- Server configuration
-- Google AI integration (Optional)
-- Production deployment
-- Troubleshooting
-
-## 🔐 **Quick GitHub OAuth Setup**
-
-1. Go to: https://github.com/settings/developers
-2. Create "New OAuth App":
-   - **Name**: VersionIntel
-   - **Homepage**: `http://YOUR_SERVER_IP:3000`
-   - **Callback**: `http://YOUR_SERVER_IP:3000/auth/github/callback`
-3. Copy Client ID and Secret to `.env` file
-
-## 🎯 **What You Get**
-
-- **Frontend**: Modern React application (Port 3000)
-- **Backend**: Flask API with JWT auth (Port 8000)
-- **Database**: PostgreSQL with auto-initialization
-- **Authentication**: GitHub OAuth 2.0 (Required)
-- **AI**: Google Gemini integration (Optional)
-- **Docker**: Fully containerized deployment
-
-## 🛠️ **Management**
-
-```bash
-# Status
-docker-compose ps
-
-# Logs
-docker-compose logs -f
-
-# Restart
-docker-compose restart
-
-# Stop
-docker-compose down
-
-# Update
-git pull && ./deploy.sh
-```
-
-## 🌐 **Features**
-
-- ✅ Secure GitHub OAuth 2.0 authentication
-- ✅ Repository scanning and analysis
-- ✅ Vulnerability detection with AI
-- ✅ Dashboard with analytics
-- ✅ RESTful API with documentation
-- ✅ Production-ready deployment
-- ✅ Automatic database initialization
-
-## 📁 **Clean Project Structure**
+## Repository Structure
 
 ```
-versionintel/
-├── backend/              # Flask API application
-├── frontend/             # React frontend application
-├── deploy.sh             # Universal deployment script
-├── .env.template         # Environment configuration template
-├── docker-compose.yml    # Container orchestration
-├── SETUP.md             # Complete setup guide
-└── generate-secrets.sh   # Secrets generator
+threat-advisory/
+├── patterns/                 # Main pattern database
+│   ├── web/                  # Web server patterns
+│   ├── networking/           # Networking device patterns
+│   ├── database/             # Database patterns
+│   ├── messaging/            # Messaging system patterns
+│   ├── cms/                  # Content management systems
+│   ├── framework/            # Software frameworks
+│   ├── os/                   # Operating systems
+│   ├── TEMPLATE.md           # Pattern template
+│   └── CONTRIBUTING.md       # Contribution guidelines
+├── tools/                    # Validation and utility scripts
+├── docs/                     # Documentation site
+├── data/                     # Product and vendor databases
+├── README.md                 # This file
+└── LICENSE                   # License information
 ```
 
-## 🆘 **Quick Troubleshooting**
+## Getting Started
 
-**Services won't start?**
-```bash
-docker-compose logs
-```
+1. **Explore the patterns**: Browse the [patterns directory](patterns/) to see existing version detection patterns
+2. **Read the documentation**: Visit our [documentation site](docs/index.html) to learn how to contribute
+3. **Contribute**: Follow our [contribution guidelines](patterns/CONTRIBUTING.md) to add new patterns
 
-**Database issues?**
-```bash
-docker-compose down --volumes
-./deploy.sh
-```
+## Community
 
-**Need fresh deployment?**
-```bash
-docker-compose down --volumes --remove-orphans
-docker system prune -f
-./deploy.sh
-```
+- [Beginner's Guide](docs/community/beginners-guide.html) - Getting started with contributing
+- [Good First Issues](docs/community/good-first-issues.html) - Easy ways to contribute
+- [Pattern Development Guide](docs/community/pattern-development.html) - Advanced pattern creation
 
----
+## License
 
-**🎉 VersionIntel - Production-ready with one command deployment!**
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beginner's Guide - Version Detection Pattern Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #1a2a3a);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin: 2rem 0;
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .step {
+            background: #e8f4fc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .tip {
+            background: #fff8e1;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #f39c12;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin: 1rem 0;
+        }
+
+        .cta-button:hover {
+            background: #2980b9;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">VersionDB</div>
+                <div class="nav-links">
+                    <a href="../index.html">Home</a>
+                    <a href="beginners-guide.html">Getting Started</a>
+                    <a href="good-first-issues.html">Contribute</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="content">
+            <h1>Beginner's Guide to Contributing</h1>
+            
+            <p>Welcome to the Version Detection Pattern Database! This guide will help you get started contributing to our open-source project, even if you're new to security research or open-source development.</p>
+            
+            <h2>What is this project?</h2>
+            <p>The Version Detection Pattern Database is a collection of regex patterns used to identify software versions from various sources like HTTP headers, file contents, network responses, and more. These patterns are used by security tools to:</p>
+            
+            <ul>
+                <li>Detect vulnerable software versions during security assessments</li>
+                <li>Identify software during penetration testing</li>
+                <li>Support bug bounty hunting efforts</li>
+                <li>Enable automated vulnerability scanning</li>
+            </ul>
+            
+            <h2>How to Contribute</h2>
+            
+            <div class="step">
+                <h3>Step 1: Fork the Repository</h3>
+                <p>Start by forking our repository on GitHub. This creates your own copy where you can make changes without affecting the main project.</p>
+                <ol>
+                    <li>Visit our <a href="https://github.com/your-org/threat-advisory">GitHub repository</a></li>
+                    <li>Click the "Fork" button in the top right corner</li>
+                    <li>Choose your GitHub account as the destination for the fork</li>
+                </ol>
+            </div>
+            
+            <div class="step">
+                <h3>Step 2: Clone Your Fork</h3>
+                <p>Clone your forked repository to your local machine:</p>
+                <pre><code>git clone https://github.com/YOUR-USERNAME/threat-advisory.git
+cd version-detection-db</code></pre>
+            </div>
+            
+            <div class="step">
+                <h3>Step 3: Create a New Branch</h3>
+                <p>Create a new branch for your work to keep changes organized:</p>
+                <pre><code>git checkout -b add-my-new-pattern</code></pre>
+            </div>
+            
+            <div class="step">
+                <h3>Step 4: Research Your Pattern</h3>
+                <p>Before creating a pattern, conduct thorough research:</p>
+                <ul>
+                    <li>Identify the software you want to detect</li>
+                    <li>Find examples of how it reports its version</li>
+                    <li>Look for official documentation about version reporting</li>
+                    <li>Consider different deployment scenarios (cloud, on-premise, containers)</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <h3>Step 5: Create Your Pattern File</h3>
+                <p>Create a new pattern file in the appropriate category directory:</p>
+                <ol>
+                    <li>Navigate to the <code>patterns/</code> directory</li>
+                    <li>Choose the appropriate subdirectory (web, database, networking, etc.)</li>
+                    <li>Create a new JSON file using the product name (e.g., <code>nginx.json</code>)</li>
+                    <li>Use our <a href="../../patterns/TEMPLATE.md">pattern template</a> as a starting point</li>
+                </ol>
+            </div>
+            
+            <div class="step">
+                <h3>Step 6: Add Test Cases</h3>
+                <p>Every pattern must include test cases to validate its accuracy:</p>
+                <ul>
+                    <li>Add positive test cases with expected version matches</li>
+                    <li>Include negative test cases that should not match</li>
+                    <li>Cover various version formats for the product</li>
+                    <li>Test edge cases and unusual version strings</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <h3>Step 7: Validate Your Pattern</h3>
+                <p>Use our validation tool to check your pattern:</p>
+                <pre><code>python tools/validate-pattern.py patterns/web/nginx.json</code></pre>
+                <p>Fix any issues that the validation tool reports.</p>
+            </div>
+            
+            <div class="step">
+                <h3>Step 8: Commit and Push Your Changes</h3>
+                <pre><code>git add patterns/web/nginx.json
+git commit -m "Add pattern for NGINX version detection"
+git push origin add-my-new-pattern</code></pre>
+            </div>
+            
+            <div class="step">
+                <h3>Step 9: Create a Pull Request</h3>
+                <p>Go to your fork on GitHub and create a pull request to merge your changes into the main repository.</p>
+            </div>
+            
+            <h2>Best Practices</h2>
+            
+            <div class="tip">
+                <h3>Research Thoroughly</h3>
+                <p>Spend time understanding how the software reports its version in different contexts. Look at official documentation, community forums, and real-world examples.</p>
+            </div>
+            
+            <div class="tip">
+                <h3>Be Specific</h3>
+                <p>Make your patterns specific enough to avoid false positives, but flexible enough to catch variations in version formatting.</p>
+            </div>
+            
+            <div class="tip">
+                <h3>Test Extensively</h3>
+                <p>Include comprehensive test cases that cover normal cases, edge cases, and examples that should not match.</p>
+            </div>
+            
+            <div class="tip">
+                <h3>Follow the Template</h3>
+                <p>Use our standard pattern template and fill out all required fields with accurate information.</p>
+            </div>
+            
+            <h2>Need Help?</h2>
+            <p>If you need assistance:</p>
+            <ul>
+                <li>Check our <a href="../../patterns/CONTRIBUTING.md">contribution guidelines</a></li>
+                <li>Look at existing patterns as examples</li>
+                <li>Open an issue on GitHub with your question</li>
+                <li>Join our community discussions</li>
+            </ul>
+            
+            <a href="good-first-issues.html" class="cta-button">Find Good First Issues</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Version Detection Pattern Database. Open Source under MIT License.</p>
+        </div>
+    </footer>
+</body>
+</html>

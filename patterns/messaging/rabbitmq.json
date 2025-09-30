@@ -1,0 +1,50 @@
+{
+  "patterns": [
+    {
+      "name": "RabbitMQ - Management UI",
+      "category": "messaging",
+      "pattern": "RabbitMQ ([\\d.]+)",
+      "vendor": "VMware",
+      "product": "RabbitMQ",
+      "version_group": 1,
+      "priority": 150,
+      "confidence": 0.85,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects RabbitMQ version from the management UI title or footer. This can be found when accessing the web management interface.",
+        "tags": ["messaging", "rabbitmq", "amqp", "queue"],
+        "test_cases": [
+          {
+            "input": "<div class=\"version\">RabbitMQ 3.11.10</div>",
+            "expected_version": "3.11.10"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RabbitMQ - Server Banner",
+      "category": "messaging",
+      "pattern": "RabbitMQ ([\\d.]+)\\.?",
+      "vendor": "VMware",
+      "product": "RabbitMQ",
+      "version_group": 1,
+      "priority": 160,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects RabbitMQ version from server banners or startup messages. This pattern matches the standard banner format.",
+        "tags": ["messaging", "rabbitmq", "amqp", "queue"],
+        "test_cases": [
+          {
+            "input": "RabbitMQ 3.10.5. Copyright (c) 2007-2022 VMware, Inc. or its affiliates.",
+            "expected_version": "3.10.5."
+          }
+        ]
+      }
+    }
+  ]
+}

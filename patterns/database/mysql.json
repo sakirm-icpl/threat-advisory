@@ -1,0 +1,27 @@
+{
+  "patterns": [
+    {
+      "name": "MySQL Database",
+      "category": "database",
+      "pattern": "MySQL ([\\d.]+)",
+      "vendor": "Oracle",
+      "product": "MySQL",
+      "version_group": 1,
+      "priority": 150,
+      "confidence": 0.8,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects MySQL version from various sources including error messages and banners. This is a general pattern that may need refinement for specific contexts.",
+        "tags": ["database", "mysql", "oracle"],
+        "test_cases": [
+          {
+            "input": "ERROR 1045 (28000): Access denied for user 'user'@'localhost' (using password: YES) MySQL 8.0.28",
+            "expected_version": "8.0.28"
+          }
+        ]
+      }
+    }
+  ]
+}
