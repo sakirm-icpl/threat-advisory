@@ -1,37 +1,31 @@
 ---
 name: Feature Request
-about: Suggest an idea or enhancement for VersionIntel
+about: Suggest an idea for the Threat Advisory Platform
 title: '[FEATURE] '
 labels: enhancement
 assignees: ''
 
 ---
 
-## Feature Description
-A clear and concise description of the feature or enhancement you'd like to see.
-
 ## Problem Statement
-Is your feature request related to a problem? Please describe:
-- What problem does this solve?
-- How does this improve VersionIntel?
+A clear and concise description of the problem or limitation you've encountered. Ex. "I'm always frustrated when I try to [...]"
 
 ## Proposed Solution
-A clear and concise description of what you want to happen:
-- How should the feature work?
-- What functionality should it provide?
+A clear and concise description of what you want to happen or what feature you'd like to see added.
 
 ## Alternative Solutions
 A clear and concise description of any alternative solutions or features you've considered.
 
-## Implementation Ideas
-If you have technical ideas about how this could be implemented:
-- Backend changes needed
-- Frontend components required
-- API modifications
-- Database schema updates
+## Use Case
+Describe how this feature would be used and who would benefit from it:
+- Security researchers
+- Threat intelligence analysts
+- SOC teams
+- Developers
+- Other
 
 ## Additional Context
-Add any other context, screenshots, or examples about the feature request here:
-- Mockups or diagrams
-- Similar features in other tools
-- Use cases this would support
+Add any other context, screenshots, or examples about the feature request here.
+
+## Implementation Ideas
+If you have ideas about how this feature could be implemented, please share them.

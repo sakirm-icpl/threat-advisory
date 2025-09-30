@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug or issue with VersionIntel
+about: Report errors or issues with the Threat Advisory Platform
 title: '[BUG] '
 labels: bug
 assignees: ''
@@ -26,16 +26,13 @@ A clear and concise description of what actually happened.
 ## Screenshots
 If applicable, add screenshots to help explain your problem.
 
-## Environment Information
-- **OS**: [e.g. Windows 10, macOS 12.0, Ubuntu 20.04]
-- **Browser**: [e.g. Chrome, Safari, Firefox]
-- **VersionIntel Version**: [e.g. v1.0.0]
-- **Installation Method**: [e.g. Docker, Manual Setup]
-- **Python Version**: [e.g. 3.9.0] (if applicable)
-- **Node.js Version**: [e.g. 16.14.0] (if applicable)
+## Environment (please complete the following information):
+- OS: [e.g. Windows, macOS, Linux]
+- Browser [e.g. chrome, safari] (if applicable)
+- Version [e.g. 22]
 
 ## Additional Context
 Add any other context about the problem here, such as:
-- Error messages or logs
-- Recent changes made to the system
-- Workarounds you've tried
+- Did this work in a previous version?
+- Are there any related issues?
+- Any potential solutions you've considered?

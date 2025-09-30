@@ -1,51 +1,70 @@
-# VersionIntel Data Repository
+# Product and Vendor Database
 
-This directory contains structured data about software products and their detection methods for version identification.
+This directory contains structured information about software products and vendors that are referenced in the version detection patterns.
 
-## Directory Structure
+## Files
 
-- `products/` - Vendor and product information
-- `service-patterns/` - Detection patterns organized by category
-- `vulnerabilities/` - Vulnerability data (if applicable)
-- `ai-research/` - AI research data (if applicable)
+- `vendors.json` - Database of software vendors
+- `products.json` - Database of software products
 
-## Products Data
+## Vendor Database Structure
 
-The `products/` directory contains structured information about software vendors and products:
+```json
+{
+  "vendors": [
+    {
+      "id": "unique-vendor-id",
+      "name": "Vendor Name",
+      "website": "https://vendor-website.com",
+      "description": "Brief description of the vendor",
+      "metadata": {
+        "created_at": "YYYY-MM-DDTHH:MM:SS",
+        "updated_at": "YYYY-MM-DDTHH:MM:SS"
+      }
+    }
+  ]
+}
+```
 
-- `vendors.json` - List of software vendors
-- `products.json` - List of software products with their attributes
+## Product Database Structure
 
-## Service Detection Patterns
+```json
+{
+  "products": [
+    {
+      "id": "unique-product-id",
+      "name": "Product Name",
+      "vendor_id": "vendor-id-reference",
+      "description": "Brief description of the product",
+      "categories": ["web-server", "database", "application"],
+      "website": "https://product-website.com",
+      "first_release": "YYYY-MM-DD",
+      "cpe": "cpe:/a:vendor:product",
+      "metadata": {
+        "created_at": "YYYY-MM-DDTHH:MM:SS",
+        "updated_at": "YYYY-MM-DDTHH:MM:SS"
+      }
+    }
+  ]
+}
+```
 
-The `service-patterns/` directory contains detection patterns organized by category:
+## Purpose
 
-### Categories
-- `networking/` - Network service detection patterns (FTP, SSH, etc.)
-- `web/` - Web application detection patterns
-- `database/` - Database detection patterns
+This database serves to:
 
-### Pattern Files
-
-Each pattern file follows the format specified in `TEMPLATE.md` and contains:
-
-- Name and category
-- Regular expression pattern with version capture group
-- Vendor and product information
-- Priority and confidence levels
-- Metadata with author information and test cases
+1. Provide detailed information about vendors and products referenced in patterns
+2. Enable cross-referencing between patterns and product information
+3. Support vulnerability mapping and CVE correlation
+4. Facilitate product categorization and filtering
 
 ## Contributing
 
-See `CONTRIBUTING-DETECTION-METHODS.md` for guidelines on how to contribute new detection methods.
+When contributing new patterns, please also add relevant vendor and product information to these databases if they don't already exist.
 
 ## Validation
 
-Pattern files can be validated using the `validate-pattern.py` script:
-
-```bash
-python validate-pattern.py <pattern-file.json>
-```
+These files can be validated using standard JSON validation tools.
 
 ## License
 

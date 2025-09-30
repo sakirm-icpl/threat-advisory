@@ -1,66 +1,79 @@
-# VersionIntel Data Repository Documentation
+# Threat Advisory Platform Documentation
 
-Welcome to the VersionIntel Data Repository documentation. This guide will help you understand and contribute to the VersionIntel data collection - a community-driven repository of service detection patterns and security research data.
+Welcome to the documentation for the Threat Advisory Platform!
 
 ## Table of Contents
+- [Introduction](#introduction)
+- [Getting Started](#getting-started)
+- [User Guides](#user-guides)
+- [Community Resources](#community-resources)
+- [Development](#development)
 
-### 👥 Community
-- [Data Contribution Guide](https://github.com/sakirm-icpl/versionintel/blob/main/docs/community/data-contribution.md) - How to contribute detection patterns and data
-- [Adding New Data](https://github.com/sakirm-icpl/versionintel/blob/main/docs/community/adding-new-data.md) - Detailed instructions for data contributions
-- [Contributing Guide](https://github.com/sakirm-icpl/versionintel/blob/main/CONTRIBUTING.md) - General contribution guidelines
-- [Code of Conduct](https://github.com/sakirm-icpl/versionintel/blob/main/CODE_OF_CONDUCT.md) - Community standards and expectations
+## Introduction
 
-## Overview
+The Threat Advisory Platform is an open-source cybersecurity threat intelligence repository designed to help security researchers, developers, and organizations stay informed about emerging threats, vulnerabilities, and security advisories.
 
-VersionIntel Data Repository is a community-driven collection of service detection patterns, vendor/product information, vulnerability mappings, and AI research data. The data in this repository helps identify software versions through pattern matching and AI analysis.
+Our platform provides:
+- Community-driven security advisories
+- Structured threat intelligence reports
+- Machine-readable JSON data for tool integration
+- Open-source collaboration under MIT license
 
-## Repository Structure
+## Getting Started
 
-```
-versionintel/
-├── data/                    # Structured data for community contributions
-│   ├── service-patterns/   # Service detection patterns organized by type
-│   │   ├── database/       # Database service patterns
-│   │   ├── networking/     # Networking service patterns
-│   │   ├── web/            # Web service patterns
-│   │   ├── application/    # Application-specific patterns
-│   │   ├── TEMPLATE.md     # Template for service patterns
-│   │   └── CONTRIBUTING-DETECTION-METHODS.md # Guide for detection methods
-│   ├── products/           # Vendor and product information
-│   ├── vulnerabilities/    # CVE and vulnerability mappings
-│   ├── ai-research/        # AI training data and research findings
-│   ├── README.md           # Guide to data structure and contribution
-│   └── CONTRIBUTING-PLAYBOOK.md # Step-by-step contribution guide
-├── docs/                   # Documentation for contributors
-│   ├── community/          # Community contribution guides
-│   └── index.html          # Static website for GitHub Pages
-└── .github/                # GitHub integration files
-```
+If you're new to the Threat Advisory Platform, start here:
 
-## Data Contribution Resources
+- [Getting Started Guide](community/getting-started.md) - Introduction for new contributors and users
+- [Data Structure Overview](../data/README.md) - Understanding our threat intelligence data organization
+- [Contribution Guidelines](../CONTRIBUTING.md) - How to contribute to the project
 
-For detailed information on contributing different types of data, see:
+## User Guides
 
-- [Data Repository Guide](https://github.com/sakirm-icpl/versionintel/blob/main/data/README.md) - Complete data structure and contribution guidelines
-- [Contribution Playbook](https://github.com/sakirm-icpl/versionintel/blob/main/data/CONTRIBUTING-PLAYBOOK.md) - Step-by-step contribution instructions
-- [Detection Methods Guide](https://github.com/sakirm-icpl/versionintel/blob/main/data/service-patterns/CONTRIBUTING-DETECTION-METHODS.md) - How to contribute service detection patterns
-- [Service Patterns Template](https://github.com/sakirm-icpl/versionintel/blob/main/data/service-patterns/TEMPLATE.md) - Template for service detection patterns
-- [Products Template](https://github.com/sakirm-icpl/versionintel/blob/main/data/products/TEMPLATE.md) - Template for vendor/product information
-- [Vulnerabilities Template](https://github.com/sakirm-icpl/versionintel/blob/main/data/vulnerabilities/TEMPLATE.md) - Template for CVE mappings
-- [AI Research Template](https://github.com/sakirm-icpl/versionintel/blob/main/data/ai-research/TEMPLATE.md) - Template for research data
+### For Security Researchers
+- [Contributing Threat Intelligence](community/contributing-threat-intelligence.md) - How to submit security advisories and threat reports
+- [Research Methodology](community/research-methodology.md) - Best practices for cybersecurity research
 
-## Getting Help
+### For Security Teams
+- [Using Threat Data](community/using-threat-data.md) - How to integrate our data with security tools
+- [Consuming Advisory Data](../data/README.md) - Working with security advisory information
 
-If you need help with contributing to the VersionIntel Data Repository:
+### For Developers
+- [API Documentation](#) - (Coming Soon) Programmatic access to threat data
+- [Validation Scripts](../data/validate-advisory.py) - Tools for validating threat intelligence data
 
-1. **Check Documentation**: Start with the guides in the [data/](https://github.com/sakirm-icpl/versionintel/tree/main/data) directory
-2. **GitHub Issues**: Report issues or request new pattern categories
-3. **GitHub Discussions**: Ask questions and connect with the community
+## Community Resources
 
-## Contributing
+### Participation
+- [Code of Conduct](../CODE_OF_CONDUCT.md) - Our community standards
+- [Community Discussions](https://github.com/sakirm-icpl/threat-advisory/discussions) - Engage with other community members
+- [Issue Tracker](https://github.com/sakirm-icpl/threat-advisory/issues) - Report bugs and request features
 
-We welcome contributions from the community! See our [Contributing Guide](https://github.com/sakirm-icpl/versionintel/blob/main/CONTRIBUTING.md) for details on how to get involved.
+### Contribution
+- [Good First Issues](https://github.com/sakirm-icpl/threat-advisory/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) - Issues suitable for newcomers
+- [Help Wanted](https://github.com/sakirm-icpl/threat-advisory/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) - Opportunities for more experienced contributors
+- [Governance](../GOVERNANCE.md) - How the project is managed
+
+## Development
+
+### Project Information
+- [Changelog](../CHANGELOG.md) - History of changes to the platform
+- [Roadmap](#) - (Coming Soon) Future development plans
+- [Security Policy](../SECURITY.md) - How to report security vulnerabilities
+
+### Technical Documentation
+- [Data Validation](../data/validate-advisory.py) - Scripts for validating threat intelligence data
+- [JSON Schemas](#) - (Coming Soon) Detailed schema documentation
+- [API Reference](#) - (Coming Soon) Programmatic interface documentation
+
+## Support
+
+If you need help with the Threat Advisory Platform:
+
+1. Check the documentation in this directory
+2. Review existing issues and discussions
+3. Ask questions in [GitHub Discussions](https://github.com/sakirm-icpl/threat-advisory/discussions)
+4. Contact maintainers directly for complex issues
 
 ## License
 
-VersionIntel Data Repository is licensed under the MIT License. See the [LICENSE](https://github.com/sakirm-icpl/versionintel/blob/main/LICENSE) file for details.
+The Threat Advisory Platform documentation is licensed under the MIT License. See [LICENSE](../LICENSE) for details.

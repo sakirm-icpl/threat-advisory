@@ -12,34 +12,42 @@ Please delete options that are not relevant.
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] This change requires a documentation update
-- [ ] Data contribution (new patterns, products, etc.)
+- [ ] Data contribution (new advisories, threat reports, etc.)
 
 ## How Has This Been Tested?
 Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration.
 
-- [ ] Test A
-- [ ] Test B
+- [ ] Validated JSON data with validation script
+- [ ] Verified data accuracy and completeness
+- [ ] Checked for proper categorization and severity levels
+- [ ] Confirmed following appropriate templates
 
 **Test Configuration**:
-* Firmware version:
-* Hardware:
-* Toolchain:
-* SDK:
+* Data validation script version:
+* JSON schema version:
+* Testing environment:
 
 ## Checklist
 Please delete options that are not relevant.
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my code
-- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] My contribution follows the threat advisory templates
+- [ ] I have validated my JSON data using the validation script
+- [ ] I have performed a self-review of my data
+- [ ] I have provided sufficient technical details
+- [ ] I have cited sources appropriately
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published in downstream modules
-- [ ] I have checked my code and corrected any misspellings
+- [ ] I have checked my data and corrected any misspellings
+- [ ] I understand that my contribution will be reviewed by the community
 
-## Screenshots (if appropriate)
+## Summary of Changes
+Please provide a brief summary of your contribution:
+- What type of threat intelligence are you contributing?
+- Which vulnerability/threat does it address?
+- What key information does it provide?
 
 ## Additional Context
-Add any other context about the pull request here.
+Add any other context about the pull request here, such as:
+- Related research or previous discussions
+- Special considerations for reviewers
+- Any questions or concerns about the data

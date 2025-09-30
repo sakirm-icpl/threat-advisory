@@ -1,63 +1,54 @@
 ---
-name: Data Contribution
-about: Contribute new detection patterns or data to VersionIntel
+name: Threat Intelligence Contribution
+about: Contribute security advisories, threat reports, or other threat intelligence data
 title: '[DATA] '
-labels: data, contribution
+labels: data-contribution
 assignees: ''
 
 ---
 
-## Data Contribution Type
-What type of data are you contributing?
-- [ ] Service Detection Patterns
-- [ ] Product/Vendor Information
-- [ ] CVE Mappings
-- [ ] AI Research Data
+## Contribution Type
+What type of threat intelligence are you contributing?
+
+- [ ] Security Advisory
+- [ ] Threat Report
+- [ ] Indicator of Compromise (IOC)
+- [ ] Vulnerability Mapping
 - [ ] Other (please specify)
 
-## Description
-A clear and concise description of the data you're contributing:
-- What service/product does this relate to?
-- Why is this data valuable to VersionIntel?
+## Summary
+Provide a brief summary of your contribution:
+- For advisories: Which vulnerability are you reporting?
+- For threat reports: Which threat are you documenting?
+- For IOCs: What malicious activity do these indicators relate to?
 
-## Data Details
+## Technical Details
+Provide technical details about the threat:
+- Affected software/products (if applicable)
+- Version information
+- Exploitation requirements
+- Impact assessment
 
-### For Service Detection Patterns:
-- Service name:
-- Common versions:
-- Banner patterns:
-- Port information:
-- Additional identifiers:
+## Indicators of Compromise (IOCs)
+If applicable, list any IOCs:
+- IP addresses
+- Domain names
+- File hashes
+- Network signatures
+- Other indicators
 
-### For Product/Vendor Information:
-- Product name:
-- Vendor/Company:
-- Website:
-- Common versions:
-- Vulnerability history:
+## References
+Include links to supporting information:
+- CVE entries
+- Vendor advisories
+- Research papers
+- Related reports
 
-### For CVE Mappings:
-- CVE ID:
-- Affected products/versions:
-- CVSS Score:
-- Patch information:
+## Validation
+- [ ] I have validated my JSON data using the validation script
+- [ ] My contribution follows the appropriate template
+- [ ] I have provided sufficient technical details
+- [ ] I have cited sources appropriately
 
-### For AI Research Data:
-- Research topic:
-- Findings summary:
-- Data sources:
-- Methodology:
-
-## Verification
-How has this data been verified?
-- [ ] Tested with VersionIntel platform
-- [ ] Cross-referenced with official sources
-- [ ] Validated against real-world examples
-- [ ] Peer reviewed
-
-## Additional Context
-Add any other context about the data contribution:
-- References to documentation
-- Links to source materials
-- Screenshots or examples
-- Testing results
+## Additional Information
+Any other relevant information about your contribution.

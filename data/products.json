@@ -1,0 +1,46 @@
+{
+  "products": [
+    {
+      "id": "apache-httpd",
+      "name": "HTTPD",
+      "vendor_id": "apache",
+      "description": "The Apache HTTP Server, colloquially called Apache, is a free and open-source cross-platform web server software.",
+      "categories": ["web-server"],
+      "website": "https://httpd.apache.org",
+      "first_release": "1995-04-01",
+      "cpe": "cpe:/a:apache:http_server",
+      "metadata": {
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00"
+      }
+    },
+    {
+      "id": "openssh",
+      "name": "OpenSSH",
+      "vendor_id": "openbsd",
+      "description": "OpenSSH is a suite of secure networking utilities based on the Secure Shell protocol, which provides a secure channel over an unsecured network.",
+      "categories": ["network-service"],
+      "website": "https://openssh.com",
+      "first_release": "1999-10-01",
+      "cpe": "cpe:/a:openbsd:openssh",
+      "metadata": {
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00"
+      }
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "vendor_id": "oracle",
+      "description": "MySQL is an open-source relational database management system.",
+      "categories": ["database"],
+      "website": "https://mysql.com",
+      "first_release": "1995-05-23",
+      "cpe": "cpe:/a:oracle:mysql",
+      "metadata": {
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00"
+      }
+    }
+  ]
+}

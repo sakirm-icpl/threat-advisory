@@ -1,0 +1,31 @@
+{
+  "patterns": [
+    {
+      "name": "MySQL Server",
+      "category": "database",
+      "pattern": "([\\d.]+)-MySQL",
+      "vendor": "Oracle",
+      "product": "MySQL",
+      "version_group": 1,
+      "priority": 160,
+      "confidence": 0.9,
+      "metadata": {
+        "author": "Security Scanner Team",
+        "created_at": "2024-01-01T00:00:00",
+        "updated_at": "2024-01-01T00:00:00",
+        "description": "Detects MySQL version from service banner. This pattern matches the version string commonly returned in MySQL service banners.",
+        "tags": ["mysql", "database"],
+        "test_cases": [
+          {
+            "input": "5.7.31-MySQL Community Server (GPL)",
+            "expected_version": "5.7.31"
+          },
+          {
+            "input": "8.0.26-MySQL Community Server - GPL",
+            "expected_version": "8.0.26"
+          }
+        ]
+      }
+    }
+  ]
+}
