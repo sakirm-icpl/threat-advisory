@@ -11,6 +11,7 @@ Thank you for your interest in contributing to the Version Detection Pattern Dat
 - [Documentation Improvements](#documentation-improvements)
 - [Code Quality](#code-quality)
 - [Community](#community)
+- [Detailed Pull Request Process](#detailed-pull-request-process)
 
 ## Code of Conduct
 
@@ -97,12 +98,133 @@ We encourage a welcoming and supportive community:
 4. Share knowledge and expertise
 5. Participate in discussions
 
+## Detailed Pull Request Process
+
+### Before Creating a Pull Request
+
+1. **Ensure your fork is up to date**:
+   ```bash
+   git remote add upstream https://github.com/sakirm-icpl/threat-advisory.git
+   git fetch upstream
+   git checkout master
+   git merge upstream/master
+   ```
+
+2. **Rebase your feature branch** (if needed):
+   ```bash
+   git checkout your-feature-branch
+   git rebase master
+   ```
+
+3. **Run validation tools**:
+   ```bash
+   # For pattern files
+   python tools/validate-pattern.py patterns/your-category/your-pattern.json
+   
+   # For all patterns (optional but recommended)
+   python tools/validate-all-patterns.py
+   ```
+
+4. **Check your changes**:
+   ```bash
+   git diff
+   git status
+   ```
+
+### Creating Your Pull Request
+
+1. **Push your changes to your fork**:
+   ```bash
+   git push origin your-feature-branch
+   ```
+
+2. **Navigate to your fork on GitHub**:
+   - Go to https://github.com/YOUR-USERNAME/threat-advisory
+   - Switch to your feature branch
+
+3. **Create the Pull Request**:
+   - Click the "Compare & pull request" button
+   - Or click "New pull request" and select your branch
+
+4. **Fill out the Pull Request Template**:
+   - **Title**: Use a clear, descriptive title
+   - **Description**: Include:
+     * What changes you made
+     * Why you made them
+     * How you tested them
+     * Any related issues (e.g., "Closes #123")
+
+5. **Submit the Pull Request**:
+   - Click "Create pull request"
+
+### After Submitting Your Pull Request
+
+1. **Monitor your PR**:
+   - Check for automated CI status
+   - Respond to any reviewer comments promptly
+   - Make requested changes in new commits
+
+2. **Update your PR if needed**:
+   ```bash
+   # Make changes locally
+   git add .
+   git commit -m "Address review feedback"
+   git push origin your-feature-branch
+   ```
+
+3. **Respond to feedback**:
+   - Be open to suggestions
+   - Ask questions if something is unclear
+   - Thank reviewers for their time
+
+### Pull Request Best Practices
+
+1. **Keep PRs focused**:
+   - One PR should address one specific issue or feature
+   - Avoid combining unrelated changes
+
+2. **Write good commit messages**:
+   - Use present tense ("Add pattern for..." not "Added pattern for...")
+   - Be specific and concise
+   - Reference issues when applicable
+
+3. **Include tests when possible**:
+   - Add test cases for pattern contributions
+   - Ensure all existing tests still pass
+
+4. **Follow the project's style**:
+   - Match the existing code and documentation style
+   - Use the established patterns and conventions
+
+### Common Pull Request Scenarios
+
+#### Adding a New Pattern
+1. Create a new JSON file in the appropriate category directory
+2. Follow the pattern template exactly
+3. Include comprehensive test cases
+4. Validate with the pattern validation tool
+5. Update any relevant documentation
+
+#### Fixing an Existing Pattern
+1. Identify the issue with the existing pattern
+2. Make minimal changes to fix the issue
+3. Add test cases to prevent regression
+4. Validate the updated pattern
+5. Update documentation if needed
+
+#### Improving Documentation
+1. Identify areas that need improvement
+2. Make clear, concise changes
+3. Check for grammar and spelling
+4. Ensure technical accuracy
+5. Follow the existing documentation style
+
 ## Questions?
 
 If you have questions about contributing, feel free to:
 
 1. Open an issue for general questions
 2. Contact the maintainers directly
-3. Check our [documentation site](http://172.17.14.65:3000/) for more information
+3. Check our [documentation site](https://sakirm-icpl.github.io/threat-advisory/) for more information
 
 Thank you for helping make the Version Detection Pattern Database better for everyone!

@@ -48,8 +48,8 @@ Every pattern must include test cases that:
 Example test case structure:
 ```json
 {
-  "input": "Sample text containing version",
-  "expected_version": "Extracted version string"
+  "input": "Sample input text that should match the pattern",
+  "expected_version": "Expected version string"
 }
 ```
 
@@ -77,6 +77,68 @@ Confidence represents how accurately the pattern extracts versions:
 | 0.3-0.49 | Low | Often inaccurate or inconsistent |
 | 0.0-0.29 | Very Low | Frequently produces incorrect results |
 
+## Detailed Pull Request Process for Patterns
+
+### Before Creating a Pull Request
+
+1. **Validate your pattern**:
+   ```bash
+   python ../tools/validate-pattern.py your-new-pattern.json
+   ```
+
+2. **Check for duplicates**:
+   - Search the existing patterns to ensure your pattern doesn't already exist
+   - Consider if your pattern is significantly different from existing ones
+
+3. **Review your pattern**:
+   - Ensure all required fields are filled out
+   - Check that your regex is correctly escaped
+   - Verify all test cases pass
+   - Confirm metadata is accurate and complete
+
+### Creating Your Pull Request
+
+1. **Commit your changes**:
+   ```bash
+   git add patterns/category/your-pattern.json
+   git commit -m "feat: Add pattern for Product Name version detection"
+   ```
+
+2. **Push to your fork**:
+   ```bash
+   git push origin your-feature-branch
+   ```
+
+3. **Create the Pull Request**:
+   - Navigate to your fork on GitHub
+   - Switch to your branch
+   - Click "Compare & pull request"
+
+4. **Complete the PR description**:
+   - **Title**: "feat: Add pattern for [Product Name]"
+   - **Description**: Include:
+     * What software the pattern detects
+     * Where the version information is typically found
+     * How you validated the pattern
+     * Any special considerations
+
+### After Submitting Your Pull Request
+
+1. **Monitor automated checks**:
+   - Our CI will automatically validate your pattern
+   - Fix any issues identified by the validation
+
+2. **Respond to reviewer feedback**:
+   - Make requested changes promptly
+   - Ask questions if feedback is unclear
+   - Push updates to your branch
+
+3. **Address common review comments**:
+   - **Insufficient test cases**: Add more positive and negative examples
+   - **Low confidence score**: Improve the regex or adjust the score based on testing
+   - **Inaccurate metadata**: Correct any factual errors
+   - **Poor description**: Clarify what the pattern detects
+
 ## Review Process
 
 All contributions go through a review process:
@@ -103,4 +165,4 @@ If you have questions about contributing, feel free to:
 
 1. Open an issue for general questions
 2. Contact the maintainers directly
-3. Check our [documentation site](http://172.17.14.65:3000/) for more information
+3. Check our [documentation site](https://sakirm-icpl.github.io/threat-advisory/) for more information
