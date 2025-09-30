@@ -103,4 +103,4 @@ If you have questions about contributing, feel free to:
 
 1. Open an issue for general questions
 2. Contact the maintainers directly
-3. Check our [documentation site](https://version-detection-db.github.io/threat-advisory/) for more information
+3. Check our [documentation site](http://172.17.14.65:3000/) for more information

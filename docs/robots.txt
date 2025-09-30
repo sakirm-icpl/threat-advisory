@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://version-detection-db.github.io/threat-advisory/sitemap.xml
+Sitemap: https://sakirm-icpl.github.io/threat-advisory/sitemap.xml
